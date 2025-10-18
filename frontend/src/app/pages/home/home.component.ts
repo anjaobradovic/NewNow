@@ -1,4 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -10,79 +18,132 @@ import { Event, Location } from '../../models/event.model';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-autumn-cream via-neutral-50 to-white">
-      <!-- Hero Section -->
-      <section class="relative overflow-hidden pt-12 pb-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Hero Section with Video Background -->
+      <section class="relative overflow-hidden pt-12 pb-20 min-h-[600px] flex items-center">
+        <!-- Video Background with rotation and fade -->
+        <div class="absolute inset-0 z-0">
+          @for (video of videos; track video; let i = $index) {
+          <video
+            #videoElement
+            [class.opacity-100]="currentVideoIndex() === i"
+            [class.opacity-0]="currentVideoIndex() !== i"
+            [class.pointer-events-none]="currentVideoIndex() !== i"
+            [muted]="true"
+            [autoplay]="i === 0"
+            [loop]="true"
+            playsinline
+            preload="auto"
+            class="absolute w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+            (loadeddata)="onVideoLoaded($event, i)"
+            (canplay)="onVideoCanPlay($event, i)"
+          >
+            <source [src]="video" type="video/mp4" />
+          </video>
+          }
+          <!-- Darker overlay for better readability -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-neutral-900/80 via-neutral-900/75 to-neutral-800/80 z-10"
+          ></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div class="text-center animate-fade-in">
-            <h1 class="text-5xl md:text-6xl font-bold text-neutral-900 mb-6 leading-tight">
+            <h1
+              class="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl"
+            >
               Discover Amazing
               <span
-                class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 mt-2"
+                class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-primary-300 to-primary-500 mt-2"
               >
                 Events Around You
               </span>
             </h1>
-            <p class="text-xl text-neutral-600 mb-10 max-w-2xl mx-auto">
+            <p class="text-xl text-neutral-100 mb-10 max-w-2xl mx-auto drop-shadow-lg">
               Find and explore the best events, venues, and experiences in your city
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4 items-center">
-              <a routerLink="/events" class="btn-primary w-full sm:w-auto"> Explore Events </a>
-              <a routerLink="/locations" class="btn-secondary w-full sm:w-auto">
+              <a
+                routerLink="/events"
+                class="inline-flex items-center justify-center px-8 py-3 text-base font-semibold rounded-xl bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto"
+              >
+                Explore Events
+              </a>
+              <a
+                routerLink="/locations"
+                class="inline-flex items-center justify-center px-8 py-3 text-base font-semibold rounded-xl bg-white hover:bg-neutral-50 text-neutral-900 shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto"
+              >
                 Browse Locations
               </a>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Floating decorative elements - subtle autumn leaves -->
+      <!-- Today's Events -->
+      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 overflow-hidden">
+        <!-- Floating decorative elements - soft background elements -->
         <div
-          class="absolute top-20 right-10 opacity-10 hidden lg:block"
+          class="absolute -top-10 right-10 opacity-[0.03] hidden lg:block -z-10"
           style="animation: float 6s ease-in-out infinite;"
         >
-          <svg class="w-24 h-24 text-autumn-rust" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-32 h-32 text-autumn-cream" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
             />
           </svg>
         </div>
         <div
-          class="absolute bottom-20 left-10 opacity-10 hidden lg:block"
+          class="absolute top-1/2 left-10 opacity-[0.03] hidden lg:block -z-10"
           style="animation: float 7s ease-in-out infinite 1s;"
         >
-          <svg class="w-28 h-28 text-autumn-terracotta" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-36 h-36 text-autumn-cream" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
             />
           </svg>
         </div>
         <div
-          class="absolute top-40 left-1/4 opacity-5 hidden lg:block"
+          class="absolute top-40 left-1/4 opacity-[0.02] hidden lg:block -z-10"
           style="animation: float 8s ease-in-out infinite 0.5s;"
         >
-          <svg class="w-20 h-20 text-primary-300" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-24 h-24 text-autumn-cream" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"
             />
           </svg>
         </div>
         <div
-          class="absolute top-1/3 right-1/4 opacity-8 hidden lg:block"
+          class="absolute bottom-20 right-1/4 opacity-[0.03] hidden lg:block -z-10"
           style="animation: float 9s ease-in-out infinite 2s;"
         >
-          <svg class="w-16 h-16 text-autumn-sand" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-20 h-20 text-autumn-cream" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
             />
           </svg>
         </div>
-      </section>
 
-      <!-- Today's Events -->
-      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-10">
+        <div class="flex items-center justify-between mb-10 relative z-10">
           <div>
-            <h2 class="text-3xl font-bold text-neutral-900">Today's Events</h2>
-            <p class="text-neutral-600 mt-2">Happening right now in your area</p>
+            <div class="flex items-center space-x-3 mb-2">
+              <svg
+                class="w-10 h-10 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <h2 class="text-4xl font-bold text-neutral-900">Today's Events</h2>
+            </div>
+            <p class="text-lg text-neutral-600 mt-2 ml-14">
+              Don't miss out on what's happening today
+            </p>
           </div>
           <a
             routerLink="/events"
@@ -519,20 +580,104 @@ import { Event, Location } from '../../models/event.model';
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
     `,
   ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
+  @ViewChildren('videoElement') videoElements!: QueryList<ElementRef<HTMLVideoElement>>;
+
   todayEvents = signal<Event[]>([]);
   popularLocations = signal<Location[]>([]);
   loadingEvents = signal(true);
   loadingLocations = signal(true);
+
+  // Video rotation state
+  currentVideoIndex = signal(0);
+  videos = [
+    '/assets/videos/hero-1.mp4',
+    '/assets/videos/hero-2.mp4',
+    '/assets/videos/hero-3.mp4',
+    '/assets/videos/hero-4.mp4',
+  ];
+
+  private videosLoaded = new Set<number>();
+  private videosCanPlay = new Set<number>();
 
   constructor(private eventService: EventService) {}
 
   ngOnInit(): void {
     this.loadTodayEvents();
     this.loadPopularLocations();
+  }
+
+  ngAfterViewInit(): void {
+    // Start rotation after videos are loaded
+    setTimeout(() => this.startVideoRotation(), 1000);
+  }
+
+  onVideoLoaded(event: any, index: number): void {
+    this.videosLoaded.add(index);
+  }
+
+  onVideoCanPlay(event: any, index: number): void {
+    const video = event.target as HTMLVideoElement;
+    this.videosCanPlay.add(index);
+
+    // Play the first video immediately when it can play
+    if (index === 0 && this.videosCanPlay.has(0)) {
+      video.muted = true;
+      video.play().catch((error) => {
+        console.log('Video autoplay failed, trying again...', error);
+        // Retry after a short delay
+        setTimeout(() => {
+          video.play().catch(() => {});
+        }, 100);
+      });
+    }
+  }
+
+  startVideoRotation(): void {
+    // Play current video
+    this.playCurrentVideo();
+
+    // Rotate to next video every 15 seconds with smooth fade
+    setInterval(() => {
+      const nextIndex = (this.currentVideoIndex() + 1) % this.videos.length;
+      this.currentVideoIndex.set(nextIndex);
+      this.playCurrentVideo();
+    }, 15000);
+  }
+
+  private playCurrentVideo(): void {
+    const videos = this.videoElements?.toArray();
+    if (!videos) return;
+
+    videos.forEach((videoRef, index) => {
+      const video = videoRef.nativeElement;
+      if (index === this.currentVideoIndex()) {
+        video.currentTime = 0;
+        video.muted = true;
+        video.play().catch((error) => {
+          console.log(`Failed to play video ${index}:`, error);
+          // Retry after a short delay
+          setTimeout(() => {
+            video.play().catch(() => {});
+          }, 100);
+        });
+      } else {
+        video.pause();
+      }
+    });
   }
 
   loadTodayEvents(): void {
