@@ -12,6 +12,7 @@ import rs.ftn.newnow.service.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
@@ -21,11 +22,16 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
+            log.info("=== REGISTER REQUEST RECEIVED for email: {} ===", request.getEmail());
             String message = authService.register(request);
-            return ResponseEntity.ok(message);
-        } catch (Exception e) {
-            log.error("Registration failed", e);
+            log.info("=== REGISTER SUCCESS: {} ===", message);
+            return ResponseEntity.ok().body(message);
+        } catch (IllegalArgumentException e) {
+            log.error("=== REGISTER VALIDATION ERROR: {} ===", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            log.error("=== REGISTER FAILED ===", e);
+            return ResponseEntity.internalServerError().body("Registration failed: " + e.getMessage());
         }
     }
 

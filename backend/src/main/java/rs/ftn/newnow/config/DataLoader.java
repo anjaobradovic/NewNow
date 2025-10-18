@@ -22,11 +22,16 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (administratorRepository.count() == 0) {
-            log.info("Initializing database with default data...");
+        long adminCount = administratorRepository.count();
+        log.info("=== DataLoader: Current administrator count: {}", adminCount);
+        
+        if (adminCount == 0) {
+            log.info("=== DataLoader: Initializing database with default data...");
             createAdministrators();
             createRegularUsers();
-            log.info("Database initialization completed!");
+            log.info("=== DataLoader: Database initialization completed!");
+        } else {
+            log.info("=== DataLoader: Skipping initialization - administrators already exist (count: {})", adminCount);
         }
     }
 

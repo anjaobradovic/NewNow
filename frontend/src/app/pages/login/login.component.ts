@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -130,12 +129,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private toastr: ToastrService
-  ) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -147,11 +141,16 @@ export class LoginComponent {
       this.isLoading = true;
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-          this.toastr.success('Welcome back!', 'Login Successful');
-          this.router.navigate(['/']);
+          // Redirect admin users to admin dashboard, others to home
+          const currentUser = this.authService.currentUser();
+          if (currentUser?.roles?.includes('ROLE_ADMIN')) {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         },
         error: (error) => {
-          this.toastr.error(error.error || 'Invalid credentials', 'Login Failed');
+          alert(error.error || 'Invalid credentials. Please try again.');
           this.isLoading = false;
         },
         complete: () => {

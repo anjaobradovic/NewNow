@@ -59,7 +59,14 @@ import { AuthService } from '../../services/auth.service';
             >
               Locations
             </a>
-            }
+            @if (isAdmin()) {
+            <a
+              routerLink="/admin"
+              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+            >
+              Admin Dashboard
+            </a>
+            } }
           </div>
 
           <!-- Auth Buttons -->
@@ -97,5 +104,10 @@ export class NavbarComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  isAdmin(): boolean {
+    const user = this.authService.currentUser();
+    return user?.roles?.includes('ROLE_ADMIN') || false;
   }
 }

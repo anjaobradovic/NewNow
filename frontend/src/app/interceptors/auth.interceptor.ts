@@ -6,7 +6,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  if (token) {
+  // Skip adding token for public auth endpoints
+  const isAuthEndpoint = req.url.includes('/api/auth/');
+  const isPublicEndpoint =
+    req.url.includes('/api/events/today') || req.url.includes('/api/locations/popular');
+
+  if (token && !isAuthEndpoint && !isPublicEndpoint) {
     const cloned = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`),
     });

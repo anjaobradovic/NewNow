@@ -239,19 +239,54 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       this.isLoading = true;
-      this.authService.register(this.registerForm.value).subscribe({
+
+      // Prepare request data - remove empty fields
+      const formValue = this.registerForm.value;
+      const requestData: any = {
+        email: formValue.email,
+        password: formValue.password,
+        name: formValue.name,
+        address: formValue.address,
+      };
+
+      // Add optional fields only if they have values
+      if (formValue.phoneNumber && formValue.phoneNumber.trim() !== '') {
+        requestData.phoneNumber = formValue.phoneNumber;
+      }
+      if (formValue.birthday) {
+        requestData.birthday = formValue.birthday;
+      }
+      if (formValue.city && formValue.city.trim() !== '') {
+        requestData.city = formValue.city;
+      }
+
+      console.log('Sending registration request:', requestData);
+
+      this.authService.register(requestData).subscribe({
         next: (message) => {
+          console.log('Registration success:', message);
           this.toastr.success(message, 'Registration Submitted');
           this.router.navigate(['/login']);
         },
         error: (error) => {
-          this.toastr.error(error.error || 'Registration failed', 'Error');
+          console.error('Registration error:', error);
+          const errorMsg =
+            typeof error.error === 'string'
+              ? error.error
+              : error.error?.message || error.message || 'Registration failed';
+          this.toastr.error(errorMsg, 'Error');
           this.isLoading = false;
         },
         complete: () => {
           this.isLoading = false;
         },
       });
+    } else {
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.registerForm.controls).forEach((key) => {
+        this.registerForm.get(key)?.markAsTouched();
+      });
+      this.toastr.warning('Please fill in all required fields', 'Validation Error');
     }
   }
 }
