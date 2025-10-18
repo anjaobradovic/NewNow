@@ -11,18 +11,25 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div
-      class="min-h-screen flex items-center justify-center bg-gradient-to-br from-autumn-cream via-neutral-50 to-autumn-sand py-12 px-4 sm:px-6 lg:px-8"
+      class="h-screen flex items-center justify-center bg-gradient-to-br from-autumn-cream via-neutral-50 to-autumn-sand px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div class="max-w-md w-full space-y-8 animate-slide-up">
         <!-- Header -->
         <div class="text-center">
           <div
-            class="mx-auto w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+            class="mx-auto w-16 h-16 bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-105 transition-all duration-200"
           >
-            <span class="text-white font-bold text-2xl">N</span>
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+              />
+            </svg>
           </div>
-          <h2 class="text-3xl font-bold text-neutral-900">Welcome back</h2>
-          <p class="mt-2 text-neutral-600">Sign in to discover amazing events</p>
+          <h2 class="text-3xl font-bold text-neutral-900 mb-2">Welcome back</h2>
+          <p class="text-neutral-600">Sign in to discover amazing events</p>
         </div>
 
         <!-- Form -->
@@ -38,13 +45,13 @@ import { AuthService } from '../../services/auth.service';
                 type="email"
                 formControlName="email"
                 class="input-field"
-                [class.border-red-500]="
+                [class.border-red-400]="
                   loginForm.get('email')?.invalid && loginForm.get('email')?.touched
                 "
                 placeholder="your@email.com"
               />
               @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-              <p class="mt-1 text-sm text-red-600">Please enter a valid email</p>
+              <p class="mt-2 text-sm text-red-600">Please enter a valid email</p>
               }
             </div>
 
@@ -58,13 +65,13 @@ import { AuthService } from '../../services/auth.service';
                 type="password"
                 formControlName="password"
                 class="input-field"
-                [class.border-red-500]="
+                [class.border-red-400]="
                   loginForm.get('password')?.invalid && loginForm.get('password')?.touched
                 "
                 placeholder="••••••••"
               />
               @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-              <p class="mt-1 text-sm text-red-600">Password is required</p>
+              <p class="mt-2 text-sm text-red-600">Password is required</p>
               }
             </div>
 

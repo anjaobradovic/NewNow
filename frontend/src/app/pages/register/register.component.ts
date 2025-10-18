@@ -11,18 +11,25 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
     <div
-      class="min-h-screen flex items-center justify-center bg-gradient-to-br from-autumn-cream via-neutral-50 to-autumn-sand py-12 px-4 sm:px-6 lg:px-8"
+      class="h-screen flex items-center justify-center bg-gradient-to-br from-autumn-cream via-neutral-50 to-autumn-sand px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      <div class="max-w-2xl w-full space-y-8 animate-slide-up">
+      <div class="max-w-2xl w-full space-y-6 animate-slide-up">
         <!-- Header -->
         <div class="text-center">
           <div
-            class="mx-auto w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mb-4 shadow-lg"
+            class="mx-auto w-16 h-16 bg-gradient-to-br from-primary-400 via-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-105 transition-all duration-200"
           >
-            <span class="text-white font-bold text-2xl">N</span>
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+              />
+            </svg>
           </div>
-          <h2 class="text-3xl font-bold text-neutral-900">Create your account</h2>
-          <p class="mt-2 text-neutral-600">Join us to discover and explore amazing events</p>
+          <h2 class="text-3xl font-bold text-neutral-900 mb-2">Create your account</h2>
+          <p class="text-neutral-600">Join us to discover and explore amazing events</p>
         </div>
 
         <!-- Form -->
@@ -40,13 +47,13 @@ import { AuthService } from '../../services/auth.service';
                   type="text"
                   formControlName="name"
                   class="input-field"
-                  [class.border-red-500]="
+                  [class.border-red-400]="
                     registerForm.get('name')?.invalid && registerForm.get('name')?.touched
                   "
                   placeholder="John Doe"
                 />
                 @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Name is required</p>
+                <p class="mt-2 text-sm text-red-600">Name is required</p>
                 }
               </div>
 
@@ -60,13 +67,13 @@ import { AuthService } from '../../services/auth.service';
                   type="email"
                   formControlName="email"
                   class="input-field"
-                  [class.border-red-500]="
+                  [class.border-red-400]="
                     registerForm.get('email')?.invalid && registerForm.get('email')?.touched
                   "
                   placeholder="your@email.com"
                 />
                 @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Please enter a valid email</p>
+                <p class="mt-2 text-sm text-red-600">Please enter a valid email</p>
                 }
               </div>
             </div>
@@ -83,14 +90,14 @@ import { AuthService } from '../../services/auth.service';
                   type="password"
                   formControlName="password"
                   class="input-field"
-                  [class.border-red-500]="
+                  [class.border-red-400]="
                     registerForm.get('password')?.invalid && registerForm.get('password')?.touched
                   "
                   placeholder="••••••••"
                 />
                 @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched)
                 {
-                <p class="mt-1 text-sm text-red-600">Password must be at least 6 characters</p>
+                <p class="mt-2 text-sm text-red-600">Password must be at least 6 characters</p>
                 }
               </div>
 
@@ -121,13 +128,13 @@ import { AuthService } from '../../services/auth.service';
                   type="text"
                   formControlName="address"
                   class="input-field"
-                  [class.border-red-500]="
+                  [class.border-red-400]="
                     registerForm.get('address')?.invalid && registerForm.get('address')?.touched
                   "
                   placeholder="123 Main St"
                 />
                 @if (registerForm.get('address')?.invalid && registerForm.get('address')?.touched) {
-                <p class="mt-1 text-sm text-red-600">Address is required</p>
+                <p class="mt-2 text-sm text-red-600">Address is required</p>
                 }
               </div>
 
@@ -186,9 +193,11 @@ import { AuthService } from '../../services/auth.service';
               }
             </button>
 
-            <p class="text-xs text-neutral-500 text-center">
-              Your registration will be reviewed by an administrator
-            </p>
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <p class="text-sm text-neutral-700 text-center">
+                Your registration will be reviewed by an administrator
+              </p>
+            </div>
           </div>
         </form>
 

@@ -11,37 +11,65 @@ import { Event, Location } from '../../models/event.model';
   template: `
     <div class="min-h-screen bg-gradient-to-br from-autumn-cream via-neutral-50 to-white">
       <!-- Hero Section -->
-      <section class="relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <section class="relative overflow-hidden pt-12 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="text-center animate-fade-in">
-            <h1 class="text-5xl md:text-6xl font-bold text-neutral-900 mb-6">
+            <h1 class="text-5xl md:text-6xl font-bold text-neutral-900 mb-6 leading-tight">
               Discover Amazing
               <span
-                class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-800"
+                class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 mt-2"
               >
                 Events Around You
               </span>
             </h1>
-            <p class="text-xl text-neutral-600 mb-8 max-w-2xl mx-auto">
+            <p class="text-xl text-neutral-600 mb-10 max-w-2xl mx-auto">
               Find and explore the best events, venues, and experiences in your city
             </p>
-            <div class="flex justify-center space-x-4">
-              <a routerLink="/events" class="btn-primary text-lg"> Explore Events </a>
-              <a routerLink="/locations" class="btn-secondary text-lg"> Browse Locations </a>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 items-center">
+              <a routerLink="/events" class="btn-primary w-full sm:w-auto"> Explore Events </a>
+              <a routerLink="/locations" class="btn-secondary w-full sm:w-auto">
+                Browse Locations
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- Autumn decoration -->
-        <div class="absolute top-20 right-10 opacity-20">
-          <svg class="w-32 h-32 text-autumn-rust" fill="currentColor" viewBox="0 0 24 24">
+        <!-- Floating decorative elements - subtle autumn leaves -->
+        <div
+          class="absolute top-20 right-10 opacity-10 hidden lg:block"
+          style="animation: float 6s ease-in-out infinite;"
+        >
+          <svg class="w-24 h-24 text-autumn-rust" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
             />
           </svg>
         </div>
-        <div class="absolute bottom-10 left-10 opacity-10">
-          <svg class="w-40 h-40 text-autumn-terracotta" fill="currentColor" viewBox="0 0 24 24">
+        <div
+          class="absolute bottom-20 left-10 opacity-10 hidden lg:block"
+          style="animation: float 7s ease-in-out infinite 1s;"
+        >
+          <svg class="w-28 h-28 text-autumn-terracotta" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
+            />
+          </svg>
+        </div>
+        <div
+          class="absolute top-40 left-1/4 opacity-5 hidden lg:block"
+          style="animation: float 8s ease-in-out infinite 0.5s;"
+        >
+          <svg class="w-20 h-20 text-primary-300" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"
+            />
+          </svg>
+        </div>
+        <div
+          class="absolute top-1/3 right-1/4 opacity-8 hidden lg:block"
+          style="animation: float 9s ease-in-out infinite 2s;"
+        >
+          <svg class="w-16 h-16 text-autumn-sand" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
             />
@@ -50,44 +78,54 @@ import { Event, Location } from '../../models/event.model';
       </section>
 
       <!-- Today's Events -->
-      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-8">
+      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="flex items-center justify-between mb-10">
           <div>
             <h2 class="text-3xl font-bold text-neutral-900">Today's Events</h2>
             <p class="text-neutral-600 mt-2">Happening right now in your area</p>
           </div>
-          <a routerLink="/events" class="text-primary-600 hover:text-primary-700 font-medium">
-            View all →
+          <a
+            routerLink="/events"
+            class="text-primary-600 hover:text-primary-700 font-semibold flex items-center space-x-1 group"
+          >
+            <span>View all</span>
+            <span class="transform group-hover:translate-x-1 transition-transform">→</span>
           </a>
         </div>
 
         @if (loadingEvents()) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           @for (i of [1,2,3]; track i) {
-          <div class="card h-80 animate-pulse">
-            <div class="h-48 bg-neutral-200"></div>
+          <div class="card h-96 animate-pulse">
+            <div class="h-52 bg-neutral-200"></div>
             <div class="p-6 space-y-3">
-              <div class="h-4 bg-neutral-200 rounded w-3/4"></div>
-              <div class="h-4 bg-neutral-200 rounded w-1/2"></div>
+              <div class="h-4 bg-neutral-200 rounded-full w-3/4"></div>
+              <div class="h-4 bg-neutral-200 rounded-full w-1/2"></div>
             </div>
           </div>
           }
         </div>
         } @else if (todayEvents().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-slide-up">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-slide-up">
           @for (event of todayEvents(); track event.id) {
           <div
-            class="card group cursor-pointer transform hover:scale-105 transition-transform duration-300"
+            class="card group cursor-pointer transform hover:scale-105 hover:-rotate-1 transition-all duration-300"
           >
             <div
-              class="relative h-48 bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden"
+              class="relative h-52 bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden"
             >
               @if (event.imageUrl) {
-              <img [src]="event.imageUrl" [alt]="event.name" class="w-full h-full object-cover" />
+              <img
+                [src]="event.imageUrl"
+                [alt]="event.name"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              />
               } @else {
-              <div class="w-full h-full flex items-center justify-center">
+              <div
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-200 to-primary-300"
+              >
                 <svg
-                  class="w-16 h-16 text-primary-400"
+                  class="w-20 h-20 text-white opacity-60"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -102,14 +140,14 @@ import { Event, Location } from '../../models/event.model';
               </div>
               } @if (event.price === 0) {
               <div
-                class="absolute top-4 right-4 bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-medium"
+                class="absolute top-4 right-4 bg-gradient-to-r from-green-400 to-green-500 text-white px-4 py-1.5 rounded-full text-sm font-bold shadow-lg"
               >
                 Free
               </div>
               }
             </div>
             <div class="p-6">
-              <div class="flex items-center space-x-2 text-sm text-neutral-500 mb-2">
+              <div class="flex items-center space-x-2 text-sm text-neutral-500 mb-3">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -124,22 +162,25 @@ import { Event, Location } from '../../models/event.model';
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                <span>{{ event.locationName }}</span>
+                <span class="font-medium">{{ event.locationName }}</span>
               </div>
               <h3
-                class="text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors"
+                class="text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors line-clamp-2"
               >
                 {{ event.name }}
               </h3>
-              <p class="text-neutral-600 text-sm mb-3">{{ event.address }}</p>
+              <p class="text-neutral-600 text-sm mb-4 line-clamp-2">{{ event.address }}</p>
               <div class="flex items-center justify-between">
                 <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700"
+                  class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-primary-100 to-primary-200 text-primary-700 border border-primary-300"
                 >
                   {{ event.type }}
                 </span>
                 @if (event.price > 0) {
-                <span class="text-lg font-bold text-neutral-900">\${{ event.price }}</span>
+                <span
+                  class="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent"
+                  >\${{ event.price }}</span
+                >
                 }
               </div>
             </div>
@@ -147,9 +188,9 @@ import { Event, Location } from '../../models/event.model';
           }
         </div>
         } @else {
-        <div class="card p-12 text-center">
+        <div class="card p-16 text-center">
           <svg
-            class="w-16 h-16 text-neutral-300 mx-auto mb-4"
+            class="w-24 h-24 text-neutral-300 mx-auto mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -161,40 +202,60 @@ import { Event, Location } from '../../models/event.model';
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
-          <p class="text-neutral-500 text-lg">No events scheduled for today</p>
+          <p class="text-neutral-500 text-lg font-medium">No events scheduled for today</p>
+          <p class="text-neutral-400 text-sm mt-2">Check back later for exciting updates!</p>
         </div>
         }
       </section>
 
       <!-- Popular Locations -->
-      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-8">
+      <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 pb-24">
+        <div class="flex items-center justify-between mb-10">
           <div>
-            <h2 class="text-3xl font-bold text-neutral-900">Popular Locations</h2>
-            <p class="text-neutral-600 mt-2">Most loved venues in your city</p>
+            <div class="flex items-center space-x-3 mb-2">
+              <svg
+                class="w-10 h-10 text-primary-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                ></path>
+              </svg>
+              <h2 class="text-4xl font-bold text-neutral-900">Popular Locations</h2>
+            </div>
+            <p class="text-lg text-neutral-600 mt-2 ml-14">Most loved venues in your city</p>
           </div>
-          <a routerLink="/locations" class="text-primary-600 hover:text-primary-700 font-medium">
-            View all →
+          <a
+            routerLink="/locations"
+            class="text-primary-600 hover:text-primary-700 font-semibold flex items-center space-x-1 group"
+          >
+            <span>View all</span>
+            <span class="transform group-hover:translate-x-1 transition-transform">→</span>
           </a>
         </div>
 
         @if (loadingLocations()) {
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           @for (i of [1,2,3]; track i) {
-          <div class="card h-96 animate-pulse">
+          <div class="card h-[400px] animate-pulse">
             <div class="h-64 bg-neutral-200"></div>
             <div class="p-6 space-y-3">
-              <div class="h-4 bg-neutral-200 rounded w-3/4"></div>
-              <div class="h-4 bg-neutral-200 rounded w-1/2"></div>
+              <div class="h-4 bg-neutral-200 rounded-full w-3/4"></div>
+              <div class="h-4 bg-neutral-200 rounded-full w-1/2"></div>
             </div>
           </div>
           }
         </div>
         } @else if (popularLocations().length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 animate-slide-up">
           @for (location of popularLocations(); track location.id) {
           <div
-            class="card group cursor-pointer transform hover:scale-105 transition-transform duration-300"
+            class="card group cursor-pointer transform hover:scale-105 hover:rotate-1 transition-all duration-300"
           >
             <div
               class="relative h-64 bg-gradient-to-br from-primary-100 to-primary-200 overflow-hidden"
@@ -203,12 +264,50 @@ import { Event, Location } from '../../models/event.model';
               <img
                 [src]="location.imageUrl"
                 [alt]="location.name"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
               } @else {
-              <div class="w-full h-full flex items-center justify-center">
+              <div
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-autumn-sand"
+              >
                 <svg
-                  class="w-20 h-20 text-primary-400"
+                  class="w-32 h-32 text-primary-400 opacity-80"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  ></path>
+                </svg>
+              </div>
+              }
+              <div
+                class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-2xl flex items-center space-x-2 shadow-lg"
+              >
+                <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  ></path>
+                </svg>
+                <span class="font-bold text-neutral-900 text-lg">{{
+                  location.totalRating.toFixed(1)
+                }}</span>
+              </div>
+            </div>
+            <div class="p-6">
+              <h3
+                class="text-xl font-bold text-neutral-900 mb-3 group-hover:text-primary-600 transition-colors line-clamp-1"
+              >
+                {{ location.name }}
+              </h3>
+              <p class="text-neutral-600 text-sm mb-4 line-clamp-2">{{ location.description }}</p>
+              <div class="flex items-center space-x-2 text-sm text-neutral-500">
+                <svg
+                  class="w-4 h-4 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -217,47 +316,16 @@ import { Event, Location } from '../../models/event.model';
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                  />
-                </svg>
-              </div>
-              }
-              <div
-                class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full flex items-center space-x-1"
-              >
-                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                  />
-                </svg>
-                <span class="font-semibold text-neutral-900">{{
-                  location.totalRating.toFixed(1)
-                }}</span>
-              </div>
-            </div>
-            <div class="p-6">
-              <h3
-                class="text-xl font-bold text-neutral-900 mb-2 group-hover:text-primary-600 transition-colors"
-              >
-                {{ location.name }}
-              </h3>
-              <p class="text-neutral-600 text-sm mb-3 line-clamp-2">{{ location.description }}</p>
-              <div class="flex items-center space-x-2 text-sm text-neutral-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
+                  ></path>
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
+                  ></path>
                 </svg>
-                <span>{{ location.address }}</span>
+                <span class="font-medium line-clamp-1">{{ location.address }}</span>
               </div>
               <div class="mt-3">
                 <span
@@ -289,6 +357,158 @@ import { Event, Location } from '../../models/event.model';
         </div>
         }
       </section>
+
+      <!-- Footer -->
+      <footer
+        class="bg-gradient-to-br from-neutral-900 to-neutral-800 text-white relative overflow-hidden"
+      >
+        <!-- Decorative elements in footer -->
+        <div
+          class="absolute top-10 right-20 opacity-5 hidden lg:block"
+          style="animation: float 9s ease-in-out infinite;"
+        >
+          <svg class="w-32 h-32 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z"
+            />
+          </svg>
+        </div>
+        <div
+          class="absolute bottom-20 left-32 opacity-5 hidden lg:block"
+          style="animation: float 10s ease-in-out infinite 2s;"
+        >
+          <svg class="w-28 h-28 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"
+            />
+          </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <!-- Brand -->
+            <div class="col-span-1 md:col-span-2">
+              <div class="flex items-center space-x-2 mb-4">
+                <svg
+                  class="w-8 h-8 text-primary-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+                <span class="text-2xl font-bold">NewNow</span>
+              </div>
+              <p class="text-neutral-400 mb-4 max-w-md">
+                Discover amazing events and venues in your city. Join thousands of people finding
+                their next great experience.
+              </p>
+              <div class="flex space-x-4">
+                <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                    />
+                  </svg>
+                </a>
+                <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"
+                    />
+                  </svg>
+                </a>
+                <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a
+                    routerLink="/events"
+                    class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Browse Events</a
+                  >
+                </li>
+                <li>
+                  <a
+                    routerLink="/locations"
+                    class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Find Locations</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >About Us</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Contact</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <!-- Support -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Support</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Help Center</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Privacy Policy</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >Terms of Service</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-neutral-400 hover:text-primary-500 transition-colors"
+                    >FAQ</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Bottom Bar -->
+          <div
+            class="border-t border-neutral-700 pt-8 flex flex-col md:flex-row justify-between items-center"
+          >
+            <p class="text-neutral-400 text-sm mb-4 md:mb-0">© 2025 NewNow. All rights reserved.</p>
+            <div class="flex items-center space-x-2 text-neutral-400 text-sm">
+              <span>Made with</span>
+              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                />
+              </svg>
+              <span>in Bijelo Polje</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   `,
   styles: [
