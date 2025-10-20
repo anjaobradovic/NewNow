@@ -31,4 +31,16 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
            "WHERE l.deleted = false AND r.deleted = false " +
            "GROUP BY l.id ORDER BY COUNT(r.id) DESC, AVG(r.rate.overall) DESC")
     List<Location> findPopularLocations(Pageable pageable);
+    
+    @Query("SELECT l FROM Location l WHERE l.deleted = false " +
+           "AND (LOWER(l.name) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(l.address) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(l.type) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<Location> searchByQuery(@Param("query") String query, Pageable pageable);
+    
+    @Query("SELECT l FROM Location l WHERE l.deleted = false " +
+           "AND (:type IS NULL OR LOWER(l.type) LIKE LOWER(CONCAT('%', :type, '%'))) " +
+           "AND (:address IS NULL OR LOWER(l.address) LIKE LOWER(CONCAT('%', :address, '%')))")
+    Page<Location> searchByTypeAndAddress(@Param("type") String type, @Param("address") String address, Pageable pageable);
 }
