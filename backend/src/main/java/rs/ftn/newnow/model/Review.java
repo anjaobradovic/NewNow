@@ -26,11 +26,17 @@ public class Review {
     @Column(nullable = false)
     private Integer eventCount = 0;
 
+    @Column(columnDefinition = "TEXT")
+    private String comment;
+
     @Column(nullable = false)
     private Boolean hidden = false;
 
     @Column(nullable = false)
     private Boolean deleted = false;
+
+    @Column(nullable = false)
+    private Boolean deletedByManager = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

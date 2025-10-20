@@ -18,6 +18,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query("SELECT e FROM Event e WHERE e.deleted = false AND e.date = :date")
     List<Event> findByDate(@Param("date") LocalDate date);
     
+    @Query("SELECT e FROM Event e WHERE e.deleted = false AND e.date = :date " +
+           "AND e.recurrent = false")
+    List<Event> findNonRecurrentByDate(@Param("date") LocalDate date);
+    
     @Query("SELECT e FROM Event e WHERE e.deleted = false AND e.location.id = :locationId")
     List<Event> findByLocationId(@Param("locationId") Long locationId);
     

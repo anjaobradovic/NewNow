@@ -176,15 +176,15 @@ class UserServiceTest {
         Rate rate = new Rate();
         rate.setId(1L);
         rate.setPerformance(5);
-        rate.setSoundAndLighting(4);
-        rate.setVenue(5);
-        rate.setOverallImpression(5);
+        rate.setSoundLight(4);
+        rate.setSpace(5);
+        rate.setOverall(5);
         review.setRate(rate);
 
         Page<Review> reviewPage = new PageImpl<>(Collections.singletonList(review));
 
         when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
-        when(reviewRepository.findByUserIdAndDeletedFalse(eq(testUser.getId()), any(Pageable.class)))
+        when(reviewRepository.findByUserIdAndNotDeleted(eq(testUser.getId()), any(Pageable.class)))
                 .thenReturn(reviewPage);
 
         Page<ReviewDTO> result = userService.getUserReviews(testEmail, 0, 10, "date", "desc");
@@ -192,7 +192,7 @@ class UserServiceTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("Test Location", result.getContent().get(0).getLocationName());
-        verify(reviewRepository).findByUserIdAndDeletedFalse(eq(testUser.getId()), any(Pageable.class));
+        verify(reviewRepository).findByUserIdAndNotDeleted(eq(testUser.getId()), any(Pageable.class));
     }
 
     @Test

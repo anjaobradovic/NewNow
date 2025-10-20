@@ -135,11 +135,11 @@ public class UserService {
         User user = findUserByEmail(email);
 
         Sort.Direction direction = "asc".equalsIgnoreCase(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
-        String sortField = "rating".equals(sortBy) ? "rate.overallImpression" : "createdAt";
+        String sortField = "rating".equals(sortBy) ? "rate.overall" : "createdAt";
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Review> reviews = reviewRepository.findByUserIdAndDeletedFalse(user.getId(), pageable);
+        Page<Review> reviews = reviewRepository.findByUserIdAndNotDeleted(user.getId(), pageable);
         return reviews.map(this::mapToReviewDTO);
     }
 
@@ -217,9 +217,9 @@ public class UserService {
             RateDTO rateDTO = new RateDTO();
             rateDTO.setId(review.getRate().getId());
             rateDTO.setPerformance(review.getRate().getPerformance());
-            rateDTO.setSoundAndLighting(review.getRate().getSoundAndLighting());
-            rateDTO.setVenue(review.getRate().getVenue());
-            rateDTO.setOverallImpression(review.getRate().getOverallImpression());
+            rateDTO.setSoundAndLighting(review.getRate().getSoundLight());
+            rateDTO.setVenue(review.getRate().getSpace());
+            rateDTO.setOverallImpression(review.getRate().getOverall());
             rateDTO.setAverageRating(review.getRate().getAverageRating());
             dto.setRate(rateDTO);
         }

@@ -116,7 +116,7 @@ class LocationServiceTest {
     @Test
     void getLocationDetails_WithValidId_ShouldReturnDetails() {
         when(locationRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(testLocation));
-        when(reviewRepository.findByLocationIdAndDeletedFalse(1L)).thenReturn(new ArrayList<>());
+        when(reviewRepository.findByLocationIdAndNotDeleted(anyLong(), any(Pageable.class))).thenReturn(Page.empty());
         when(eventRepository.findUpcomingByLocation(anyLong(), any(LocalDate.class), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
@@ -228,13 +228,13 @@ class LocationServiceTest {
     void getLocationReviews_ShouldReturnPagedReviews() {
         Page<Review> reviewPage = Page.empty();
         when(locationRepository.existsById(1L)).thenReturn(true);
-        when(reviewRepository.findByLocationIdAndHiddenFalseAndDeletedFalse(anyLong(), any(Pageable.class)))
+        when(reviewRepository.findByLocationIdAndNotDeleted(anyLong(), any(Pageable.class)))
                 .thenReturn(reviewPage);
 
         Page<ReviewDTO> result = locationService.getLocationReviews(1L, "date", "desc", 0, 10);
 
         assertNotNull(result);
-        verify(reviewRepository).findByLocationIdAndHiddenFalseAndDeletedFalse(anyLong(), any(Pageable.class));
+        verify(reviewRepository).findByLocationIdAndNotDeleted(anyLong(), any(Pageable.class));
     }
 
     @Test

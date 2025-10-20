@@ -29,6 +29,6 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     
     @Query("SELECT l FROM Location l LEFT JOIN l.reviews r " +
            "WHERE l.deleted = false AND r.deleted = false " +
-           "GROUP BY l.id ORDER BY COUNT(r.id) DESC, AVG(r.rate.overallImpression) DESC")
+           "GROUP BY l.id ORDER BY COUNT(r.id) DESC, AVG(r.rate.overall) DESC")
     List<Location> findPopularLocations(Pageable pageable);
 }

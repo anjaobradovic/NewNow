@@ -49,7 +49,10 @@ public class SecurityConfig {
                             "/api/locations/*",
                             "/api/locations/*/events/upcoming",
                             "/api/locations/*/reviews",
-                            "/api/locations/popular",
+                            "/api/locations/*/reviews/sort",
+                            "/api/reviews/*",
+                            "/api/reviews/*/comments",
+                            "/api/feed/**",
                             "/api/debug/**"
                         ).permitAll()
                         .anyRequest().authenticated()

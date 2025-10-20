@@ -186,7 +186,7 @@ public class LocationService {
         }
         
         Pageable pageable = createPageableForReviews(sort, order, page, size);
-        Page<Review> reviews = reviewRepository.findByLocationIdAndHiddenFalseAndDeletedFalse(locationId, pageable);
+        Page<Review> reviews = reviewRepository.findByLocationIdAndNotDeleted(locationId, pageable);
         
         return reviews.map(this::convertReviewToDTO);
     }
@@ -211,7 +211,7 @@ public class LocationService {
     private Pageable createPageableForReviews(String sort, String order, int page, int size) {
         String sortField = "createdAt";
         if ("rating".equalsIgnoreCase(sort)) {
-            sortField = "rate.overallImpression";
+            sortField = "rate.overall";
         }
         
         org.springframework.data.domain.Sort.Direction direction = 
@@ -244,7 +244,7 @@ public class LocationService {
         dto.setCreatedAt(location.getCreatedAt());
         dto.setImageUrl(location.getImageUrl());
         
-        List<Review> reviews = reviewRepository.findByLocationIdAndDeletedFalse(location.getId());
+        List<Review> reviews = reviewRepository.findByLocationIdAndNotDeleted(location.getId(), Pageable.unpaged()).getContent();
         dto.setTotalReviews(reviews.size());
         
         Double avgRating = reviews.stream()
@@ -300,9 +300,10 @@ public class LocationService {
         if (review.getRate() != null) {
             RateDTO rateDTO = new RateDTO();
             rateDTO.setPerformance(review.getRate().getPerformance());
-            rateDTO.setSoundAndLighting(review.getRate().getSoundAndLighting());
-            rateDTO.setVenue(review.getRate().getVenue());
-            rateDTO.setOverallImpression(review.getRate().getOverallImpression());
+            rateDTO.setSoundAndLighting(review.getRate().getSoundLight());
+            rateDTO.setVenue(review.getRate().getSpace());
+            rateDTO.setOverallImpression(review.getRate().getOverall());
+            rateDTO.setAverageRating(review.getRate().getAverageRating());
             dto.setRate(rateDTO);
         }
         
