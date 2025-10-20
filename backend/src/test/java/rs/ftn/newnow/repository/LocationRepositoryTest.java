@@ -3,6 +3,7 @@ package rs.ftn.newnow.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import rs.ftn.newnow.model.Location;
@@ -13,6 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class LocationRepositoryTest {
 
     @Autowired
@@ -48,7 +50,7 @@ class LocationRepositoryTest {
     void shouldFindByNameContaining() {
         List<Location> found = locationRepository
                 .findByNameContainingIgnoreCaseOrAddressContainingIgnoreCaseOrTypeContainingIgnoreCase(
-                        "xyz", "", "");
+                        "xyz", "xyz", "xyz");
 
         assertEquals(1, found.size());
         assertEquals("Club XYZ", found.get(0).getName());

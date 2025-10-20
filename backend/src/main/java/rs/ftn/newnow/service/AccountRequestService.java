@@ -2,10 +2,16 @@ package rs.ftn.newnow.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ftn.newnow.dto.AccountRequestDTO;
-import rs.ftn.newnow.dto.ProcessAccountRequestDTO;
+import rs.ftn.newnow.dto.AccountRequestPageResponse;
 import rs.ftn.newnow.model.AccountRequest;
 import rs.ftn.newnow.model.User;
 import rs.ftn.newnow.model.enums.RequestStatus;
@@ -14,9 +20,7 @@ import rs.ftn.newnow.repository.AccountRequestRepository;
 import rs.ftn.newnow.repository.UserRepository;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,60 +32,59 @@ public class AccountRequestService {
     private final EmailService emailService;
 
     @Transactional(readOnly = true)
-    public List<AccountRequestDTO> getAllPendingRequests() {
-        log.info("Fetching all pending account requests");
-        return accountRequestRepository.findByStatus(RequestStatus.PENDING)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<AccountRequestDTO> getAllRequests() {
-        log.info("Fetching all account requests");
-        return accountRequestRepository.findAll()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public AccountRequestPageResponse getFilteredRequests(RequestStatus status, String query, int page, int size) {
+        log.info("Fetching account requests with filters - status: {}, query: {}, page: {}, size: {}", 
+                status, query, page, size);
+        
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<AccountRequest> requestPage = accountRequestRepository.findByFilters(status, query, pageable);
+        
+        return new AccountRequestPageResponse(
+                requestPage.map(this::convertToDTO).getContent(),
+                requestPage.getNumber(),
+                requestPage.getSize(),
+                requestPage.getTotalElements(),
+                requestPage.getTotalPages()
+        );
     }
 
     @Transactional(readOnly = true)
     public AccountRequestDTO getRequestById(Long id) {
         log.info("Fetching account request with id: {}", id);
+        
         AccountRequest request = accountRequestRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account request not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Account request not found with id: " + id));
+        
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserEmail = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        
+        if (!isAdmin && !request.getEmail().equals(currentUserEmail)) {
+            throw new IllegalArgumentException("You don't have permission to view this request");
+        }
+        
         return convertToDTO(request);
     }
 
     @Transactional
-    public String processAccountRequest(ProcessAccountRequestDTO processRequest) {
-        log.info("Processing account request id: {}, approved: {}", 
-                processRequest.getRequestId(), processRequest.getApproved());
+    public void approveRequest(Long id) {
+        log.info("Approving account request with id: {}", id);
 
-        AccountRequest accountRequest = accountRequestRepository.findById(processRequest.getRequestId())
-                .orElseThrow(() -> new RuntimeException("Account request not found with id: " + processRequest.getRequestId()));
+        AccountRequest accountRequest = accountRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Account request not found with id: " + id));
 
         if (accountRequest.getStatus() != RequestStatus.PENDING) {
-            throw new RuntimeException("This request has already been processed");
+            throw new IllegalArgumentException("This request has already been processed");
         }
 
-        if (processRequest.getApproved()) {
-            return approveRequest(accountRequest);
-        } else {
-            return rejectRequest(accountRequest, processRequest.getRejectionReason());
-        }
-    }
-
-    private String approveRequest(AccountRequest accountRequest) {
-        // Check if user already exists
         if (userRepository.existsByEmail(accountRequest.getEmail())) {
-            throw new RuntimeException("User with this email already exists");
+            throw new IllegalArgumentException("User with this email already exists");
         }
 
-        // Create new user from account request
         User user = new User();
         user.setEmail(accountRequest.getEmail());
-        user.setPassword(accountRequest.getPassword()); // Already encoded
+        user.setPassword(accountRequest.getPassword());
         user.setName(accountRequest.getName());
         user.setPhoneNumber(accountRequest.getPhoneNumber());
         user.setBirthday(accountRequest.getBirthday());
@@ -94,31 +97,35 @@ public class AccountRequestService {
 
         userRepository.save(user);
 
-        // Update account request status
         accountRequest.setStatus(RequestStatus.ACCEPTED);
         accountRequestRepository.save(accountRequest);
 
-        // Send approval email
         emailService.sendRegistrationApprovedEmail(accountRequest.getEmail(), accountRequest.getName());
 
         log.info("Account request approved for email: {}", accountRequest.getEmail());
-        return "Account request approved successfully. User can now log in.";
     }
 
-    private String rejectRequest(AccountRequest accountRequest, String rejectionReason) {
+    @Transactional
+    public void rejectRequest(Long id) {
+        log.info("Rejecting account request with id: {}", id);
+        
+        AccountRequest accountRequest = accountRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Account request not found with id: " + id));
+
+        if (accountRequest.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalArgumentException("This request has already been processed");
+        }
+
         accountRequest.setStatus(RequestStatus.REJECTED);
-        accountRequest.setRejectionReason(rejectionReason);
         accountRequestRepository.save(accountRequest);
 
-        // Send rejection email
         emailService.sendRegistrationRejectedEmail(
                 accountRequest.getEmail(), 
                 accountRequest.getName(), 
-                rejectionReason
+                "Your registration request has been rejected by the administrator."
         );
 
         log.info("Account request rejected for email: {}", accountRequest.getEmail());
-        return "Account request rejected successfully.";
     }
 
     private AccountRequestDTO convertToDTO(AccountRequest request) {

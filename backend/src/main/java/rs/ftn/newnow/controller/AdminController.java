@@ -1,16 +1,14 @@
 package rs.ftn.newnow.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import rs.ftn.newnow.dto.AccountRequestDTO;
-import rs.ftn.newnow.dto.ProcessAccountRequestDTO;
+import rs.ftn.newnow.dto.AccountRequestPageResponse;
+import rs.ftn.newnow.dto.MessageResponse;
+import rs.ftn.newnow.model.enums.RequestStatus;
 import rs.ftn.newnow.service.AccountRequestService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -22,52 +20,65 @@ public class AdminController {
 
     private final AccountRequestService accountRequestService;
 
-    @GetMapping("/requests/pending")
-    public ResponseEntity<List<AccountRequestDTO>> getPendingRequests() {
+    @GetMapping("/register-requests")
+    public ResponseEntity<?> getRegisterRequests(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         try {
-            List<AccountRequestDTO> requests = accountRequestService.getAllPendingRequests();
-            return ResponseEntity.ok(requests);
+            log.info("Fetching register requests - status: {}, query: {}, page: {}, size: {}", 
+                    status, q, page, size);
+            
+            RequestStatus requestStatus = null;
+            if (status != null && !status.isEmpty()) {
+                try {
+                    requestStatus = RequestStatus.valueOf(status.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Invalid status value. Allowed: pending, accepted, rejected"));
+                }
+            }
+            
+            AccountRequestPageResponse response = accountRequestService.getFilteredRequests(
+                    requestStatus, q, page, size);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Failed to fetch pending requests", e);
-            return ResponseEntity.internalServerError().build();
+            log.error("Failed to fetch register requests", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to fetch requests"));
         }
     }
 
-    @GetMapping("/requests")
-    public ResponseEntity<List<AccountRequestDTO>> getAllRequests() {
+    @PatchMapping("/register-requests/{id}/approve")
+    public ResponseEntity<?> approveRequest(@PathVariable Long id) {
         try {
-            List<AccountRequestDTO> requests = accountRequestService.getAllRequests();
-            return ResponseEntity.ok(requests);
-        } catch (Exception e) {
-            log.error("Failed to fetch all requests", e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @GetMapping("/requests/{id}")
-    public ResponseEntity<?> getRequestById(@PathVariable Long id) {
-        try {
-            AccountRequestDTO request = accountRequestService.getRequestById(id);
-            return ResponseEntity.ok(request);
-        } catch (Exception e) {
-            log.error("Failed to fetch request with id: {}", id, e);
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/requests/process")
-    public ResponseEntity<?> processRequest(@Valid @RequestBody ProcessAccountRequestDTO processRequest) {
-        try {
-            log.info("=== PROCESSING REQUEST ID: {} ===", processRequest.getRequestId());
-            String message = accountRequestService.processAccountRequest(processRequest);
-            log.info("=== PROCESS SUCCESS: {} ===", message);
-            return ResponseEntity.ok().body(message);
+            log.info("Approving register request with ID: {}", id);
+            accountRequestService.approveRequest(id);
+            return ResponseEntity.ok(new MessageResponse("Account request approved successfully"));
         } catch (IllegalArgumentException e) {
-            log.error("=== PROCESS VALIDATION ERROR: {} ===", e.getMessage());
-            return ResponseEntity.badRequest().body(e.getMessage());
+            log.error("Validation error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         } catch (Exception e) {
-            log.error("=== PROCESS FAILED ===", e);
-            return ResponseEntity.internalServerError().body("Failed to process request: " + e.getMessage());
+            log.error("Failed to approve request", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to approve request"));
+        }
+    }
+
+    @PatchMapping("/register-requests/{id}/reject")
+    public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
+        try {
+            log.info("Rejecting register request with ID: {}", id);
+            accountRequestService.rejectRequest(id);
+            return ResponseEntity.ok(new MessageResponse("Account request rejected successfully"));
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Failed to reject request", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to reject request"));
         }
     }
 }

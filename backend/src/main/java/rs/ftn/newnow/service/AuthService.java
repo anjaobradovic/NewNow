@@ -8,8 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ftn.newnow.dto.AuthResponse;
+import rs.ftn.newnow.dto.CreateAccountRequestDTO;
 import rs.ftn.newnow.dto.LoginRequest;
-import rs.ftn.newnow.dto.RegisterRequest;
 import rs.ftn.newnow.model.AccountRequest;
 import rs.ftn.newnow.model.User;
 import rs.ftn.newnow.repository.AccountRequestRepository;
@@ -30,15 +30,15 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public String register(RegisterRequest request) {
+    public AccountRequest createRegistrationRequest(CreateAccountRequestDTO request) {
         log.info("Processing registration request for email: {}", request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("User with this email already exists");
+            throw new IllegalArgumentException("User with this email already exists");
         }
 
         if (accountRequestRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Registration request with this email already exists");
+            throw new IllegalArgumentException("Registration request with this email already exists");
         }
 
         AccountRequest accountRequest = new AccountRequest();
@@ -50,10 +50,10 @@ public class AuthService {
         accountRequest.setAddress(request.getAddress());
         accountRequest.setCity(request.getCity());
 
-        accountRequestRepository.save(accountRequest);
+        accountRequest = accountRequestRepository.save(accountRequest);
         
-        log.info("Registration request created successfully for email: {}", request.getEmail());
-        return "Registration request submitted successfully. Please wait for administrator approval.";
+        log.info("Registration request created successfully with ID: {}", accountRequest.getId());
+        return accountRequest;
     }
 
     @Transactional(readOnly = true)
@@ -68,11 +68,40 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String token = jwtUtil.generateToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         log.info("User logged in successfully: {}", request.getEmail());
 
         return new AuthResponse(
                 token,
+                refreshToken,
+                user.getEmail(),
+                user.getName(),
+                user.getRoles().stream().map(Enum::name).collect(Collectors.toSet())
+        );
+    }
+    
+    @Transactional(readOnly = true)
+    public AuthResponse refreshToken(String refreshToken) {
+        log.info("Processing refresh token request");
+        
+        String email = jwtUtil.extractEmail(refreshToken);
+        
+        if (!jwtUtil.validateToken(refreshToken, email)) {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+        
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        String newToken = jwtUtil.generateToken(user.getEmail());
+        String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        
+        log.info("Token refreshed successfully for user: {}", email);
+        
+        return new AuthResponse(
+                newToken,
+                newRefreshToken,
                 user.getEmail(),
                 user.getName(),
                 user.getRoles().stream().map(Enum::name).collect(Collectors.toSet())

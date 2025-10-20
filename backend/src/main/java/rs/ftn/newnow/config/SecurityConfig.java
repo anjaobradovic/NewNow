@@ -41,8 +41,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                            "/api/auth/register",
-                            "/api/auth/login", 
+                            "/api/auth/register-request",
+                            "/api/auth/login",
+                            "/api/auth/refresh",
                             "/api/events/today", 
                             "/api/locations/popular", 
                             "/api/debug/**"
@@ -73,9 +74,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder);
         authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
