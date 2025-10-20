@@ -44,6 +44,9 @@ public class Event {
     @Column(nullable = false)
     private Boolean recurrent = false;
 
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id", nullable = false)
     private Location location;

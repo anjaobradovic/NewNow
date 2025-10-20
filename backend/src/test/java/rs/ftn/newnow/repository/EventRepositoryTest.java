@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import rs.ftn.newnow.model.Event;
 import rs.ftn.newnow.model.Location;
 
@@ -85,16 +88,20 @@ class EventRepositoryTest {
 
     @Test
     void shouldFindEventsByFilters() {
-        List<Event> found = eventRepository.findByFilters(
-                LocalDate.now(),
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Event> found = eventRepository.findByFilters(
                 "Music",
                 location.getId(),
                 null,
                 50.0,
-                150.0
+                150.0,
+                null,
+                null,
+                LocalDate.now(),
+                pageable
         );
 
-        assertEquals(1, found.size());
-        assertEquals("Concert", found.get(0).getName());
+        assertEquals(1, found.getTotalElements());
+        assertEquals("Concert", found.getContent().get(0).getName());
     }
 }

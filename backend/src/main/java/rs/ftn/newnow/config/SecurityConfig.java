@@ -44,7 +44,7 @@ public class SecurityConfig {
                             "/api/auth/register-request",
                             "/api/auth/login",
                             "/api/auth/refresh",
-                            "/api/events/today", 
+                            "/api/events/**",
                             "/api/locations",
                             "/api/locations/*",
                             "/api/locations/*/events/upcoming",
