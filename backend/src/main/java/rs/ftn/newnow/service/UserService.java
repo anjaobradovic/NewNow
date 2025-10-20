@@ -152,6 +152,14 @@ public class UserService {
         log.info("Password changed successfully for user: {}", email);
     }
 
+    @Transactional(readOnly = true)
+    public Page<UserSummaryDTO> searchUsers(String q, int page, int size) {
+        String query = (q == null) ? "" : q.trim();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name"));
+        Page<User> result = userRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query, pageable);
+        return result.map(u -> new UserSummaryDTO(u.getId(), u.getName(), u.getEmail()));
+    }
+
     private User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));

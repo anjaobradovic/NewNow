@@ -11,6 +11,7 @@ import rs.ftn.newnow.model.enums.RequestStatus;
 import rs.ftn.newnow.service.AccountRequestService;
 import rs.ftn.newnow.service.AuditLogService;
 import rs.ftn.newnow.service.ManagesService;
+import rs.ftn.newnow.service.UserService;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class AdminController {
     private final AccountRequestService accountRequestService;
     private final ManagesService managesService;
     private final AuditLogService auditLogService;
+    private final UserService userService;
 
     @GetMapping("/register-requests")
     public ResponseEntity<?> getRegisterRequests(
@@ -152,6 +154,21 @@ public class AdminController {
             log.error("Failed to fetch audit logs", e);
             return ResponseEntity.internalServerError()
                     .body(new MessageResponse("Failed to fetch audit logs"));
+        }
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<?> searchUsers(
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            log.info("Admin searching users - q: {}, page: {}, size: {}", q, page, size);
+            return ResponseEntity.ok(userService.searchUsers(q, page, size));
+        } catch (Exception e) {
+            log.error("Failed to search users", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to search users"));
         }
     }
 }

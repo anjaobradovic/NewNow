@@ -3,7 +3,11 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { EventsComponent } from './pages/events/events.component';
-import { LocationsComponent } from './pages/locations/locations.component';
+import { LocationListComponent } from './pages/location-list/location-list.component';
+import { LocationDetailsComponent } from './pages/location-details/location-details.component';
+import { LocationNewComponent } from './pages/location-new/location-new.component';
+import { LocationEditComponent } from './pages/location-edit/location-edit.component';
+import { LocationManagersComponent } from './pages/location-managers/location-managers.component';
 import { AdminRequestsComponent } from './pages/admin-requests/admin-requests.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { adminGuard } from './guards/admin.guard';
@@ -19,7 +23,15 @@ export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register-request', component: RegisterComponent },
   { path: 'events', component: EventsComponent },
-  { path: 'locations', component: LocationsComponent },
+  { path: 'locations', component: LocationListComponent },
+  { path: 'locations/new', component: LocationNewComponent, canActivate: [adminGuard] },
+  { path: 'locations/:id', component: LocationDetailsComponent },
+  { path: 'locations/:id/edit', component: LocationEditComponent, canActivate: [authGuard] },
+  {
+    path: 'locations/:id/managers',
+    component: LocationManagersComponent,
+    canActivate: [adminGuard],
+  },
   {
     path: 'admin',
     component: AdminDashboardComponent,
