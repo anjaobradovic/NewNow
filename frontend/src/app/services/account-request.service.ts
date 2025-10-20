@@ -1,31 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AccountRequest, ProcessAccountRequest } from '../models/account-request.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { AccountRequest } from '../models/account-request.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountRequestService {
   private http = inject(HttpClient);
-  private readonly API_URL = 'http://localhost:8080/api';
-  private apiUrl = `${this.API_URL}/admin/requests`;
+  private readonly API_URL = '/api/admin';
 
   getPendingRequests(): Observable<AccountRequest[]> {
-    return this.http.get<AccountRequest[]>(`${this.apiUrl}/pending`);
+    // Backend returns paged response; map to array if needed at component level
+    const params = new HttpParams().set('status', 'pending').set('page', 0).set('size', 50);
+    return this.http
+      .get<{ content?: AccountRequest[] }>(`${this.API_URL}/register-requests`, { params })
+      .pipe(map((res) => (Array.isArray(res?.content) ? res.content! : (res as any) || [])));
   }
 
-  getAllRequests(): Observable<AccountRequest[]> {
-    return this.http.get<AccountRequest[]>(this.apiUrl);
+  getAllRequests(status?: string, page = 0, size = 50): Observable<AccountRequest[]> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (status) params = params.set('status', status);
+    return this.http
+      .get<{ content?: AccountRequest[] }>(`${this.API_URL}/register-requests`, { params })
+      .pipe(map((res) => (Array.isArray(res?.content) ? res.content! : (res as any) || [])));
   }
 
-  getRequestById(id: number): Observable<AccountRequest> {
-    return this.http.get<AccountRequest>(`${this.apiUrl}/${id}`);
+  approveRequest(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.API_URL}/register-requests/${id}/approve`, {});
   }
 
-  processRequest(data: ProcessAccountRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/process`, data, {
-      responseType: 'text',
-    });
+  rejectRequest(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.API_URL}/register-requests/${id}/reject`, {});
   }
 }

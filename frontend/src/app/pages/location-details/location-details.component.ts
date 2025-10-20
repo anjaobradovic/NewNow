@@ -73,6 +73,11 @@ import { ReviewDTO } from '../../models/user.model';
                 No upcoming events
               </div>
             </div>
+            <div class="mt-4" *ngIf="isManager || isAdmin">
+              <a [routerLink]="['/locations', location()?.id, 'events', 'new']" class="btn-primary"
+                >Add event</a
+              >
+            </div>
           </div>
         </div>
 

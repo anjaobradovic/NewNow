@@ -14,7 +14,7 @@ import { AccountRequest, RequestStatus } from '../../models/account-request.mode
 })
 export class AdminRequestsComponent implements OnInit {
   private accountRequestService = inject(AccountRequestService);
-  private toastr = inject(ToastrService);
+  private toastr: ToastrService = inject(ToastrService);
 
   requests: AccountRequest[] = [];
   filteredRequests: AccountRequest[] = [];
@@ -31,28 +31,32 @@ export class AdminRequestsComponent implements OnInit {
   }
 
   loadRequests() {
-    if (this.filterStatus === 'PENDING') {
+    const statusParam = this.filterStatus === 'ALL' ? undefined : this.filterStatus.toLowerCase();
+
+    if (statusParam === 'pending') {
       this.accountRequestService.getPendingRequests().subscribe({
-        next: (data) => {
-          this.requests = data;
-          this.filteredRequests = data;
+        next: (res: any) => {
+          const content = Array.isArray(res?.content) ? res.content : res || [];
+          this.requests = content;
+          this.filteredRequests = content;
         },
         error: (error: any) => {
-          console.error('Error loading pending requests:', error);
           const errorMsg =
-            error.error?.message || error.message || 'Failed to load pending requests';
+            error?.error?.message || error.message || 'Failed to load pending requests';
           this.toastr.error(errorMsg, 'Error');
         },
       });
     } else {
-      this.accountRequestService.getAllRequests().subscribe({
-        next: (data) => {
-          this.requests = data;
+      this.accountRequestService.getAllRequests(statusParam).subscribe({
+        next: (res) => {
+          const content = Array.isArray((res as any)?.content)
+            ? (res as any).content
+            : (res as any) || [];
+          this.requests = content;
           this.applyFilter();
         },
         error: (error: any) => {
-          console.error('Error loading requests:', error);
-          const errorMsg = error.error?.message || error.message || 'Failed to load requests';
+          const errorMsg = error?.error?.message || error.message || 'Failed to load requests';
           this.toastr.error(errorMsg, 'Error');
         },
       });
@@ -86,30 +90,18 @@ export class AdminRequestsComponent implements OnInit {
   approveRequest(request: AccountRequest) {
     this.isProcessing = true;
 
-    this.accountRequestService
-      .processRequest({
-        requestId: request.id,
-        approved: true,
-      })
-      .subscribe({
-        next: (response) => {
-          this.toastr.success(
-            `Registration approved for ${request.name}. Email sent to user.`,
-            'Success'
-          );
-          this.loadRequests();
-          this.isProcessing = false;
-        },
-        error: (error: any) => {
-          console.error('Error approving request:', error);
-          const errorMsg =
-            typeof error.error === 'string'
-              ? error.error
-              : error.error?.message || error.message || 'Failed to approve request';
-          this.toastr.error(errorMsg, 'Approval Failed');
-          this.isProcessing = false;
-        },
-      });
+    this.accountRequestService.approveRequest(request.id).subscribe({
+      next: () => {
+        this.toastr.success(`Registration approved for ${request.name}. Email sent.`, 'Success');
+        this.loadRequests();
+        this.isProcessing = false;
+      },
+      error: (error: any) => {
+        const errorMsg = error?.error?.message || error.message || 'Failed to approve request';
+        this.toastr.error(errorMsg, 'Approval Failed');
+        this.isProcessing = false;
+      },
+    });
   }
 
   rejectRequest() {
@@ -122,32 +114,22 @@ export class AdminRequestsComponent implements OnInit {
 
     this.isProcessing = true;
 
-    this.accountRequestService
-      .processRequest({
-        requestId: this.selectedRequest.id,
-        approved: false,
-        rejectionReason: this.rejectionReason,
-      })
-      .subscribe({
-        next: (response) => {
-          this.toastr.success(
-            `Registration rejected for ${this.selectedRequest?.name}. Email sent to user.`,
-            'Success'
-          );
-          this.closeModal();
-          this.loadRequests();
-          this.isProcessing = false;
-        },
-        error: (error: any) => {
-          console.error('Error rejecting request:', error);
-          const errorMsg =
-            typeof error.error === 'string'
-              ? error.error
-              : error.error?.message || error.message || 'Failed to reject request';
-          this.toastr.error(errorMsg, 'Rejection Failed');
-          this.isProcessing = false;
-        },
-      });
+    this.accountRequestService.rejectRequest(this.selectedRequest.id).subscribe({
+      next: () => {
+        this.toastr.success(
+          `Registration rejected for ${this.selectedRequest?.name}. Email sent.`,
+          'Success'
+        );
+        this.closeModal();
+        this.loadRequests();
+        this.isProcessing = false;
+      },
+      error: (error: any) => {
+        const errorMsg = error?.error?.message || error.message || 'Failed to reject request';
+        this.toastr.error(errorMsg, 'Rejection Failed');
+        this.isProcessing = false;
+      },
+    });
   }
 
   getStatusBadgeClass(status: RequestStatus): string {

@@ -17,16 +17,29 @@ import { MeEditComponent } from './pages/me-edit/me-edit.component';
 import { MeChangePasswordComponent } from './pages/me-change-password/me-change-password.component';
 import { MeReviewsComponent } from './pages/me-reviews/me-reviews.component';
 import { MeManagedLocationsComponent } from './pages/me-managed-locations/me-managed-locations.component';
+import { EventTodayComponent } from './pages/event-today/event-today.component';
+import { EventSearchComponent } from './pages/event-search/event-search.component';
+import { EventDetailsComponent } from './pages/event-details/event-details.component';
+import { EventCreateComponent } from './pages/event-create/event-create.component';
+import { EventEditComponent } from './pages/event-edit/event-edit.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register-request', component: RegisterComponent },
-  { path: 'events', component: EventsComponent },
+  { path: 'events', component: EventSearchComponent },
+  { path: 'events/today', component: EventTodayComponent },
+  { path: 'events/:id', component: EventDetailsComponent },
+  { path: 'events/:id/edit', component: EventEditComponent, canActivate: [authGuard] },
   { path: 'locations', component: LocationListComponent },
   { path: 'locations/new', component: LocationNewComponent, canActivate: [adminGuard] },
   { path: 'locations/:id', component: LocationDetailsComponent },
   { path: 'locations/:id/edit', component: LocationEditComponent, canActivate: [authGuard] },
+  {
+    path: 'locations/:locationId/events/new',
+    component: EventCreateComponent,
+    canActivate: [authGuard],
+  },
   {
     path: 'locations/:id/managers',
     component: LocationManagersComponent,
