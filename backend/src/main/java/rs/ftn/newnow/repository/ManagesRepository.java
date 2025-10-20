@@ -17,6 +17,10 @@ public interface ManagesRepository extends JpaRepository<Manages, Long> {
     List<Manages> findByLocationId(Long locationId);
     
     @Query("SELECT m FROM Manages m WHERE m.user.id = :userId " +
+           "AND (m.endDate IS NULL OR m.endDate > :now)")
+    List<Manages> findActiveByUserId(@Param("userId") Long userId, @Param("now") LocalDate now);
+    
+    @Query("SELECT m FROM Manages m WHERE m.user.id = :userId " +
            "AND m.location.id = :locationId " +
            "AND (m.endDate IS NULL OR m.endDate > :now)")
     List<Manages> findActiveManagement(
