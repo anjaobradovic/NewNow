@@ -45,7 +45,11 @@ public class SecurityConfig {
                             "/api/auth/login",
                             "/api/auth/refresh",
                             "/api/events/today", 
-                            "/api/locations/popular", 
+                            "/api/locations",
+                            "/api/locations/*",
+                            "/api/locations/*/events/upcoming",
+                            "/api/locations/*/reviews",
+                            "/api/locations/popular",
                             "/api/debug/**"
                         ).permitAll()
                         .anyRequest().authenticated()

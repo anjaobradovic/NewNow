@@ -42,6 +42,11 @@ public class Location {
     @Column(nullable = false)
     private String type;
 
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
+    private String imageUrl;
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Event> events = new HashSet<>();
 

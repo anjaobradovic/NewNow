@@ -2,7 +2,6 @@ package rs.ftn.newnow.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     
-    List<Review> findByLocationIdAndHiddenFalseAndDeletedFalse(Long locationId, Sort sort);
+    Page<Review> findByLocationIdAndHiddenFalseAndDeletedFalse(Long locationId, Pageable pageable);
     
     List<Review> findByLocationIdAndDeletedFalse(Long locationId);
     

@@ -3,9 +3,11 @@ package rs.ftn.newnow.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
 import rs.ftn.newnow.model.Location;
 
 import java.time.LocalDate;
@@ -14,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class LocationRepositoryTest {
 
     @Autowired
@@ -32,6 +34,8 @@ class LocationRepositoryTest {
         location1.setDescription("Test club");
         location1.setCreatedAt(LocalDate.now());
         location1.setTotalRating(8.5);
+        location1.setDeleted(false);
+        location1.setImageUrl("/test1.jpg");
         entityManager.persist(location1);
 
         Location location2 = new Location();
@@ -41,32 +45,32 @@ class LocationRepositoryTest {
         location2.setDescription("Test bar");
         location2.setCreatedAt(LocalDate.now());
         location2.setTotalRating(7.2);
+        location2.setDeleted(false);
+        location2.setImageUrl("/test2.jpg");
         entityManager.persist(location2);
 
         entityManager.flush();
     }
 
     @Test
-    void shouldFindByNameContaining() {
-        List<Location> found = locationRepository
-                .findByNameContainingIgnoreCaseOrAddressContainingIgnoreCaseOrTypeContainingIgnoreCase(
-                        "xyz", "xyz", "xyz");
+    void shouldSearchByName() {
+        Page<Location> found = locationRepository.searchLocations("xyz", PageRequest.of(0, 10));
 
-        assertEquals(1, found.size());
-        assertEquals("Club XYZ", found.get(0).getName());
+        assertEquals(1, found.getTotalElements());
+        assertEquals("Club XYZ", found.getContent().get(0).getName());
     }
 
     @Test
-    void shouldFindByType() {
-        List<Location> found = locationRepository.findByType("Club");
+    void shouldSearchByType() {
+        Page<Location> found = locationRepository.searchLocations("Club", PageRequest.of(0, 10));
 
-        assertEquals(1, found.size());
-        assertEquals("Club", found.get(0).getType());
+        assertEquals(1, found.getTotalElements());
+        assertEquals("Club", found.getContent().get(0).getType());
     }
 
     @Test
     void shouldOrderByRatingDescending() {
-        List<Location> found = locationRepository.findTopByOrderByTotalRatingDesc();
+        List<Location> found = locationRepository.findTopByOrderByTotalRatingDesc(PageRequest.of(0, 10));
 
         assertTrue(found.size() >= 2);
         assertTrue(found.get(0).getTotalRating() >= found.get(1).getTotalRating());

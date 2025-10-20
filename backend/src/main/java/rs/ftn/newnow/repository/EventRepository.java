@@ -1,5 +1,7 @@
 package rs.ftn.newnow.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByLocationId(Long locationId);
     
     List<Event> findByTypeContainingIgnoreCase(String type);
+    
+    @Query("SELECT e FROM Event e WHERE e.location.id = :locationId " +
+           "AND e.date >= :dateFrom ORDER BY e.date ASC")
+    Page<Event> findUpcomingByLocation(
+            @Param("locationId") Long locationId,
+            @Param("dateFrom") LocalDate dateFrom,
+            Pageable pageable);
     
     @Query("SELECT e FROM Event e WHERE e.location.id = :locationId " +
            "AND e.date BETWEEN :startDate AND :endDate")
