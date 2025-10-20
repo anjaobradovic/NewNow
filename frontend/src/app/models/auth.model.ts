@@ -14,14 +14,19 @@ export interface RegisterRequest {
   password: string;
   name: string;
   phoneNumber?: string;
-  birthday?: string;
+  birthday?: string; // ISO date string (YYYY-MM-DD)
   address: string;
   city?: string;
 }
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   email: string;
   name: string;
   roles: string[];
+}
+
+export interface MessageResponse {
+  message: string;
 }

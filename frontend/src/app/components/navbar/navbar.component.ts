@@ -59,6 +59,12 @@ import { AuthService } from '../../services/auth.service';
             >
               Locations
             </a>
+            <a
+              routerLink="/me"
+              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+            >
+              My Profile
+            </a>
             @if (isAdmin()) {
             <a
               routerLink="/admin"
@@ -73,7 +79,16 @@ import { AuthService } from '../../services/auth.service';
           <div class="flex items-center space-x-3">
             @if (authService.isAuthenticated()) {
             <div class="flex items-center space-x-3">
-              <span class="text-sm text-neutral-600">{{ authService.currentUser()?.name }}</span>
+              <a routerLink="/me" class="flex items-center gap-2 group">
+                <div
+                  class="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold"
+                >
+                  {{ initials() }}
+                </div>
+                <span class="text-sm text-neutral-700 group-hover:text-primary-600">{{
+                  authService.currentUser()?.name
+                }}</span>
+              </a>
               <button
                 (click)="logout()"
                 class="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-neutral-100 rounded-xl transition-all duration-200"
@@ -83,12 +98,12 @@ import { AuthService } from '../../services/auth.service';
             </div>
             } @else {
             <a
-              routerLink="/login"
+              routerLink="/auth/login"
               class="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 rounded-xl transition-all duration-200"
             >
               Sign In
             </a>
-            <a routerLink="/register" class="btn-primary text-sm"> Get Started </a>
+            <a routerLink="/auth/register-request" class="btn-primary text-sm"> Get Started </a>
             }
           </div>
         </div>
@@ -103,11 +118,27 @@ export class NavbarComponent {
   constructor(public authService: AuthService, private router: Router) {}
 
   logout(): void {
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => this.router.navigate(['/']),
+      error: () => {
+        this.authService.clearSession();
+        this.router.navigate(['/']);
+      },
+    });
   }
 
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.roles?.includes('ROLE_ADMIN') || false;
+  }
+
+  initials(): string {
+    const n = this.authService.currentUser()?.name || this.authService.currentUser()?.email || '';
+    return n
+      .split(' ')
+      .map((s) => s[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
   }
 }

@@ -170,7 +170,7 @@ public class UserService {
         dto.setRoles(user.getRoles().stream().map(Enum::name).collect(Collectors.toSet()));
 
         if (user.getProfileImage() != null) {
-            dto.setAvatarUrl("/api/avatars/" + user.getProfileImage().getPath());
+            dto.setAvatarUrl(user.getProfileImage().getPath());
         }
 
         return dto;

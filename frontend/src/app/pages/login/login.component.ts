@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -113,7 +114,7 @@ import { AuthService } from '../../services/auth.service';
           <p class="text-sm text-neutral-600">
             Don't have an account?
             <a
-              routerLink="/register"
+              routerLink="/auth/register-request"
               class="font-medium text-primary-600 hover:text-primary-700 ml-1"
             >
               Register now
@@ -129,7 +130,12 @@ export class LoginComponent {
   loginForm: FormGroup;
   isLoading = false;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private toastr: ToastrService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -141,8 +147,8 @@ export class LoginComponent {
       this.isLoading = true;
       this.authService.login(this.loginForm.value).subscribe({
         next: () => {
-          // Redirect admin users to admin dashboard, others to home
           const currentUser = this.authService.currentUser();
+          this.toastr.success('Welcome back');
           if (currentUser?.roles?.includes('ROLE_ADMIN')) {
             this.router.navigate(['/admin']);
           } else {
@@ -150,13 +156,16 @@ export class LoginComponent {
           }
         },
         error: (error) => {
-          alert(error.error || 'Invalid credentials. Please try again.');
+          const msg = typeof error.error === 'string' ? error.error : 'Invalid credentials';
+          this.toastr.error(msg, 'Sign in failed');
           this.isLoading = false;
         },
         complete: () => {
           this.isLoading = false;
         },
       });
+    } else {
+      this.toastr.warning('Please enter your email and password');
     }
   }
 }

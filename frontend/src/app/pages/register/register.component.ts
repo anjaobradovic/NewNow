@@ -205,7 +205,10 @@ import { AuthService } from '../../services/auth.service';
         <div class="text-center">
           <p class="text-sm text-neutral-600">
             Already have an account?
-            <a routerLink="/login" class="font-medium text-primary-600 hover:text-primary-700 ml-1">
+            <a
+              routerLink="/auth/login"
+              class="font-medium text-primary-600 hover:text-primary-700 ml-1"
+            >
               Sign in
             </a>
           </p>
@@ -240,7 +243,6 @@ export class RegisterComponent {
     if (this.registerForm.valid) {
       this.isLoading = true;
 
-      // Prepare request data - remove empty fields
       const formValue = this.registerForm.value;
       const requestData: any = {
         email: formValue.email,
@@ -249,7 +251,6 @@ export class RegisterComponent {
         address: formValue.address,
       };
 
-      // Add optional fields only if they have values
       if (formValue.phoneNumber && formValue.phoneNumber.trim() !== '') {
         requestData.phoneNumber = formValue.phoneNumber;
       }
@@ -260,16 +261,12 @@ export class RegisterComponent {
         requestData.city = formValue.city;
       }
 
-      console.log('Sending registration request:', requestData);
-
       this.authService.register(requestData).subscribe({
-        next: (message) => {
-          console.log('Registration success:', message);
-          this.toastr.success(message, 'Registration Submitted');
-          this.router.navigate(['/login']);
+        next: (res) => {
+          this.toastr.success(res.message || 'Registration request submitted');
+          this.router.navigate(['/auth/login']);
         },
         error: (error) => {
-          console.error('Registration error:', error);
           const errorMsg =
             typeof error.error === 'string'
               ? error.error
@@ -282,7 +279,6 @@ export class RegisterComponent {
         },
       });
     } else {
-      // Mark all fields as touched to show validation errors
       Object.keys(this.registerForm.controls).forEach((key) => {
         this.registerForm.get(key)?.markAsTouched();
       });
