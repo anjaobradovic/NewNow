@@ -142,14 +142,14 @@ class LocationServiceTest {
                 "image", "test.jpg", "image/jpeg", "test".getBytes()
         );
         
-        when(fileStorageService.saveImage(any())).thenReturn("/uploads/locations/test.jpg");
+        when(fileStorageService.saveImage(any(), eq("locations"))).thenReturn("/uploads/locations/test.jpg");
         when(locationRepository.save(any(Location.class))).thenReturn(testLocation);
 
         LocationDTO result = locationService.createLocation(createDTO, image);
 
         assertNotNull(result);
         assertEquals("Test Location", result.getName());
-        verify(fileStorageService).saveImage(any());
+        verify(fileStorageService).saveImage(any(), eq("locations"));
         verify(locationRepository).save(any(Location.class));
     }
 
@@ -200,13 +200,13 @@ class LocationServiceTest {
         );
         
         when(locationRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(testLocation));
-        when(fileStorageService.saveImage(any())).thenReturn("/uploads/locations/new.jpg");
+        when(fileStorageService.saveImage(any(), eq("locations"))).thenReturn("/uploads/locations/new.jpg");
         when(locationRepository.save(any(Location.class))).thenReturn(testLocation);
 
         LocationDTO result = locationService.updateLocationImage(1L, newImage);
 
         assertNotNull(result);
-        verify(fileStorageService).saveImage(newImage);
+        verify(fileStorageService).saveImage(newImage, "locations");
         verify(fileStorageService).deleteImage("/test/image.jpg");
         verify(locationRepository).save(any(Location.class));
     }

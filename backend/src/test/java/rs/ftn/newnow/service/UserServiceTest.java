@@ -49,6 +49,9 @@ class UserServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private FileStorageService fileStorageService;
+
     @InjectMocks
     private UserService userService;
 
@@ -57,8 +60,6 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userService.uploadDir = "uploads/avatars";
-        
         testUser = new User();
         testUser.setId(1L);
         testUser.setEmail(testEmail);
@@ -115,40 +116,37 @@ class UserServiceTest {
     @Test
     void updateUserAvatar_Success() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getContentType()).thenReturn("image/jpeg");
-        when(file.getOriginalFilename()).thenReturn("avatar.jpg");
-        when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[100]));
 
         when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(imageRepository.findByUserId(testUser.getId())).thenReturn(Optional.empty());
         when(imageRepository.save(any(Image.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(fileStorageService.saveImage(any(), eq("avatars"))).thenReturn("/uploads/avatars/test-avatar.jpg");
 
         String result = userService.updateUserAvatar(testEmail, file);
 
         assertNotNull(result);
         assertTrue(result.endsWith(".jpg"));
         verify(imageRepository).save(any(Image.class));
+        verify(fileStorageService).saveImage(any(), eq("avatars"));
     }
 
     @Test
-    void updateUserAvatar_EmptyFile() {
+    void updateUserAvatar_EmptyFile() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
-        when(file.isEmpty()).thenReturn(true);
 
         when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        doThrow(new IllegalArgumentException("File is empty")).when(fileStorageService).saveImage(any(), eq("avatars"));
 
         assertThrows(IllegalArgumentException.class, 
                 () -> userService.updateUserAvatar(testEmail, file));
     }
 
     @Test
-    void updateUserAvatar_InvalidFileType() {
+    void updateUserAvatar_InvalidFileType() throws Exception {
         MultipartFile file = mock(MultipartFile.class);
-        when(file.isEmpty()).thenReturn(false);
-        when(file.getContentType()).thenReturn("application/pdf");
 
         when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        doThrow(new IllegalArgumentException("Invalid file type")).when(fileStorageService).saveImage(any(), eq("avatars"));
 
         assertThrows(IllegalArgumentException.class, 
                 () -> userService.updateUserAvatar(testEmail, file));

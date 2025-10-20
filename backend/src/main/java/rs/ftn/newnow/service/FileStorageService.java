@@ -17,32 +17,19 @@ import java.util.UUID;
 @Slf4j
 public class FileStorageService {
 
-    private final Path uploadPath = Paths.get("uploads/locations");
-
-    public String saveImage(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("File must be an image");
-        }
-
+    public String saveImage(MultipartFile file, String directory) throws IOException {
+        validateImageFile(file);
+        
+        Path uploadPath = Paths.get("uploads", directory);
         Files.createDirectories(uploadPath);
 
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null && originalFilename.contains(".")
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-        
-        String filename = UUID.randomUUID().toString() + extension;
+        String filename = generateUniqueFilename(file);
         Path targetPath = uploadPath.resolve(filename);
 
         Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-        log.info("Saved image: {}", filename);
-        return "/uploads/locations/" + filename;
+        log.info("Saved image: {} to directory: {}", filename, directory);
+        return String.format("/uploads/%s/%s", directory, filename);
     }
 
     public void deleteImage(String imageUrl) {
@@ -51,12 +38,30 @@ public class FileStorageService {
         }
 
         try {
-            String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-            Path filePath = uploadPath.resolve(filename);
+            Path filePath = Paths.get(imageUrl.replaceFirst("^/", ""));
             Files.deleteIfExists(filePath);
-            log.info("Deleted image: {}", filename);
+            log.info("Deleted image: {}", imageUrl);
         } catch (IOException e) {
             log.error("Failed to delete image: {}", imageUrl, e);
         }
+    }
+
+    private void validateImageFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("File must be an image");
+        }
+    }
+
+    private String generateUniqueFilename(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        String extension = originalFilename != null && originalFilename.contains(".")
+                ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                : ".jpg";
+        return UUID.randomUUID().toString() + extension;
     }
 }

@@ -6,12 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import rs.ftn.newnow.dto.AccountRequestPageResponse;
-import rs.ftn.newnow.dto.AssignManagerDTO;
-import rs.ftn.newnow.dto.ManagerDTO;
-import rs.ftn.newnow.dto.MessageResponse;
+import rs.ftn.newnow.dto.*;
 import rs.ftn.newnow.model.enums.RequestStatus;
 import rs.ftn.newnow.service.AccountRequestService;
+import rs.ftn.newnow.service.AuditLogService;
 import rs.ftn.newnow.service.ManagesService;
 
 import java.util.List;
@@ -26,6 +24,7 @@ public class AdminController {
 
     private final AccountRequestService accountRequestService;
     private final ManagesService managesService;
+    private final AuditLogService auditLogService;
 
     @GetMapping("/register-requests")
     public ResponseEntity<?> getRegisterRequests(
@@ -135,6 +134,24 @@ public class AdminController {
             log.error("Failed to remove manager", e);
             return ResponseEntity.internalServerError()
                     .body(new MessageResponse("Failed to remove manager"));
+        }
+    }
+
+    @GetMapping("/audit/logs")
+    public ResponseEntity<?> getAuditLogs(
+            @RequestParam(required = false) String action,
+            @RequestParam(required = false) String actor,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        try {
+            log.info("Fetching audit logs - action: {}, actor: {}, page: {}, size: {}", 
+                    action, actor, page, size);
+            AuditLogPageResponse response = auditLogService.getAuditLogs(action, actor, page, size);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Failed to fetch audit logs", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to fetch audit logs"));
         }
     }
 }

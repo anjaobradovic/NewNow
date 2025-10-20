@@ -130,12 +130,15 @@ public class LocationController {
 
     @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<LocationDTO> updateLocationImage(
+    public ResponseEntity<?> updateLocationImage(
             @PathVariable Long id,
             @RequestParam MultipartFile image) {
         try {
             LocationDTO updated = locationService.updateLocationImage(id, image);
             return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         } catch (RuntimeException e) {
             log.error("Location not found: {}", id, e);
             return ResponseEntity.notFound().build();

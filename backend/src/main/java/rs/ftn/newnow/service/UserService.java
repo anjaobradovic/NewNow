@@ -2,7 +2,6 @@ package rs.ftn.newnow.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +21,8 @@ import rs.ftn.newnow.repository.ReviewRepository;
 import rs.ftn.newnow.repository.UserRepository;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,9 +36,7 @@ public class UserService {
     private final ImageRepository imageRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-
-    @Value("${file.upload.dir:uploads/avatars}")
-    String uploadDir;
+    private final FileStorageService fileStorageService;
 
     @Transactional(readOnly = true)
     public UserProfileDTO getUserProfile(String email) {
@@ -83,45 +76,26 @@ public class UserService {
         log.info("Updating avatar for user: {}", email);
         User user = findUserByEmail(email);
 
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("File must be an image");
-        }
-
         try {
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".")
-                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                    : ".jpg";
-            String filename = UUID.randomUUID().toString() + extension;
-            Path filePath = uploadPath.resolve(filename);
-
-            Files.copy(file.getInputStream(), filePath);
-            log.info("Avatar file saved: {}", filename);
-
+            String imageUrl = fileStorageService.saveImage(file, "avatars");
+            
             Image existingImage = imageRepository.findByUserId(user.getId()).orElse(null);
             if (existingImage != null) {
-                deleteAvatarFile(existingImage.getPath());
-                existingImage.setPath(filename);
+                String oldImageUrl = existingImage.getPath();
+                existingImage.setPath(imageUrl);
                 imageRepository.save(existingImage);
+                if (oldImageUrl != null) {
+                    fileStorageService.deleteImage(oldImageUrl);
+                }
             } else {
                 Image newImage = new Image();
-                newImage.setPath(filename);
+                newImage.setPath(imageUrl);
                 newImage.setUser(user);
                 imageRepository.save(newImage);
             }
 
             log.info("Avatar updated successfully for user: {}", email);
-            return filename;
+            return imageUrl;
         } catch (IOException e) {
             log.error("Failed to save avatar file", e);
             throw new RuntimeException("Failed to save avatar file", e);
@@ -239,13 +213,4 @@ public class UserService {
         return dto;
     }
 
-    private void deleteAvatarFile(String filename) {
-        try {
-            Path filePath = Paths.get(uploadDir).resolve(filename);
-            Files.deleteIfExists(filePath);
-            log.info("Old avatar file deleted: {}", filename);
-        } catch (IOException e) {
-            log.error("Failed to delete old avatar file: {}", filename, e);
-        }
-    }
 }

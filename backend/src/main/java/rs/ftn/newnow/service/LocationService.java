@@ -74,7 +74,7 @@ public class LocationService {
             throw new IllegalArgumentException("Image is required");
         }
         
-        String imageUrl = fileStorageService.saveImage(image);
+        String imageUrl = fileStorageService.saveImage(image, "locations");
         
         Location location = new Location();
         location.setName(dto.getName());
@@ -148,7 +148,7 @@ public class LocationService {
                 .orElseThrow(() -> new RuntimeException("Location not found"));
         
         String oldImageUrl = location.getImageUrl();
-        String newImageUrl = fileStorageService.saveImage(image);
+        String newImageUrl = fileStorageService.saveImage(image, "locations");
         
         location.setImageUrl(newImageUrl);
         location = locationRepository.save(location);
