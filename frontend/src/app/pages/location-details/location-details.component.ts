@@ -27,6 +27,12 @@ import { ReviewDTO } from '../../models/user.model';
               class="btn-secondary"
               >Edit</a
             >
+            <a
+              *ngIf="isAdmin || isManager"
+              [routerLink]="['/analytics/locations', loc.id]"
+              class="btn-secondary"
+              >Analytics</a
+            >
             <a *ngIf="isAdmin" [routerLink]="['/locations', loc.id, 'managers']" class="btn-primary"
               >Managers</a
             >

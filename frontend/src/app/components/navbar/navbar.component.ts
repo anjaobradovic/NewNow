@@ -142,6 +142,43 @@ import { AuthService } from '../../services/auth.service';
             >
               My Profile
             </a>
+            <!-- Feed dropdown -->
+            <div
+              class="relative group before:content-[''] before:absolute before:left-0 before:top-full before:h-2 before:w-full"
+            >
+              <button
+                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+              >
+                Discover
+                <svg
+                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+              >
+                <a
+                  routerLink="/feed/popular-locations"
+                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  >Popular Venues</a
+                >
+                <a
+                  routerLink="/feed/popular-location-latest-reviews"
+                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  >Latest Reviews</a
+                >
+              </div>
+            </div>
             @if (isAdmin()) {
             <div
               class="relative group before:content-[''] before:absolute before:left-0 before:top-full before:h-2 before:w-full"
@@ -274,7 +311,40 @@ import { AuthService } from '../../services/auth.service';
             class="block px-3 py-2 rounded-lg text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
             >My Profile</a
           >
-          @if (isAdmin()) {
+          <button
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+            (click)="toggleDiscoverMobile()"
+          >
+            <span>Discover</span>
+            <svg
+              class="w-4 h-4 transition-transform"
+              [class.rotate-180]="openDiscoverMobile()"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          @if (openDiscoverMobile()) {
+          <div class="ml-3">
+            <a
+              routerLink="/feed/popular-locations"
+              class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+              >Popular Venues</a
+            >
+            <a
+              routerLink="/feed/popular-location-latest-reviews"
+              class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+              >Latest Reviews</a
+            >
+          </div>
+          } @if (isAdmin()) {
           <button
             class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
             (click)="toggleAdminMobile()"
@@ -372,6 +442,7 @@ import { AuthService } from '../../services/auth.service';
 export class NavbarComponent {
   openMobile = signal(false);
   openEventsMobile = signal(false);
+  openDiscoverMobile = signal(false);
   openAdminMobile = signal(false);
 
   constructor(public authService: AuthService, private router: Router) {}
@@ -381,6 +452,9 @@ export class NavbarComponent {
   }
   toggleEventsMobile() {
     this.openEventsMobile.update((v) => !v);
+  }
+  toggleDiscoverMobile() {
+    this.openDiscoverMobile.update((v) => !v);
   }
   toggleAdminMobile() {
     this.openAdminMobile.update((v) => !v);
