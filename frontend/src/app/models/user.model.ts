@@ -34,6 +34,72 @@ export interface RateDTO {
   averageRating: number;
 }
 
+// New: basic user and event details for review details
+export interface UserBasicDTO {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface EventBasicDTO {
+  id: number;
+  name: string;
+  type: string;
+  date: string; // ISO date
+  recurrent: boolean;
+}
+
+export interface RateDetailsDTO {
+  performance: number;
+  soundLight: number;
+  space: number;
+  overall: number;
+  average: number;
+}
+
+export interface ReviewDetailsDTO {
+  id: number;
+  createdAt: string; // ISO
+  comment?: string;
+  eventCount: number;
+  hidden: boolean;
+  author: UserBasicDTO;
+  event: EventBasicDTO;
+  ratings: RateDetailsDTO;
+}
+
+export interface CommentDTO {
+  id: number;
+  text: string;
+  createdAt: string; // ISO
+  author: UserBasicDTO;
+  parentCommentId?: number;
+  replies: CommentDTO[];
+}
+
+// Requests for reviews & comments
+export interface CreateReviewRequest {
+  eventId: number;
+  performance: number;
+  soundLight: number;
+  space: number;
+  overall: number;
+  comment?: string;
+}
+
+export interface UpdateReviewRequest {
+  performance: number;
+  soundLight: number;
+  space: number;
+  overall: number;
+  comment?: string;
+}
+
+export interface CreateCommentRequest {
+  text: string;
+  parentCommentId?: number;
+}
+
 export interface ReviewDTO {
   id: number;
   createdAt: string; // ISO

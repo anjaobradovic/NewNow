@@ -85,6 +85,9 @@ import { ReviewDTO } from '../../models/user.model';
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold">Reviews</h3>
             <div class="flex gap-2">
+              <a class="btn-primary" [routerLink]="['/locations', loc.id, 'reviews', 'new']"
+                >Write a review</a
+              >
               <select class="input-field w-auto" [(ngModel)]="sort" (ngModelChange)="loadReviews()">
                 <option value="date">Date</option>
                 <option value="rating">Rating</option>
@@ -99,6 +102,9 @@ import { ReviewDTO } from '../../models/user.model';
               </select>
             </div>
           </div>
+          <p class="text-xs text-neutral-500 mb-4">
+            Savjet: sortiraj po oceni ili datumu da brže pronađeš relevantne utiske.
+          </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-4 border border-neutral-100 rounded-2xl" *ngFor="let r of reviews()">
               <div class="flex items-start justify-between">
@@ -109,21 +115,21 @@ import { ReviewDTO } from '../../models/user.model';
                   </div>
                 </div>
                 <div class="text-primary-700 font-bold">
-                  {{ r.rate?.averageRating?.toFixed(1) }}
+                  {{ r.rate.averageRating.toFixed(1) }}
                 </div>
               </div>
               <div class="mt-3 grid grid-cols-2 gap-2 text-sm">
                 <div class="flex justify-between">
-                  <span>Perf.</span><span>{{ r.rate?.performance }}</span>
+                  <span>Perf.</span><span>{{ r.rate.performance }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Sound</span><span>{{ r.rate?.soundAndLighting }}</span>
+                  <span>Sound</span><span>{{ r.rate.soundAndLighting }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Venue</span><span>{{ r.rate?.venue }}</span>
+                  <span>Venue</span><span>{{ r.rate.venue }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Overall</span><span>{{ r.rate?.overallImpression }}</span>
+                  <span>Overall</span><span>{{ r.rate.overallImpression }}</span>
                 </div>
               </div>
             </div>

@@ -31,6 +31,9 @@ import { PageResponse, ReviewDTO } from '../../models/user.model';
               <option value="asc">Ascending</option>
             </select>
           </div>
+          <p class="text-xs text-neutral-500 mt-2">
+            Savjet: koristi sortiranje da lakše upravljaš svojim utiscima.
+          </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -42,25 +45,25 @@ import { PageResponse, ReviewDTO } from '../../models/user.model';
               </div>
               <div class="text-right">
                 <div class="text-xl font-bold text-primary-700">
-                  {{ r.rate?.averageRating?.toFixed(1) }}
+                  {{ r.rate.averageRating.toFixed(1) }}
                 </div>
                 <div class="text-xs text-neutral-500">{{ r.createdAt | date : 'mediumDate' }}</div>
               </div>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div class="flex justify-between">
-                <span>Performance</span><span class="font-semibold">{{ r.rate?.performance }}</span>
+                <span>Performance</span><span class="font-semibold">{{ r.rate.performance }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Sound & Light</span
-                ><span class="font-semibold">{{ r.rate?.soundAndLighting }}</span>
+                ><span class="font-semibold">{{ r.rate.soundAndLighting }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Space</span><span class="font-semibold">{{ r.rate?.venue }}</span>
+                <span>Space</span><span class="font-semibold">{{ r.rate.venue }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Overall</span
-                ><span class="font-semibold">{{ r.rate?.overallImpression }}</span>
+                ><span class="font-semibold">{{ r.rate.overallImpression }}</span>
               </div>
             </div>
             <div class="mt-3 text-xs text-neutral-500">

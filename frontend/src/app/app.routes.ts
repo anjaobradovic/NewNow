@@ -22,6 +22,11 @@ import { EventSearchComponent } from './pages/event-search/event-search.componen
 import { EventDetailsComponent } from './pages/event-details/event-details.component';
 import { EventCreateComponent } from './pages/event-create/event-create.component';
 import { EventEditComponent } from './pages/event-edit/event-edit.component';
+import { ReviewNewComponent } from './pages/review-new/review-new.component';
+import { ReviewDetailsComponent } from './pages/review-details/review-details.component';
+import { ReviewEditComponent } from './pages/review-edit/review-edit.component';
+import { LocationSearchComponent } from './pages/location-search/location-search.component';
+import { ManagerReviewsComponent } from './pages/manager-reviews/manager-reviews.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -32,7 +37,16 @@ export const routes: Routes = [
   { path: 'events/:id', component: EventDetailsComponent },
   { path: 'events/:id/edit', component: EventEditComponent, canActivate: [authGuard] },
   { path: 'locations', component: LocationListComponent },
-  { path: 'locations/new', component: LocationNewComponent, canActivate: [adminGuard] },
+  { path: 'search/locations', component: LocationSearchComponent },
+  { path: 'manager/reviews', component: ManagerReviewsComponent, canActivate: [authGuard] },
+  // Reviews
+  {
+    path: 'locations/:locationId/reviews/new',
+    component: ReviewNewComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'reviews/:id', component: ReviewDetailsComponent },
+  { path: 'reviews/:id/edit', component: ReviewEditComponent, canActivate: [authGuard] },
   { path: 'locations/:id', component: LocationDetailsComponent },
   { path: 'locations/:id/edit', component: LocationEditComponent, canActivate: [authGuard] },
   {

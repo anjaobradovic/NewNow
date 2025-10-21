@@ -2,8 +2,8 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { EventService } from '../../services/event.service';
 import { Event } from '../../models/event.model';
+import { SearchService } from '../../services/search.service';
 
 @Component({
   selector: 'app-event-search',
@@ -15,44 +15,39 @@ import { Event } from '../../models/event.model';
         <h1 class="text-3xl font-bold text-neutral-900 mb-6">Explore Events</h1>
 
         <!-- Filters -->
-        <div class="card p-4 mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="card p-4 mb-6 grid grid-cols-1 md:grid-cols-5 gap-4">
           <input type="text" class="input-field" [(ngModel)]="address" placeholder="Address" />
           <input type="text" class="input-field" [(ngModel)]="type" placeholder="Type" />
-          <input type="date" class="input-field" [(ngModel)]="date" />
+          <input type="date" class="input-field" [(ngModel)]="startDate" />
+          <input type="date" class="input-field" [(ngModel)]="endDate" />
           <div class="flex items-center gap-3">
             <input
               type="number"
               min="0"
               class="input-field"
-              placeholder="Min price"
-              [(ngModel)]="priceMin"
+              placeholder="Min"
+              [(ngModel)]="minPrice"
             />
             <input
               type="number"
               min="0"
               class="input-field"
-              placeholder="Max price"
-              [(ngModel)]="priceMax"
+              placeholder="Max"
+              [(ngModel)]="maxPrice"
             />
           </div>
           <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
-            <input type="checkbox" [(ngModel)]="isFree" /> Free only
+            <input type="checkbox" [(ngModel)]="past" /> Past
           </label>
           <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
-            <input type="checkbox" [(ngModel)]="isRegular" /> Regular
+            <input type="checkbox" [(ngModel)]="future" /> Future
           </label>
           <button class="btn-primary w-full md:w-auto" (click)="apply()">Search</button>
         </div>
 
         <!-- Results -->
         <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9]" class="card h-64 animate-pulse">
-            <div class="h-40 bg-neutral-200"></div>
-            <div class="p-4 space-y-2">
-              <div class="h-4 bg-neutral-200 rounded"></div>
-              <div class="h-4 bg-neutral-200 rounded w-1/2"></div>
-            </div>
-          </div>
+          <div *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8, 9]" class="card h-64 animate-pulse"></div>
         </div>
 
         <div *ngIf="!loading() && events().length === 0" class="card p-10 text-center">
@@ -103,11 +98,12 @@ export class EventSearchComponent implements OnInit {
   // filters
   type = '';
   address = '';
-  date = '';
-  priceMin?: number;
-  priceMax?: number;
-  isFree?: boolean;
-  isRegular?: boolean;
+  startDate = '';
+  endDate = '';
+  minPrice?: number;
+  maxPrice?: number;
+  past?: boolean;
+  future?: boolean;
 
   // data
   events = signal<Event[]>([]);
@@ -116,7 +112,7 @@ export class EventSearchComponent implements OnInit {
   size = 9;
   totalPages = 1;
 
-  constructor(private eventService: EventService) {}
+  constructor(private search: SearchService) {}
 
   ngOnInit(): void {
     this.apply();
@@ -124,15 +120,16 @@ export class EventSearchComponent implements OnInit {
 
   apply(): void {
     this.loading.set(true);
-    this.eventService
+    this.search
       .searchEvents({
         type: this.type || undefined,
         address: this.address || undefined,
-        date: this.date || undefined,
-        priceMin: this.priceMin,
-        priceMax: this.priceMax,
-        isFree: this.isFree,
-        isRegular: this.isRegular,
+        startDate: this.startDate || undefined,
+        endDate: this.endDate || undefined,
+        minPrice: this.minPrice,
+        maxPrice: this.maxPrice,
+        past: this.past,
+        future: this.future,
         page: this.page,
         size: this.size,
       })
