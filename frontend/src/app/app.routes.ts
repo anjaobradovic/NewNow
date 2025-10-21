@@ -10,6 +10,7 @@ import { LocationEditComponent } from './pages/location-edit/location-edit.compo
 import { LocationManagersComponent } from './pages/location-managers/location-managers.component';
 import { AdminRequestsComponent } from './pages/admin-requests/admin-requests.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
+import { AdminLocationsComponent } from './pages/admin-locations/admin-locations.component';
 import { adminGuard } from './guards/admin.guard';
 import { authGuard } from './guards/auth.guard';
 import { MeComponent } from './pages/me/me.component';
@@ -82,6 +83,11 @@ export const routes: Routes = [
   {
     path: 'admin/requests',
     component: AdminRequestsComponent,
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/locations',
+    component: AdminLocationsComponent,
     canActivate: [adminGuard],
   },
   // Profile

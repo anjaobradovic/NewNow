@@ -215,6 +215,11 @@ import { AuthService } from '../../services/auth.service';
                   class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Requests</a
                 >
+                <a
+                  routerLink="/admin/locations"
+                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  >Manage Locations</a
+                >
               </div>
             </div>
             } }
@@ -376,6 +381,11 @@ import { AuthService } from '../../services/auth.service';
               routerLink="/admin/requests"
               class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
               >Requests</a
+            >
+            <a
+              routerLink="/admin/locations"
+              class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+              >Manage Locations</a
             >
           </div>
           } }

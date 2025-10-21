@@ -79,6 +79,10 @@ export class LocationService {
     return this.http.patch<LocationDTO>(`${this.API_URL}/locations/${id}`, dto);
   }
 
+  deleteLocation(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/locations/${id}`);
+  }
+
   updateLocationImage(id: number, image: File): Observable<LocationDTO> {
     const formData = new FormData();
     formData.append('image', image);
