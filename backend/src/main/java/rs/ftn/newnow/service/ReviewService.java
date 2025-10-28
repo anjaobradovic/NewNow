@@ -47,9 +47,9 @@ public class ReviewService {
             throw new BusinessException("Only recurrent (regular) events can be reviewed");
         }
 
-        // Provera da li je događaj aktivan (ne u budućnosti)
+        // Check if event is active (not in the future) - must be today or in the past
         if (event.getDate().isAfter(LocalDate.now())) {
-            throw new BusinessException("Cannot review future events - event must be active or past");
+            throw new BusinessException("Cannot review future events. Event must be active (today) or past.");
         }
 
         reviewRepository.findByEventIdAndUserId(event.getId(), user.getId())

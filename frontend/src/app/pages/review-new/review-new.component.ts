@@ -27,7 +27,7 @@ import { CreateReviewRequest } from '../../models/user.model';
               <option *ngFor="let e of events" [ngValue]="e.id">{{ e.name }} • {{ e.date }}</option>
             </select>
             <p class="text-xs text-neutral-500 mt-1">
-              Only past, regular events are eligible per rules. Backend validates this.
+              Only regular (recurrent) events that are active (today) or past can be reviewed.
             </p>
           </div>
 
@@ -130,9 +130,16 @@ export class ReviewNewComponent {
   }
 
   submit() {
-    if (!this.form.eventId) return;
+    if (!this.form.eventId) {
+      alert('Please select an event');
+      return;
+    }
     this.reviewService.createReview(this.locationId, this.form).subscribe({
       next: (r) => this.router.navigate(['/reviews', r.id]),
+      error: (err) => {
+        const message = err.error?.message || 'Failed to submit review. Please try again.';
+        alert(message);
+      },
     });
   }
 }

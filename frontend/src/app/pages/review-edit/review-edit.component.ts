@@ -109,21 +109,34 @@ export class ReviewEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.id = Number(this.route.snapshot.paramMap.get('id'));
-    this.reviewService.getReview(this.id).subscribe((r: ReviewDetailsDTO) => {
-      this.form = {
-        performance: r.ratings.performance,
-        soundAndLighting: r.ratings.soundAndLighting,
-        venue: r.ratings.venue,
-        overallImpression: r.ratings.overallImpression,
-        comment: r.comment || '',
-      };
-      this.loaded = true;
+    this.reviewService.getReview(this.id).subscribe({
+      next: (r: ReviewDetailsDTO) => {
+        this.form = {
+          performance: r.ratings.performance,
+          soundAndLighting: r.ratings.soundAndLighting,
+          venue: r.ratings.venue,
+          overallImpression: r.ratings.overallImpression,
+          comment: r.comment || '',
+        };
+        this.loaded = true;
+      },
+      error: (err) => {
+        const message = err.error?.message || 'Failed to load review';
+        alert(message);
+        this.router.navigate(['/']);
+      },
     });
   }
 
   save() {
-    this.reviewService.updateReview(this.id, this.form).subscribe((r) => {
-      this.router.navigate(['/reviews', r.id]);
+    this.reviewService.updateReview(this.id, this.form).subscribe({
+      next: (r) => {
+        this.router.navigate(['/reviews', r.id]);
+      },
+      error: (err) => {
+        const message = err.error?.message || 'Failed to update review. Please try again.';
+        alert(message);
+      },
     });
   }
 }
