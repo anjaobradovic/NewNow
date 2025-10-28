@@ -115,25 +115,37 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
                 <div class="text-center p-3 bg-neutral-50 rounded-xl">
                   <div class="text-xs text-neutral-600 mb-1">Performance</div>
                   <div class="text-lg font-bold text-neutral-900">
-                    {{ review.ratings.performance.toFixed(1) }}
+                    {{
+                      review.ratings.performance !== null
+                        ? review.ratings.performance.toFixed(1)
+                        : 'N/A'
+                    }}
                   </div>
                 </div>
                 <div class="text-center p-3 bg-neutral-50 rounded-xl">
                   <div class="text-xs text-neutral-600 mb-1">Sound & Light</div>
                   <div class="text-lg font-bold text-neutral-900">
-                    {{ review.ratings.soundLight.toFixed(1) }}
+                    {{
+                      review.ratings.soundAndLighting !== null
+                        ? review.ratings.soundAndLighting.toFixed(1)
+                        : 'N/A'
+                    }}
                   </div>
                 </div>
                 <div class="text-center p-3 bg-neutral-50 rounded-xl">
                   <div class="text-xs text-neutral-600 mb-1">Venue</div>
                   <div class="text-lg font-bold text-neutral-900">
-                    {{ review.ratings.space.toFixed(1) }}
+                    {{ review.ratings.venue !== null ? review.ratings.venue.toFixed(1) : 'N/A' }}
                   </div>
                 </div>
                 <div class="text-center p-3 bg-neutral-50 rounded-xl">
                   <div class="text-xs text-neutral-600 mb-1">Overall</div>
                   <div class="text-lg font-bold text-neutral-900">
-                    {{ review.ratings.overall.toFixed(1) }}
+                    {{
+                      review.ratings.overallImpression !== null
+                        ? review.ratings.overallImpression.toFixed(1)
+                        : 'N/A'
+                    }}
                   </div>
                 </div>
               </div>

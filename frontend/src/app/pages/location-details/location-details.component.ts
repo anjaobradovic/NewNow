@@ -84,7 +84,7 @@ import { ReviewDTO } from '../../models/user.model';
                       {{ e.price ? e.price + ' RSD' : 'Free' }}
                     </div>
                     <a
-                      *ngIf="isManager || isAdmin"
+                      *ngIf="isManager"
                       [routerLink]="['/events', e.id, 'edit']"
                       class="px-3 py-1.5 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg text-xs font-medium transition-colors"
                       title="Edit event"
@@ -98,7 +98,7 @@ import { ReviewDTO } from '../../models/user.model';
                 No upcoming events
               </div>
             </div>
-            <div class="mt-4" *ngIf="isManager || isAdmin">
+            <div class="mt-4" *ngIf="isManager">
               <a [routerLink]="['/locations', location()?.id, 'events', 'new']" class="btn-primary"
                 >Add event</a
               >

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Event } from '../../models/event.model';
 import { SearchService } from '../../services/search.service';
+import { UserService } from '../../services/user.service';
+import { ManagedLocationDTO } from '../../models/user.model';
 
 @Component({
   selector: 'app-event-search',
@@ -91,7 +93,7 @@ import { SearchService } from '../../services/search.service';
                 </div>
               </div>
             </a>
-            <div *ngIf="isManagerOrAdmin" class="px-5 pb-4">
+            <div *ngIf="canEditEvent(e)" class="px-5 pb-4">
               <a
                 [routerLink]="['/events', e.id, 'edit']"
                 class="inline-block w-full text-center px-4 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg text-sm font-medium transition-colors"
@@ -137,21 +139,33 @@ export class EventSearchComponent implements OnInit {
   totalPages = 1;
 
   // permissions
-  isManagerOrAdmin = false;
+  managedLocationIds: number[] = [];
 
-  constructor(private search: SearchService) {}
+  constructor(private search: SearchService, private userService: UserService) {}
 
   ngOnInit(): void {
-    this.checkPermissions();
+    this.loadManagedLocations();
     this.apply();
   }
 
-  checkPermissions(): void {
+  loadManagedLocations(): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      this.isManagerOrAdmin =
-        !!user?.roles?.includes('ROLE_ADMIN') || !!user?.roles?.includes('ROLE_MANAGER');
+      if (user?.roles?.includes('ROLE_MANAGER')) {
+        this.userService.getManagedLocations().subscribe({
+          next: (locations: ManagedLocationDTO[]) => {
+            this.managedLocationIds = locations.map((loc: ManagedLocationDTO) => loc.id);
+          },
+          error: () => {
+            this.managedLocationIds = [];
+          },
+        });
+      }
     } catch {}
+  }
+
+  canEditEvent(event: Event): boolean {
+    return this.managedLocationIds.includes(event.locationId);
   }
 
   apply(): void {

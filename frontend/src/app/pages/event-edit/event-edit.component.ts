@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventService } from '../../services/event.service';
+import { UserService } from '../../services/user.service';
+import { ManagedLocationDTO } from '../../models/user.model';
 
 @Component({
   selector: 'app-event-edit',
@@ -77,6 +79,7 @@ import { EventService } from '../../services/event.service';
 })
 export class EventEditComponent implements OnInit {
   eventId = 0;
+  locationId = 0;
   name = '';
   address = '';
   type = '';
@@ -89,19 +92,56 @@ export class EventEditComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private service: EventService
+    private service: EventService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
-    this.service.getEvent(this.eventId).subscribe((e) => {
-      this.name = e.name;
-      this.address = e.address;
-      this.type = e.type;
-      this.date = e.date;
-      this.price = e.price;
-      this.recurrent = e.recurrent;
+    this.service.getEvent(this.eventId).subscribe({
+      next: (e) => {
+        this.locationId = e.locationId;
+        this.name = e.name;
+        this.address = e.address;
+        this.type = e.type;
+        this.date = e.date;
+        this.price = e.price;
+        this.recurrent = e.recurrent;
+        this.checkPermissions();
+      },
+      error: () => {
+        alert('Event not found');
+        this.router.navigate(['/events']);
+      },
     });
+  }
+
+  checkPermissions(): void {
+    try {
+      const user = JSON.parse(localStorage.getItem('user_data') || 'null');
+      if (!user?.roles?.includes('ROLE_MANAGER')) {
+        alert('Only managers can edit events');
+        this.router.navigate(['/events', this.eventId]);
+        return;
+      }
+
+      this.userService.getManagedLocations().subscribe({
+        next: (locations: ManagedLocationDTO[]) => {
+          const isManager = locations.some((loc: ManagedLocationDTO) => loc.id === this.locationId);
+          if (!isManager) {
+            alert('You can only edit events from locations you manage');
+            this.router.navigate(['/events', this.eventId]);
+          }
+        },
+        error: () => {
+          alert('Failed to verify permissions');
+          this.router.navigate(['/events', this.eventId]);
+        },
+      });
+    } catch {
+      alert('Authentication error');
+      this.router.navigate(['/events', this.eventId]);
+    }
   }
 
   onFile(e: Event): void {

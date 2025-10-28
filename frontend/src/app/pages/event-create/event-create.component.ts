@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventService } from '../../services/event.service';
+import { UserService } from '../../services/user.service';
+import { ManagedLocationDTO } from '../../models/user.model';
 
 @Component({
   selector: 'app-event-create',
@@ -68,7 +70,7 @@ import { EventService } from '../../services/event.service';
     </div>
   `,
 })
-export class EventCreateComponent {
+export class EventCreateComponent implements OnInit {
   locationId = 0;
 
   name = '';
@@ -84,9 +86,42 @@ export class EventCreateComponent {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private service: EventService
+    private service: EventService,
+    private userService: UserService
   ) {
     this.locationId = Number(this.route.snapshot.paramMap.get('locationId'));
+  }
+
+  ngOnInit(): void {
+    this.checkPermissions();
+  }
+
+  checkPermissions(): void {
+    try {
+      const user = JSON.parse(localStorage.getItem('user_data') || 'null');
+      if (!user?.roles?.includes('ROLE_MANAGER')) {
+        alert('Only managers can create events');
+        this.router.navigate(['/locations', this.locationId]);
+        return;
+      }
+
+      this.userService.getManagedLocations().subscribe({
+        next: (locations: ManagedLocationDTO[]) => {
+          const isManager = locations.some((loc: ManagedLocationDTO) => loc.id === this.locationId);
+          if (!isManager) {
+            alert('You can only create events for locations you manage');
+            this.router.navigate(['/locations', this.locationId]);
+          }
+        },
+        error: () => {
+          alert('Failed to verify permissions');
+          this.router.navigate(['/locations', this.locationId]);
+        },
+      });
+    } catch {
+      alert('Authentication error');
+      this.router.navigate(['/locations', this.locationId]);
+    }
   }
 
   onFile(e: Event): void {

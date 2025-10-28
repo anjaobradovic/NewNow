@@ -150,7 +150,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
               </div>
             </div>
             <div class="text-3xl font-bold text-neutral-900 mb-1">
-              {{ summary()!.averageRating?.toFixed(1) || 'N/A' }}
+              {{ summary()!.averageRating.toFixed(1) || 'N/A' }}
             </div>
             <div class="text-sm text-neutral-600">Average Rating</div>
           </div>

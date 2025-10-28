@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventService } from '../../services/event.service';
+import { UserService } from '../../services/user.service';
 import { Event } from '../../models/event.model';
+import { ManagedLocationDTO } from '../../models/user.model';
 
 @Component({
   selector: 'app-event-details',
@@ -37,7 +39,7 @@ import { Event } from '../../models/event.model';
                   {{ e.recurrent ? 'Regular event' : 'One-time' }}
                 </div>
                 <a
-                  *ngIf="isManagerOrAdmin"
+                  *ngIf="isManager"
                   [routerLink]="['/events', e.id, 'edit']"
                   class="btn-primary text-sm"
                 >
@@ -69,27 +71,39 @@ export class EventDetailsComponent implements OnInit {
   untilDate = '';
   occCount: number | null = null;
   errorMsg = '';
-  isManagerOrAdmin = false;
+  isManager = false;
 
-  constructor(private route: ActivatedRoute, private service: EventService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private service: EventService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
-    this.checkPermissions();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.service.getEvent(id).subscribe({
       next: (e) => {
         this.event.set(e);
         this.loading.set(false);
+        this.checkPermissions(e.locationId);
       },
       error: () => this.loading.set(false),
     });
   }
 
-  checkPermissions(): void {
+  checkPermissions(locationId: number): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      this.isManagerOrAdmin =
-        !!user?.roles?.includes('ROLE_ADMIN') || !!user?.roles?.includes('ROLE_MANAGER');
+      if (user?.roles?.includes('ROLE_MANAGER')) {
+        this.userService.getManagedLocations().subscribe({
+          next: (locations: ManagedLocationDTO[]) => {
+            this.isManager = locations.some((loc: ManagedLocationDTO) => loc.id === locationId);
+          },
+          error: () => {
+            this.isManager = false;
+          },
+        });
+      }
     } catch {}
   }
 
