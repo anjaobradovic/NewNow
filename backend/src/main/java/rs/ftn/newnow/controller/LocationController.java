@@ -100,7 +100,7 @@ public class LocationController {
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @locationService.isUserManagerOfLocation(principal.id, #id)")
+    @PreAuthorize("hasRole('ADMIN') or @locationService.isManagerOfLocation(#id, authentication.name)")
     public ResponseEntity<LocationDTO> patchLocation(
             @PathVariable Long id,
             @RequestBody PatchLocationDTO dto,
@@ -133,7 +133,7 @@ public class LocationController {
     }
 
     @PutMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @locationService.isManagerOfLocation(#id, authentication.name)")
     public ResponseEntity<?> updateLocationImage(
             @PathVariable Long id,
             @RequestParam MultipartFile image) {

@@ -38,6 +38,7 @@ export class SearchService {
     endDate?: string; // ISO YYYY-MM-DD
     past?: boolean;
     future?: boolean;
+    regularOnly?: boolean;
     page?: number;
     size?: number;
   }): Observable<PageResponse<Event>> {
@@ -47,6 +48,7 @@ export class SearchService {
       maxPrice: 'maxPrice',
       startDate: 'startDate',
       endDate: 'endDate',
+      regularOnly: 'isRegular',
     };
     Object.entries(filters || {}).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') {

@@ -42,6 +42,9 @@ import { SearchService } from '../../services/search.service';
           <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
             <input type="checkbox" [(ngModel)]="future" /> Future
           </label>
+          <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
+            <input type="checkbox" [(ngModel)]="regularOnly" /> Regular events only
+          </label>
           <button class="btn-primary w-full md:w-auto" (click)="apply()">Search</button>
         </div>
 
@@ -75,6 +78,17 @@ import { SearchService } from '../../services/search.service';
               </div>
               <div class="text-sm text-neutral-500 mt-1">{{ e.type }} • {{ e.date }}</div>
               <div class="text-sm text-neutral-500">{{ e.locationName }}</div>
+              <div class="mt-2">
+                <span
+                  class="inline-block px-2 py-1 text-xs rounded-full"
+                  [class.bg-primary-100]="e.recurrent"
+                  [class.text-primary-700]="e.recurrent"
+                  [class.bg-neutral-100]="!e.recurrent"
+                  [class.text-neutral-600]="!e.recurrent"
+                >
+                  {{ e.recurrent ? 'Regular event' : 'One-time' }}
+                </span>
+              </div>
             </div>
           </a>
         </div>
@@ -104,6 +118,7 @@ export class EventSearchComponent implements OnInit {
   maxPrice?: number;
   past?: boolean;
   future?: boolean;
+  regularOnly?: boolean;
 
   // data
   events = signal<Event[]>([]);
@@ -130,6 +145,7 @@ export class EventSearchComponent implements OnInit {
         maxPrice: this.maxPrice,
         past: this.past,
         future: this.future,
+        regularOnly: this.regularOnly,
         page: this.page,
         size: this.size,
       })

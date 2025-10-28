@@ -59,6 +59,17 @@ import { Event } from '../../models/event.model';
               </div>
               <div class="text-sm text-neutral-500 mt-1">{{ e.type }} • {{ e.date }}</div>
               <div class="text-sm text-neutral-500">{{ e.locationName }}</div>
+              <div class="mt-2">
+                <span
+                  class="inline-block px-2 py-1 text-xs rounded-full"
+                  [class.bg-primary-100]="e.recurrent"
+                  [class.text-primary-700]="e.recurrent"
+                  [class.bg-neutral-100]="!e.recurrent"
+                  [class.text-neutral-600]="!e.recurrent"
+                >
+                  {{ e.recurrent ? 'Regular event' : 'One-time' }}
+                </span>
+              </div>
             </div>
           </a>
         </div>

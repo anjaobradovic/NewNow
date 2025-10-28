@@ -217,6 +217,15 @@ public class LocationService {
         return !managesRepository.findActiveManagement(userId, locationId, LocalDate.now()).isEmpty();
     }
 
+    public boolean isManagerOfLocation(Long locationId, String email) {
+        locationRepository.findByIdAndDeletedFalse(locationId)
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        return managesRepository.findActiveManagersByLocation(locationId, LocalDate.now())
+                .stream()
+                .anyMatch(manages -> manages.getUser().getEmail().equals(email));
+    }
+
     private Pageable createPageableForReviews(String sort, String order, int page, int size) {
         String sortField = "createdAt";
         if ("rating".equalsIgnoreCase(sort)) {

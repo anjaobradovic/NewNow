@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LocationService } from '../../services/location.service';
+import { UserService } from '../../services/user.service';
 import { LocationDetailsDTO } from '../../models/location.model';
 import { FormsModule } from '@angular/forms';
 import { Event } from '../../models/event.model';
@@ -174,12 +175,13 @@ export class LocationDetailsComponent implements OnInit {
   order: 'asc' | 'desc' = 'desc';
 
   isAdmin = false;
-  isManager = false; // Future: can derive via managed locations
+  isManager = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -188,6 +190,18 @@ export class LocationDetailsComponent implements OnInit {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
       this.isAdmin = !!user?.roles?.includes('ROLE_ADMIN');
+
+      // Check if user is manager of this location
+      if (user && user.roles?.includes('ROLE_MANAGER')) {
+        this.userService.getManagedLocations().subscribe({
+          next: (locations) => {
+            this.isManager = locations.some((loc) => loc.id === id);
+          },
+          error: () => {
+            this.isManager = false;
+          },
+        });
+      }
     } catch {}
   }
 
