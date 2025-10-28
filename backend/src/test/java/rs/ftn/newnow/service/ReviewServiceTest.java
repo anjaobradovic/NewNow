@@ -93,9 +93,9 @@ class ReviewServiceTest {
         CreateReviewDTO dto = new CreateReviewDTO();
         dto.setEventId(testEvent.getId());
         dto.setPerformance(7);
-        dto.setSoundLight(8);
-        dto.setSpace(6);
-        dto.setOverall(7);
+        dto.setSoundAndLighting(8);
+        dto.setVenue(6);
+        dto.setOverallImpression(7);
         dto.setComment("Nice place");
 
         ReviewDetailsDTO result = reviewService.createReview(testLocation.getId(), dto, testUser.getEmail());
@@ -112,9 +112,9 @@ class ReviewServiceTest {
         CreateReviewDTO dto = new CreateReviewDTO();
         dto.setEventId(testEvent.getId());
         dto.setPerformance(7);
-        dto.setSoundLight(8);
-        dto.setSpace(6);
-        dto.setOverall(7);
+        dto.setSoundAndLighting(8);
+        dto.setVenue(6);
+        dto.setOverallImpression(7);
 
         reviewService.createReview(testLocation.getId(), dto, testUser.getEmail());
 
@@ -140,9 +140,9 @@ class ReviewServiceTest {
 
         UpdateReviewDTO dto = new UpdateReviewDTO();
         dto.setPerformance(10);
-        dto.setSoundLight(10);
-        dto.setSpace(10);
-        dto.setOverall(10);
+        dto.setSoundAndLighting(10);
+        dto.setVenue(10);
+        dto.setOverallImpression(10);
         dto.setComment("Amazing!");
 
         ReviewDetailsDTO result = reviewService.updateReview(review.getId(), dto, testUser.getEmail());
@@ -213,9 +213,9 @@ class ReviewServiceTest {
 
         Rate rate = new Rate();
         rate.setPerformance(8);
-        rate.setSoundLight(9);
-        rate.setSpace(7);
-        rate.setOverall(8);
+        rate.setSoundAndLighting(9);
+        rate.setVenue(7);
+        rate.setOverallImpression(8);
         rate.setReview(review);
         review.setRate(rate);
 

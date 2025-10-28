@@ -109,9 +109,9 @@ class ReviewControllerTest {
         CreateReviewDTO dto = new CreateReviewDTO();
         dto.setEventId(testEvent.getId());
         dto.setPerformance(8);
-        dto.setSoundLight(9);
-        dto.setSpace(7);
-        dto.setOverall(8);
+        dto.setSoundAndLighting(9);
+        dto.setVenue(7);
+        dto.setOverallImpression(8);
         dto.setComment("Great event!");
 
         mockMvc.perform(post("/api/locations/{locationId}/reviews", testLocation.getId())
@@ -141,9 +141,9 @@ class ReviewControllerTest {
         CreateReviewDTO dto = new CreateReviewDTO();
         dto.setEventId(nonRecurrentEvent.getId());
         dto.setPerformance(8);
-        dto.setSoundLight(9);
-        dto.setSpace(7);
-        dto.setOverall(8);
+        dto.setSoundAndLighting(9);
+        dto.setVenue(7);
+        dto.setOverallImpression(8);
 
         mockMvc.perform(post("/api/locations/{locationId}/reviews", testLocation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -168,9 +168,9 @@ class ReviewControllerTest {
         CreateReviewDTO dto = new CreateReviewDTO();
         dto.setEventId(futureEvent.getId());
         dto.setPerformance(8);
-        dto.setSoundLight(9);
-        dto.setSpace(7);
-        dto.setOverall(8);
+        dto.setSoundAndLighting(9);
+        dto.setVenue(7);
+        dto.setOverallImpression(8);
 
         mockMvc.perform(post("/api/locations/{locationId}/reviews", testLocation.getId())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -196,9 +196,9 @@ class ReviewControllerTest {
 
         UpdateReviewDTO dto = new UpdateReviewDTO();
         dto.setPerformance(10);
-        dto.setSoundLight(10);
-        dto.setSpace(10);
-        dto.setOverall(10);
+        dto.setSoundAndLighting(10);
+        dto.setVenue(10);
+        dto.setOverallImpression(10);
         dto.setComment("Updated comment");
 
         mockMvc.perform(put("/api/reviews/{id}", review.getId())
@@ -329,9 +329,9 @@ class ReviewControllerTest {
 
         Rate rate = new Rate();
         rate.setPerformance(8);
-        rate.setSoundLight(9);
-        rate.setSpace(7);
-        rate.setOverall(8);
+        rate.setSoundAndLighting(9);
+        rate.setVenue(7);
+        rate.setOverallImpression(8);
         rate.setReview(review);
         review.setRate(rate);
 

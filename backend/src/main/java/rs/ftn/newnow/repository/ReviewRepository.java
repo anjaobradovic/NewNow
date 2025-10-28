@@ -23,7 +23,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false " +
-           "ORDER BY r.rate.overall DESC")
+           "ORDER BY r.rate.overallImpression DESC")
     Page<Review> findByLocationIdOrderByRating(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
@@ -33,7 +33,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false " +
-           "ORDER BY r.rate.overall ASC")
+           "ORDER BY r.rate.overallImpression ASC")
     Page<Review> findByLocationIdOrderByRatingAsc(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
@@ -64,7 +64,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             @Param("startDate") java.time.LocalDateTime startDate,
             @Param("endDate") java.time.LocalDateTime endDate);
     
-    @Query("SELECT AVG(r.rate.overall) FROM Review r WHERE r.location.id = :locationId " +
+    @Query("SELECT AVG(r.rate.overallImpression) FROM Review r WHERE r.location.id = :locationId " +
            "AND r.createdAt BETWEEN :startDate AND :endDate " +
            "AND r.deleted = false AND r.deletedByManager = false")
     Double calculateAverageRatingByLocationAndDateRange(
@@ -84,22 +84,22 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
            "AND r.deleted = false AND r.deletedByManager = false")
     Long countByLocationAndNotDeleted(@Param("locationId") Long locationId);
     
-    @Query("SELECT AVG(r.rate.overall) FROM Review r WHERE r.location.id = :locationId " +
+    @Query("SELECT AVG(r.rate.overallImpression) FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false")
     Double calculateAverageRatingByLocation(@Param("locationId") Long locationId);
     
-    @Query("SELECT r.event.id, r.event.name, AVG(r.rate.overall), COUNT(r) " +
+    @Query("SELECT r.event.id, r.event.name, AVG(r.rate.overallImpression), COUNT(r) " +
            "FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false " +
            "GROUP BY r.event.id, r.event.name " +
-           "ORDER BY AVG(r.rate.overall) DESC")
+           "ORDER BY AVG(r.rate.overallImpression) DESC")
     List<Object[]> findEventRatingsDescByLocation(@Param("locationId") Long locationId, Pageable pageable);
     
-    @Query("SELECT r.event.id, r.event.name, AVG(r.rate.overall), COUNT(r) " +
+    @Query("SELECT r.event.id, r.event.name, AVG(r.rate.overallImpression), COUNT(r) " +
            "FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false " +
            "GROUP BY r.event.id, r.event.name " +
-           "ORDER BY AVG(r.rate.overall) ASC")
+           "ORDER BY AVG(r.rate.overallImpression) ASC")
     List<Object[]> findEventRatingsAscByLocation(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r.location.id FROM Review r " +

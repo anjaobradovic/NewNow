@@ -109,7 +109,7 @@ public class UserService {
         User user = findUserByEmail(email);
 
         Sort.Direction direction = "asc".equalsIgnoreCase(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
-        String sortField = "rating".equals(sortBy) ? "rate.overall" : "createdAt";
+        String sortField = "rating".equals(sortBy) ? "rate.overallImpression" : "createdAt";
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 

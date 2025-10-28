@@ -229,7 +229,7 @@ public class LocationService {
     private Pageable createPageableForReviews(String sort, String order, int page, int size) {
         String sortField = "createdAt";
         if ("rating".equalsIgnoreCase(sort)) {
-            sortField = "rate.overall";
+            sortField = "rate.overallImpression";
         }
         
         org.springframework.data.domain.Sort.Direction direction = 

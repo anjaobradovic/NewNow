@@ -83,9 +83,9 @@ class CommentServiceTest {
 
         Rate rate = new Rate();
         rate.setPerformance(8);
-        rate.setSoundLight(9);
-        rate.setSpace(7);
-        rate.setOverall(8);
+        rate.setSoundAndLighting(9);
+        rate.setVenue(7);
+        rate.setOverallImpression(8);
         rate.setReview(testReview);
         testReview.setRate(rate);
 

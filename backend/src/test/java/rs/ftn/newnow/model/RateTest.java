@@ -10,9 +10,9 @@ class RateTest {
     void shouldCalculateAverageRatingWithAllFields() {
         Rate rate = new Rate();
         rate.setPerformance(8);
-        rate.setSoundLight(9);
-        rate.setSpace(7);
-        rate.setOverall(10);
+        rate.setSoundAndLighting(9);
+        rate.setVenue(7);
+        rate.setOverallImpression(10);
         
         Double average = rate.getAverageRating();
         

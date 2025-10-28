@@ -124,9 +124,9 @@ class FeedControllerTest {
 
             Rate rate = new Rate();
             rate.setPerformance(8 + i);
-            rate.setSoundLight(9);
-            rate.setSpace(7);
-            rate.setOverall(8 + i);
+            rate.setSoundAndLighting(9);
+            rate.setVenue(7);
+            rate.setOverallImpression(8 + i);
             rate.setReview(review);
             review.setRate(rate);
 

@@ -174,9 +174,9 @@ class UserServiceTest {
         Rate rate = new Rate();
         rate.setId(1L);
         rate.setPerformance(5);
-        rate.setSoundLight(4);
-        rate.setSpace(5);
-        rate.setOverall(5);
+        rate.setSoundAndLighting(4);
+        rate.setVenue(5);
+        rate.setOverallImpression(5);
         review.setRate(rate);
 
         Page<Review> reviewPage = new PageImpl<>(Collections.singletonList(review));

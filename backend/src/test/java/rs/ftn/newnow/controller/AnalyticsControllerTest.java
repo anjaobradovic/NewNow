@@ -110,9 +110,9 @@ class AnalyticsControllerTest {
         Rate rate = new Rate();
         rate.setReview(review);
         rate.setPerformance(5);
-        rate.setSoundLight(4);
-        rate.setSpace(4);
-        rate.setOverall(5);
+        rate.setSoundAndLighting(4);
+        rate.setVenue(4);
+        rate.setOverallImpression(5);
         rateRepository.save(rate);
     }
 
