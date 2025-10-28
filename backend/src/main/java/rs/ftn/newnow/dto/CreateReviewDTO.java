@@ -15,25 +15,21 @@ public class CreateReviewDTO {
     @NotNull(message = "Event ID is required")
     private Long eventId;
 
-    @NotNull(message = "Performance rating is required")
     @Min(value = 1, message = "Rating must be between 1 and 10")
     @Max(value = 10, message = "Rating must be between 1 and 10")
     private Integer performance;
 
-    @NotNull(message = "Sound and light rating is required")
     @Min(value = 1, message = "Rating must be between 1 and 10")
     @Max(value = 10, message = "Rating must be between 1 and 10")
-    private Integer soundLight;
+    private Integer soundAndLighting;
 
-    @NotNull(message = "Space rating is required")
     @Min(value = 1, message = "Rating must be between 1 and 10")
     @Max(value = 10, message = "Rating must be between 1 and 10")
-    private Integer space;
+    private Integer venue;
 
-    @NotNull(message = "Overall rating is required")
     @Min(value = 1, message = "Rating must be between 1 and 10")
     @Max(value = 10, message = "Rating must be between 1 and 10")
-    private Integer overall;
+    private Integer overallImpression;
 
     private String comment;
 }

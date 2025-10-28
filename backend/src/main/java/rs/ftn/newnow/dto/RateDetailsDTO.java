@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RateDetailsDTO {
     private Integer performance;
-    private Integer soundLight;
-    private Integer space;
-    private Integer overall;
+    private Integer soundAndLighting;
+    private Integer venue;
+    private Integer overallImpression;
     private Double average;
 }

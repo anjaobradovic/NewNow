@@ -104,21 +104,40 @@ export class CommentItemComponent {
             </div>
 
             <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div class="card p-3 text-center">
+              <div class="card p-3 text-center" *ngIf="r.ratings.performance">
                 <div class="text-xs text-neutral-500">Performance</div>
                 <div class="text-xl font-semibold">{{ r.ratings.performance }}</div>
               </div>
-              <div class="card p-3 text-center">
-                <div class="text-xs text-neutral-500">Sound & Light</div>
-                <div class="text-xl font-semibold">{{ r.ratings.soundLight }}</div>
+              <div class="card p-3 text-center" *ngIf="!r.ratings.performance">
+                <div class="text-xs text-neutral-500">Performance</div>
+                <div class="text-xl font-semibold text-neutral-400">N/A</div>
               </div>
-              <div class="card p-3 text-center">
-                <div class="text-xs text-neutral-500">Space</div>
-                <div class="text-xl font-semibold">{{ r.ratings.space }}</div>
+
+              <div class="card p-3 text-center" *ngIf="r.ratings.soundAndLighting">
+                <div class="text-xs text-neutral-500">Sound & Lighting</div>
+                <div class="text-xl font-semibold">{{ r.ratings.soundAndLighting }}</div>
               </div>
-              <div class="card p-3 text-center">
+              <div class="card p-3 text-center" *ngIf="!r.ratings.soundAndLighting">
+                <div class="text-xs text-neutral-500">Sound & Lighting</div>
+                <div class="text-xl font-semibold text-neutral-400">N/A</div>
+              </div>
+
+              <div class="card p-3 text-center" *ngIf="r.ratings.venue">
+                <div class="text-xs text-neutral-500">Venue</div>
+                <div class="text-xl font-semibold">{{ r.ratings.venue }}</div>
+              </div>
+              <div class="card p-3 text-center" *ngIf="!r.ratings.venue">
+                <div class="text-xs text-neutral-500">Venue</div>
+                <div class="text-xl font-semibold text-neutral-400">N/A</div>
+              </div>
+
+              <div class="card p-3 text-center" *ngIf="r.ratings.overallImpression">
                 <div class="text-xs text-neutral-500">Overall</div>
-                <div class="text-xl font-semibold">{{ r.ratings.overall }}</div>
+                <div class="text-xl font-semibold">{{ r.ratings.overallImpression }}</div>
+              </div>
+              <div class="card p-3 text-center" *ngIf="!r.ratings.overallImpression">
+                <div class="text-xs text-neutral-500">Overall</div>
+                <div class="text-xl font-semibold text-neutral-400">N/A</div>
               </div>
             </div>
 

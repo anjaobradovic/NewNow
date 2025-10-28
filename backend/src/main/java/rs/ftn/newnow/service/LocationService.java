@@ -318,9 +318,9 @@ public class LocationService {
         if (review.getRate() != null) {
             RateDTO rateDTO = new RateDTO();
             rateDTO.setPerformance(review.getRate().getPerformance());
-            rateDTO.setSoundAndLighting(review.getRate().getSoundLight());
-            rateDTO.setVenue(review.getRate().getSpace());
-            rateDTO.setOverallImpression(review.getRate().getOverall());
+            rateDTO.setSoundAndLighting(review.getRate().getSoundAndLighting());
+            rateDTO.setVenue(review.getRate().getVenue());
+            rateDTO.setOverallImpression(review.getRate().getOverallImpression());
             rateDTO.setAverageRating(review.getRate().getAverageRating());
             dto.setRate(rateDTO);
         }

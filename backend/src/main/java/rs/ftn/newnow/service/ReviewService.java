@@ -47,8 +47,9 @@ public class ReviewService {
             throw new BusinessException("Only recurrent (regular) events can be reviewed");
         }
 
+        // Provera da li je događaj aktivan (ne u budućnosti)
         if (event.getDate().isAfter(LocalDate.now())) {
-            throw new BusinessException("Cannot review future events");
+            throw new BusinessException("Cannot review future events - event must be active or past");
         }
 
         reviewRepository.findByEventIdAndUserId(event.getId(), user.getId())
@@ -71,9 +72,9 @@ public class ReviewService {
 
         Rate rate = new Rate();
         rate.setPerformance(dto.getPerformance());
-        rate.setSoundLight(dto.getSoundLight());
-        rate.setSpace(dto.getSpace());
-        rate.setOverall(dto.getOverall());
+        rate.setSoundAndLighting(dto.getSoundAndLighting());
+        rate.setVenue(dto.getVenue());
+        rate.setOverallImpression(dto.getOverallImpression());
         rate.setReview(review);
         review.setRate(rate);
 
@@ -109,9 +110,9 @@ public class ReviewService {
 
         Rate rate = review.getRate();
         rate.setPerformance(dto.getPerformance());
-        rate.setSoundLight(dto.getSoundLight());
-        rate.setSpace(dto.getSpace());
-        rate.setOverall(dto.getOverall());
+        rate.setSoundAndLighting(dto.getSoundAndLighting());
+        rate.setVenue(dto.getVenue());
+        rate.setOverallImpression(dto.getOverallImpression());
         review.setComment(dto.getComment());
 
         review = reviewRepository.save(review);
@@ -245,9 +246,9 @@ public class ReviewService {
         Rate rate = review.getRate();
         RateDetailsDTO rateDTO = new RateDetailsDTO();
         rateDTO.setPerformance(rate.getPerformance());
-        rateDTO.setSoundLight(rate.getSoundLight());
-        rateDTO.setSpace(rate.getSpace());
-        rateDTO.setOverall(rate.getOverall());
+        rateDTO.setSoundAndLighting(rate.getSoundAndLighting());
+        rateDTO.setVenue(rate.getVenue());
+        rateDTO.setOverallImpression(rate.getOverallImpression());
         rateDTO.setAverage(rate.getAverageRating());
         dto.setRatings(rateDTO);
 

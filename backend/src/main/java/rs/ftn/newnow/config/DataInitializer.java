@@ -237,13 +237,28 @@ public class DataInitializer implements CommandLineRunner {
                 review.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(60))); // Within last 60 days
                 reviewRepository.save(review);
 
-                // Create ratings
+                // Create ratings - neke kategorije mogu biti null (20% šansa da kategorija nije ocenjena)
                 Rate rate = new Rate();
                 rate.setReview(review);
-                rate.setPerformance(7 + random.nextInt(4)); // 7-10
-                rate.setSoundLight(7 + random.nextInt(4));
-                rate.setSpace(6 + random.nextInt(5)); // 6-10
-                rate.setOverall(7 + random.nextInt(4));
+                
+                // Performance - 80% šansa da bude ocenjeno
+                if (random.nextDouble() > 0.2) {
+                    rate.setPerformance(7 + random.nextInt(4)); // 7-10
+                }
+                
+                // Sound & Lighting - 80% šansa da bude ocenjeno
+                if (random.nextDouble() > 0.2) {
+                    rate.setSoundAndLighting(7 + random.nextInt(4));
+                }
+                
+                // Venue - 70% šansa da bude ocenjeno (manja šansa)
+                if (random.nextDouble() > 0.3) {
+                    rate.setVenue(6 + random.nextInt(5)); // 6-10
+                }
+                
+                // Overall Impression - uvek ocenjeno (jer je najvažnije)
+                rate.setOverallImpression(7 + random.nextInt(4));
+                
                 rateRepository.save(rate);
 
                 review.setRate(rate);

@@ -16,23 +16,43 @@ public class Rate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer performance;
 
-    @Column(name = "sound_light", nullable = false)
-    private Integer soundLight;
+    @Column(name = "sound_and_lighting", nullable = true)
+    private Integer soundAndLighting;
 
-    @Column(nullable = false)
-    private Integer space;
+    @Column(nullable = true)
+    private Integer venue;
 
-    @Column(nullable = false)
-    private Integer overall;
+    @Column(name = "overall_impression", nullable = true)
+    private Integer overallImpression;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
     public Double getAverageRating() {
-        return (performance + soundLight + space + overall) / 4.0;
+        int count = 0;
+        int sum = 0;
+        
+        if (performance != null) {
+            sum += performance;
+            count++;
+        }
+        if (soundAndLighting != null) {
+            sum += soundAndLighting;
+            count++;
+        }
+        if (venue != null) {
+            sum += venue;
+            count++;
+        }
+        if (overallImpression != null) {
+            sum += overallImpression;
+            count++;
+        }
+        
+        return count > 0 ? (double) sum / count : 0.0;
     }
 }

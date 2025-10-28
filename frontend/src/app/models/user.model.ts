@@ -50,10 +50,10 @@ export interface EventBasicDTO {
 }
 
 export interface RateDetailsDTO {
-  performance: number;
-  soundLight: number;
-  space: number;
-  overall: number;
+  performance: number | null;
+  soundAndLighting: number | null;
+  venue: number | null;
+  overallImpression: number | null;
   average: number;
 }
 
@@ -80,18 +80,18 @@ export interface CommentDTO {
 // Requests for reviews & comments
 export interface CreateReviewRequest {
   eventId: number;
-  performance: number;
-  soundLight: number;
-  space: number;
-  overall: number;
+  performance?: number | null;
+  soundAndLighting?: number | null;
+  venue?: number | null;
+  overallImpression?: number | null;
   comment?: string;
 }
 
 export interface UpdateReviewRequest {
-  performance: number;
-  soundLight: number;
-  space: number;
-  overall: number;
+  performance?: number | null;
+  soundAndLighting?: number | null;
+  venue?: number | null;
+  overallImpression?: number | null;
   comment?: string;
 }
 

@@ -33,43 +33,53 @@ import { CreateReviewRequest } from '../../models/user.model';
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Performance</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Performance (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
+                placeholder="Rate 1-10 or leave empty"
                 [(ngModel)]="form.performance"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Sound & Light</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Sound & Lighting (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.soundLight"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.soundAndLighting"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Venue/Space</label>
+              <label class="block text-sm font-medium text-neutral-700">Venue (optional)</label>
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.space"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.venue"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Overall</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Overall Impression (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.overall"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.overallImpression"
               />
             </div>
           </div>
@@ -98,10 +108,10 @@ export class ReviewNewComponent {
 
   form: CreateReviewRequest = {
     eventId: undefined as any,
-    performance: 8,
-    soundLight: 8,
-    space: 8,
-    overall: 8,
+    performance: null,
+    soundAndLighting: null,
+    venue: null,
+    overallImpression: null,
     comment: '',
   };
 

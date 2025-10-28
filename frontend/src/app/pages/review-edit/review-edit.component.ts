@@ -25,43 +25,53 @@ import { ReviewDetailsDTO, UpdateReviewRequest } from '../../models/user.model';
         <div *ngIf="loaded" class="card p-6 space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Performance</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Performance (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
+                placeholder="Rate 1-10 or leave empty"
                 [(ngModel)]="form.performance"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Sound & Light</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Sound & Lighting (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.soundLight"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.soundAndLighting"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Venue/Space</label>
+              <label class="block text-sm font-medium text-neutral-700">Venue (optional)</label>
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.space"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.venue"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700">Overall</label>
+              <label class="block text-sm font-medium text-neutral-700"
+                >Overall Impression (optional)</label
+              >
               <input
                 type="number"
                 class="input-field w-full"
                 min="1"
                 max="10"
-                [(ngModel)]="form.overall"
+                placeholder="Rate 1-10 or leave empty"
+                [(ngModel)]="form.overallImpression"
               />
             </div>
           </div>
@@ -83,7 +93,13 @@ import { ReviewDetailsDTO, UpdateReviewRequest } from '../../models/user.model';
 export class ReviewEditComponent implements OnInit {
   id!: number;
   loaded = false;
-  form: UpdateReviewRequest = { performance: 8, soundLight: 8, space: 8, overall: 8, comment: '' };
+  form: UpdateReviewRequest = {
+    performance: null,
+    soundAndLighting: null,
+    venue: null,
+    overallImpression: null,
+    comment: '',
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -96,9 +112,9 @@ export class ReviewEditComponent implements OnInit {
     this.reviewService.getReview(this.id).subscribe((r: ReviewDetailsDTO) => {
       this.form = {
         performance: r.ratings.performance,
-        soundLight: r.ratings.soundLight,
-        space: r.ratings.space,
-        overall: r.ratings.overall,
+        soundAndLighting: r.ratings.soundAndLighting,
+        venue: r.ratings.venue,
+        overallImpression: r.ratings.overallImpression,
         comment: r.comment || '',
       };
       this.loaded = true;
