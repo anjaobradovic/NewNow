@@ -29,13 +29,20 @@ import { Event } from '../../models/event.model';
                 <div class="text-neutral-600 mt-1">{{ e.type }} • {{ e.date }}</div>
                 <div class="text-neutral-600">{{ e.locationName }} • {{ e.address }}</div>
               </div>
-              <div class="text-right">
+              <div class="text-right flex flex-col gap-2">
                 <div class="text-2xl font-semibold text-primary-700">
                   {{ e.price ? e.price + ' RSD' : 'Free' }}
                 </div>
-                <div class="text-xs text-neutral-500 mt-1">
+                <div class="text-xs text-neutral-500">
                   {{ e.recurrent ? 'Regular event' : 'One-time' }}
                 </div>
+                <a
+                  *ngIf="isManagerOrAdmin"
+                  [routerLink]="['/events', e.id, 'edit']"
+                  class="btn-primary text-sm"
+                >
+                  Edit Event
+                </a>
               </div>
             </div>
 
@@ -62,10 +69,12 @@ export class EventDetailsComponent implements OnInit {
   untilDate = '';
   occCount: number | null = null;
   errorMsg = '';
+  isManagerOrAdmin = false;
 
   constructor(private route: ActivatedRoute, private service: EventService) {}
 
   ngOnInit(): void {
+    this.checkPermissions();
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.service.getEvent(id).subscribe({
       next: (e) => {
@@ -74,6 +83,14 @@ export class EventDetailsComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  checkPermissions(): void {
+    try {
+      const user = JSON.parse(localStorage.getItem('user_data') || 'null');
+      this.isManagerOrAdmin =
+        !!user?.roles?.includes('ROLE_ADMIN') || !!user?.roles?.includes('ROLE_MANAGER');
+    } catch {}
   }
 
   loadCount(): void {

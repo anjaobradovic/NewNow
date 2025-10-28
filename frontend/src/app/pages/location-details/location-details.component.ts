@@ -74,13 +74,23 @@ import { ReviewDTO } from '../../models/user.model';
             <h3 class="text-lg font-semibold mb-4">Upcoming events</h3>
             <div class="space-y-3 max-h-80 overflow-auto pr-2">
               <div *ngFor="let e of events()" class="p-3 border border-neutral-100 rounded-2xl">
-                <div class="flex items-center justify-between">
-                  <div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex-1">
                     <div class="font-medium">{{ e.name }}</div>
                     <div class="text-xs text-neutral-500">{{ e.date }}</div>
                   </div>
-                  <div class="text-sm text-primary-700">
-                    {{ e.price ? e.price + ' RSD' : 'Free' }}
+                  <div class="flex items-center gap-2">
+                    <div class="text-sm text-primary-700">
+                      {{ e.price ? e.price + ' RSD' : 'Free' }}
+                    </div>
+                    <a
+                      *ngIf="isManager || isAdmin"
+                      [routerLink]="['/events', e.id, 'edit']"
+                      class="px-3 py-1.5 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg text-xs font-medium transition-colors"
+                      title="Edit event"
+                    >
+                      Edit
+                    </a>
                   </div>
                 </div>
               </div>

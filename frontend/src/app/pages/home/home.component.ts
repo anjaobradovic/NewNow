@@ -346,6 +346,9 @@ import { Event, Location } from '../../models/event.model';
                 </svg>
               </div>
               }
+
+              <!-- Rating Badge -->
+              @if (location.totalRating && location.totalRating > 0) {
               <div
                 class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-2xl flex items-center space-x-2 shadow-lg"
               >
@@ -358,6 +361,7 @@ import { Event, Location } from '../../models/event.model';
                   location.totalRating.toFixed(1)
                 }}</span>
               </div>
+              }
             </div>
             <div class="p-6">
               <h3

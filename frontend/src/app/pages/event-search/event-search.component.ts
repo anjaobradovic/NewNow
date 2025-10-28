@@ -61,36 +61,45 @@ import { SearchService } from '../../services/search.service';
           *ngIf="!loading() && events().length > 0"
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          <a
+          <div
             *ngFor="let e of events()"
             class="card group overflow-hidden hover:-translate-y-1 transition transform"
-            [routerLink]="['/events', e.id]"
           >
-            <div class="h-44 bg-neutral-200">
-              <img *ngIf="e.imageUrl" [src]="e.imageUrl" class="w-full h-full object-cover" />
-            </div>
-            <div class="p-5">
-              <div class="flex items-center justify-between">
-                <h3 class="font-semibold text-lg">{{ e.name }}</h3>
-                <span class="text-sm text-primary-700">{{
-                  e.price ? e.price + ' RSD' : 'Free'
-                }}</span>
+            <a [routerLink]="['/events', e.id]" class="block">
+              <div class="h-44 bg-neutral-200">
+                <img *ngIf="e.imageUrl" [src]="e.imageUrl" class="w-full h-full object-cover" />
               </div>
-              <div class="text-sm text-neutral-500 mt-1">{{ e.type }} • {{ e.date }}</div>
-              <div class="text-sm text-neutral-500">{{ e.locationName }}</div>
-              <div class="mt-2">
-                <span
-                  class="inline-block px-2 py-1 text-xs rounded-full"
-                  [class.bg-primary-100]="e.recurrent"
-                  [class.text-primary-700]="e.recurrent"
-                  [class.bg-neutral-100]="!e.recurrent"
-                  [class.text-neutral-600]="!e.recurrent"
-                >
-                  {{ e.recurrent ? 'Regular event' : 'One-time' }}
-                </span>
+              <div class="p-5">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-semibold text-lg">{{ e.name }}</h3>
+                  <span class="text-sm text-primary-700">{{
+                    e.price ? e.price + ' RSD' : 'Free'
+                  }}</span>
+                </div>
+                <div class="text-sm text-neutral-500 mt-1">{{ e.type }} • {{ e.date }}</div>
+                <div class="text-sm text-neutral-500">{{ e.locationName }}</div>
+                <div class="mt-2">
+                  <span
+                    class="inline-block px-2 py-1 text-xs rounded-full"
+                    [class.bg-primary-100]="e.recurrent"
+                    [class.text-primary-700]="e.recurrent"
+                    [class.bg-neutral-100]="!e.recurrent"
+                    [class.text-neutral-600]="!e.recurrent"
+                  >
+                    {{ e.recurrent ? 'Regular event' : 'One-time' }}
+                  </span>
+                </div>
               </div>
+            </a>
+            <div *ngIf="isManagerOrAdmin" class="px-5 pb-4">
+              <a
+                [routerLink]="['/events', e.id, 'edit']"
+                class="inline-block w-full text-center px-4 py-2 bg-primary-100 hover:bg-primary-200 text-primary-700 rounded-lg text-sm font-medium transition-colors"
+              >
+                Edit Event
+              </a>
             </div>
-          </a>
+          </div>
         </div>
 
         <!-- Pagination -->
@@ -127,10 +136,22 @@ export class EventSearchComponent implements OnInit {
   size = 9;
   totalPages = 1;
 
+  // permissions
+  isManagerOrAdmin = false;
+
   constructor(private search: SearchService) {}
 
   ngOnInit(): void {
+    this.checkPermissions();
     this.apply();
+  }
+
+  checkPermissions(): void {
+    try {
+      const user = JSON.parse(localStorage.getItem('user_data') || 'null');
+      this.isManagerOrAdmin =
+        !!user?.roles?.includes('ROLE_ADMIN') || !!user?.roles?.includes('ROLE_MANAGER');
+    } catch {}
   }
 
   apply(): void {
