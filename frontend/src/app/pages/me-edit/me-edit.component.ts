@@ -76,7 +76,7 @@ import { UserProfile } from '../../models/user.model';
               Upload
             </button>
           </div>
-          <p class="text-sm text-neutral-500 mt-2">Recommendation: square image, up to ~2MB.</p>
+          <p class="text-sm text-neutral-500 mt-2">Recommendation: square image, up to 15MB.</p>
         </div>
       </section>
     </div>

@@ -139,7 +139,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Page<ReviewDetailsDTO> getLocationReviews(Long locationId, String sort, String order, int page, int size) {
-        Location location = locationRepository.findByIdAndDeletedFalse(locationId)
+        locationRepository.findByIdAndDeletedFalse(locationId)
                 .orElseThrow(() -> new BusinessException("Location not found"));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -212,7 +212,7 @@ public class ReviewService {
         
         double averageRating = reviews.stream()
                 .filter(r -> !r.getDeletedByManager())
-                .mapToDouble(r -> r.getRate().getOverall())
+                .mapToDouble(r -> r.getRate().getAverageRating())
                 .average()
                 .orElse(0.0);
         

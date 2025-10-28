@@ -18,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 public class FileStorageService {
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
 
     public String saveImage(MultipartFile file, String directory) throws IOException {
         validateImageFile(file);
@@ -62,7 +62,7 @@ public class FileStorageService {
         if (file.getSize() > MAX_FILE_SIZE) {
             double sizeMB = file.getSize() / (1024.0 * 1024.0);
             throw new FileSizeExceededException(
-                String.format("Image size %.2f MB exceeds the maximum allowed size of 5 MB", sizeMB)
+                String.format("Image size %.2f MB exceeds the maximum allowed size of 15 MB", sizeMB)
             );
         }
     }

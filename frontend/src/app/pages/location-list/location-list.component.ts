@@ -54,7 +54,9 @@ import { LocationDTO } from '../../models/location.model';
                   loc.type
                 }}</span>
               </div>
-              <div class="mt-3 text-sm text-neutral-500">Rating: {{ loc.totalRating || 0 }}</div>
+              <div class="mt-3 text-sm text-neutral-500">
+                Rating: {{ (loc.totalRating || 0).toFixed(1) }}
+              </div>
             </div>
           </a>
         </div>

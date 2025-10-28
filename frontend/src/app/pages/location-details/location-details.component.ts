@@ -59,7 +59,7 @@ import { ReviewDTO } from '../../models/user.model';
             <div class="p-6">
               <div class="flex flex-wrap items-center gap-4 text-neutral-600 text-sm">
                 <span>Created: {{ loc.createdAt || '—' }}</span>
-                <span>Avg rating: {{ loc.averageRating || 0 }}</span>
+                <span>Avg rating: {{ (loc.averageRating || 0).toFixed(1) }}</span>
                 <span>Total reviews: {{ loc.totalReviews || 0 }}</span>
               </div>
               <p

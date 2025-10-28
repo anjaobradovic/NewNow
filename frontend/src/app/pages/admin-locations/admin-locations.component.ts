@@ -400,7 +400,7 @@ import { LocationDTO } from '../../models/location.model';
                 />
               </svg>
               <p class="text-sm text-neutral-600 mb-1">Click to upload an image</p>
-              <p class="text-xs text-neutral-500">PNG, JPG up to 10MB</p>
+              <p class="text-xs text-neutral-500">PNG, JPG up to 15MB</p>
               }
             </div>
             <input
@@ -616,9 +616,9 @@ export class AdminLocationsComponent implements OnInit {
     if (input.files && input.files[0]) {
       const file = input.files[0];
 
-      // Validate file size (10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        this.toastr.error('Image size must be less than 10MB', 'Error');
+      // Validate file size (15MB)
+      if (file.size > 15 * 1024 * 1024) {
+        this.toastr.error('Image size must be less than 15MB', 'Error');
         return;
       }
 

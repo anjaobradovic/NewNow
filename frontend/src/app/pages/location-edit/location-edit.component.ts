@@ -64,7 +64,7 @@ import { LocationService } from '../../services/location.service';
               Upload
             </button>
           </div>
-          <p class="text-sm text-neutral-500 mt-2">Recommended: 1600x900, up to ~3MB.</p>
+          <p class="text-sm text-neutral-500 mt-2">Recommended: 1600x900, up to 15MB.</p>
         </div>
       </section>
     </div>
