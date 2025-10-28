@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with legacy peer deps to handle Angular version mismatches
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
