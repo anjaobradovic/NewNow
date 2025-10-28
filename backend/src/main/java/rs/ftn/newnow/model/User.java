@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import rs.ftn.newnow.model.enums.Role;
 
 import java.time.LocalDate;
@@ -18,6 +20,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
+@ToString(exclude = {"reviews", "managedLocations", "comments", "profileImage"})
+@EqualsAndHashCode(exclude = {"reviews", "managedLocations", "comments", "profileImage"})
 public class User {
 
     @Id

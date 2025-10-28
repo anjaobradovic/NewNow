@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.ftn.newnow.dto.*;
+import rs.ftn.newnow.exception.FileSizeExceededException;
 import rs.ftn.newnow.service.UserService;
 
 import java.util.List;
@@ -64,6 +65,9 @@ public class UserController {
             log.info("Updating avatar for user: {}", authentication.getName());
             String filename = userService.updateUserAvatar(authentication.getName(), file);
             return ResponseEntity.ok(new MessageResponse("Avatar updated successfully: " + filename));
+        } catch (FileSizeExceededException e) {
+            log.error("File size exceeded: {}", e.getMessage());
+            return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Validation error: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));

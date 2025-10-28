@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rs.ftn.newnow.dto.*;
+import rs.ftn.newnow.exception.FileSizeExceededException;
 import rs.ftn.newnow.service.LocationService;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class LocationController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<LocationDTO> createLocation(
+    public ResponseEntity<?> createLocation(
             @RequestParam String name,
             @RequestParam String address,
             @RequestParam String type,
@@ -66,15 +67,18 @@ public class LocationController {
             CreateLocationDTO dto = new CreateLocationDTO(name, address, type, description);
             LocationDTO created = locationService.createLocation(dto, image);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (FileSizeExceededException e) {
+            log.error("File size exceeded: {}", e.getMessage());
+            return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Invalid input for location creation", e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         } catch (IOException e) {
             log.error("Error saving image", e);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(new MessageResponse("Failed to save image"));
         } catch (Exception e) {
             log.error("Error creating location", e);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(new MessageResponse("Failed to create location"));
         }
     }
 
@@ -136,6 +140,9 @@ public class LocationController {
         try {
             LocationDTO updated = locationService.updateLocationImage(id, image);
             return ResponseEntity.ok(updated);
+        } catch (FileSizeExceededException e) {
+            log.error("File size exceeded: {}", e.getMessage());
+            return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Validation error: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -144,10 +151,10 @@ public class LocationController {
             return ResponseEntity.notFound().build();
         } catch (IOException e) {
             log.error("Error saving image", e);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(new MessageResponse("Failed to save image"));
         } catch (Exception e) {
             log.error("Error updating location image", e);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body(new MessageResponse("Failed to update location image"));
         }
     }
 

@@ -132,13 +132,22 @@ public class LocationService {
 
     @Transactional
     public void deleteLocation(Long id) {
-        log.info("Deleting location with id: {}", id);
-        Location location = locationRepository.findByIdAndDeletedFalse(id)
+        log.info("Permanently deleting location with id: {}", id);
+        Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
         
-        location.setDeleted(true);
-        locationRepository.save(location);
-        log.info("Location deleted: {}", id);
+        if (location.getImageUrl() != null) {
+            fileStorageService.deleteImage(location.getImageUrl());
+        }
+        
+        location.getEvents().forEach(event -> {
+            if (event.getImage() != null && event.getImage().getPath() != null) {
+                fileStorageService.deleteImage(event.getImage().getPath());
+            }
+        });
+        
+        locationRepository.delete(location);
+        log.info("Location permanently deleted with all related data: {}", id);
     }
 
     @Transactional

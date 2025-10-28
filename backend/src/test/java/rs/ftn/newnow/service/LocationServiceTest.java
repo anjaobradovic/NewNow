@@ -184,13 +184,14 @@ class LocationServiceTest {
     }
 
     @Test
-    void deleteLocation_WithValidId_ShouldSoftDeleteLocation() {
-        when(locationRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(testLocation));
+    void deleteLocation_WithValidId_ShouldPermanentlyDeleteLocation() {
+        testLocation.setEvents(new java.util.HashSet<>());
+        when(locationRepository.findById(1L)).thenReturn(Optional.of(testLocation));
 
         locationService.deleteLocation(1L);
 
-        assertTrue(testLocation.getDeleted());
-        verify(locationRepository).save(testLocation);
+        verify(locationRepository).delete(testLocation);
+        verify(fileStorageService).deleteImage(testLocation.getImageUrl());
     }
 
     @Test

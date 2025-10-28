@@ -3,7 +3,9 @@ package rs.ftn.newnow.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,6 +16,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"user", "location", "event", "rate", "comments"})
+@EqualsAndHashCode(exclude = {"user", "location", "event", "rate", "comments"})
 public class Review {
 
     @Id

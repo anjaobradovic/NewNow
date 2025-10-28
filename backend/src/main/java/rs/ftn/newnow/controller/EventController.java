@@ -16,6 +16,7 @@ import rs.ftn.newnow.dto.CreateEventDTO;
 import rs.ftn.newnow.dto.EventDTO;
 import rs.ftn.newnow.dto.MessageResponse;
 import rs.ftn.newnow.dto.UpdateEventDTO;
+import rs.ftn.newnow.exception.FileSizeExceededException;
 import rs.ftn.newnow.model.User;
 import rs.ftn.newnow.repository.UserRepository;
 import rs.ftn.newnow.service.EventService;
@@ -115,6 +116,9 @@ public class EventController {
             
             EventDTO event = eventService.createEvent(locationId, createEventDTO, image, currentUser);
             return ResponseEntity.ok(event);
+        } catch (FileSizeExceededException e) {
+            log.error("File size exceeded: {}", e.getMessage());
+            return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Validation error: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
@@ -190,6 +194,9 @@ public class EventController {
             
             eventService.updateEventImage(id, image, currentUser);
             return ResponseEntity.ok(new MessageResponse("Event image updated successfully"));
+        } catch (FileSizeExceededException e) {
+            log.error("File size exceeded: {}", e.getMessage());
+            return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Validation error: {}", e.getMessage());
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));

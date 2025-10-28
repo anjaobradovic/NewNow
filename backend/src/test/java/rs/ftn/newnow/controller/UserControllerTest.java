@@ -153,6 +153,27 @@ class UserControllerTest {
 
     @Test
     @WithMockUser(username = "testuser@example.com")
+    void updateMyAvatar_FileSizeExceeded_ShouldReturn413() throws Exception {
+        byte[] largeFileContent = new byte[6 * 1024 * 1024];
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "large-avatar.jpg",
+                "image/jpeg",
+                largeFileContent
+        );
+
+        mockMvc.perform(multipart("/api/users/me/avatar")
+                        .file(file)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        }))
+                .andExpect(status().is(413))
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeds the maximum allowed size of 5 MB")));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser@example.com")
     @Transactional
     void getMyReviews_Success() throws Exception {
         Review review = new Review();

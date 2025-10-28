@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LocationService } from '../../services/location.service';
 import { LocationDetailsDTO } from '../../models/location.model';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +36,14 @@ import { ReviewDTO } from '../../models/user.model';
             <a *ngIf="isAdmin" [routerLink]="['/locations', loc.id, 'managers']" class="btn-primary"
               >Managers</a
             >
+            <button
+              *ngIf="isAdmin"
+              (click)="deleteLocation()"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
+              [disabled]="deleting()"
+            >
+              {{ deleting() ? 'Deleting...' : 'Delete' }}
+            </button>
           </div>
         </div>
 
@@ -157,6 +165,7 @@ export class LocationDetailsComponent implements OnInit {
   location = signal<LocationDetailsDTO | null>(null);
   events = signal<Event[]>([]);
   reviews = signal<ReviewDTO[]>([]);
+  deleting = signal<boolean>(false);
 
   pageR = 0;
   sizeR = 6;
@@ -167,7 +176,11 @@ export class LocationDetailsComponent implements OnInit {
   isAdmin = false;
   isManager = false; // Future: can derive via managed locations
 
-  constructor(private route: ActivatedRoute, private locationService: LocationService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private locationService: LocationService
+  ) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -217,6 +230,35 @@ export class LocationDetailsComponent implements OnInit {
       this.pageR++;
       this.loadReviews();
     }
+  }
+
+  deleteLocation(): void {
+    if (!this.location()) return;
+
+    const confirmed = confirm(
+      `Are you sure you want to permanently delete "${
+        this.location()?.name
+      }"? This will delete all events, reviews, and data associated with this location. This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    this.deleting.set(true);
+    const id = this.location()!.id;
+
+    this.locationService.deleteLocation(id).subscribe({
+      next: () => {
+        alert('Location deleted successfully');
+        this.router.navigate(['/locations']);
+      },
+      error: (err) => {
+        console.error('Delete failed:', err);
+        this.deleting.set(false);
+        const message =
+          err.error?.message || err.message || 'Failed to delete location. Please try again.';
+        alert(message);
+      },
+    });
   }
 
   imageSrc(url?: string): string | undefined {

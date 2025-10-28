@@ -167,12 +167,19 @@ class LocationControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteLocation_ShouldSoftDeleteLocation() throws Exception {
+    void deleteLocation_ShouldPermanentlyDeleteLocation() throws Exception {
         mockMvc.perform(delete("/api/locations/{id}", testLocation.getId()))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/locations/{id}", testLocation.getId()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void deleteLocation_WithoutAdminRole_ShouldReturnForbidden() throws Exception {
+        mockMvc.perform(delete("/api/locations/{id}", testLocation.getId()))
+                .andExpect(status().isForbidden());
     }
 
     @Test

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import rs.ftn.newnow.exception.FileSizeExceededException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +17,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class FileStorageService {
+
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     public String saveImage(MultipartFile file, String directory) throws IOException {
         validateImageFile(file);
@@ -54,6 +57,13 @@ public class FileStorageService {
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new IllegalArgumentException("File must be an image");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE) {
+            double sizeMB = file.getSize() / (1024.0 * 1024.0);
+            throw new FileSizeExceededException(
+                String.format("Image size %.2f MB exceeds the maximum allowed size of 5 MB", sizeMB)
+            );
         }
     }
 
