@@ -59,6 +59,25 @@ export class ReviewService {
     return this.http.delete<MessageResponse>(`${this.API_URL}/manager/reviews/${id}`);
   }
 
+  // Manager view - includes hidden reviews
+  getLocationReviewsForManager(
+    locationId: number,
+    sort: 'rating' | 'date',
+    order: 'asc' | 'desc',
+    page = 0,
+    size = 10
+  ): Observable<PageResponse<ReviewDetailsDTO>> {
+    const params = new HttpParams()
+      .set('sort', sort)
+      .set('order', order)
+      .set('page', page)
+      .set('size', size);
+    return this.http.get<PageResponse<ReviewDetailsDTO>>(
+      `${this.API_URL}/manager/locations/${locationId}/reviews`,
+      { params }
+    );
+  }
+
   // For location details page sorted feed (uses ReviewDetailsDTO)
   getLocationReviewsSorted(
     locationId: number,

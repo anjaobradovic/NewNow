@@ -128,6 +128,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public boolean isUserManagerOfLocation(String email, Long locationId) {
+        log.info("Checking if user {} is manager of location {}", email, locationId);
+        User user = findUserByEmail(email);
+        
+        List<Manages> activeManages = managesRepository.findActiveManagement(
+                user.getId(), locationId, LocalDate.now());
+        
+        return !activeManages.isEmpty();
+    }
+
     @Transactional
     public void changePassword(String email, ChangePasswordDTO changePasswordDTO) {
         log.info("Changing password for user: {}", email);
@@ -211,7 +222,7 @@ public class UserService {
 
     private ManagedLocationDTO mapToManagedLocationDTO(Manages manages) {
         ManagedLocationDTO dto = new ManagedLocationDTO();
-        dto.setId(manages.getId());
+        dto.setId(manages.getLocation().getId()); // Use location ID, not manages relationship ID
         dto.setLocationName(manages.getLocation().getName());
         dto.setLocationAddress(manages.getLocation().getAddress());
         dto.setLocationType(manages.getLocation().getType());

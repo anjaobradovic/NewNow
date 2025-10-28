@@ -105,7 +105,6 @@ class AnalyticsControllerTest {
         review.setDeleted(false);
         review.setDeletedByManager(false);
         review.setCreatedAt(LocalDateTime.now().minusDays(3));
-        review = reviewRepository.save(review);
 
         Rate rate = new Rate();
         rate.setReview(review);
@@ -113,7 +112,9 @@ class AnalyticsControllerTest {
         rate.setSoundAndLighting(4);
         rate.setVenue(4);
         rate.setOverallImpression(5);
-        rateRepository.save(rate);
+        review.setRate(rate);
+        
+        review = reviewRepository.save(review);
     }
 
     @Test

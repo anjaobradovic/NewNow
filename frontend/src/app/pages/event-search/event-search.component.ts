@@ -151,7 +151,7 @@ export class EventSearchComponent implements OnInit {
   loadManagedLocations(): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      if (user?.roles?.includes('ROLE_MANAGER')) {
+      if (user?.roles?.includes('ROLE_MANAGER') || user?.roles?.includes('ROLE_ADMIN')) {
         this.userService.getManagedLocations().subscribe({
           next: (locations: ManagedLocationDTO[]) => {
             this.managedLocationIds = locations.map((loc: ManagedLocationDTO) => loc.id);

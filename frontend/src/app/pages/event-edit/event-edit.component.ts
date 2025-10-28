@@ -119,7 +119,7 @@ export class EventEditComponent implements OnInit {
   checkPermissions(): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      if (!user?.roles?.includes('ROLE_MANAGER')) {
+      if (!user?.roles?.includes('ROLE_MANAGER') && !user?.roles?.includes('ROLE_ADMIN')) {
         alert('Only managers can edit events');
         this.router.navigate(['/events', this.eventId]);
         return;

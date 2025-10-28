@@ -2,6 +2,7 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { UserProfile } from '../../models/user.model';
 
 @Component({
@@ -102,6 +103,89 @@ import { UserProfile } from '../../models/user.model';
                 </div>
               </a>
             </div>
+
+            <!-- Manager Panel -->
+            <div *ngIf="isManager()" class="card p-6 bg-gradient-to-br from-blue-50 to-purple-50">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-lg font-semibold text-neutral-900">Manager Panel</h4>
+                  <p class="text-sm text-neutral-600">
+                    Manage your locations, events, and moderate reviews
+                  </p>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <a
+                  routerLink="/me/managed-locations"
+                  class="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-blue-50 transition-all group"
+                >
+                  <div
+                    class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition"
+                  >
+                    🏢
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-neutral-900">My Locations</div>
+                    <div class="text-xs text-neutral-600">View & manage locations</div>
+                  </div>
+                  <svg
+                    class="w-5 h-5 text-neutral-400 group-hover:text-blue-600 group-hover:translate-x-1 transition"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </a>
+                <a
+                  routerLink="/manager/reviews"
+                  class="flex items-center gap-3 p-3 bg-white rounded-lg hover:bg-purple-50 transition-all group"
+                >
+                  <div
+                    class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition"
+                  >
+                    🛡️
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium text-neutral-900">Moderate Reviews</div>
+                    <div class="text-xs text-neutral-600">Hide or delete reviews</div>
+                  </div>
+                  <svg
+                    class="w-5 h-5 text-neutral-400 group-hover:text-purple-600 group-hover:translate-x-1 transition"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -114,7 +198,7 @@ export class MeComponent implements OnInit {
   loading = signal(true);
   private cacheBuster = signal<string>('');
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.cacheBuster.set(String(Date.now()));
@@ -150,5 +234,9 @@ export class MeComponent implements OnInit {
   onImageError(): void {
     const p = this.profile();
     if (p) this.profile.set({ ...p, avatarUrl: undefined });
+  }
+
+  isManager(): boolean {
+    return this.authService.hasRole('ROLE_MANAGER') || this.authService.hasRole('ROLE_ADMIN');
   }
 }

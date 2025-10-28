@@ -56,4 +56,9 @@ export class UserService {
   getManagedLocations(): Observable<ManagedLocationDTO[]> {
     return this.http.get<ManagedLocationDTO[]>(`${this.API_URL}/me/managed-locations`);
   }
+
+  // Check if current user is manager of a specific location
+  isManagerOfLocation(locationId: number): Observable<boolean> {
+    return this.http.get<boolean>(`${this.API_URL}/me/is-manager/${locationId}`);
+  }
 }

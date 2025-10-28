@@ -94,7 +94,7 @@ export class EventDetailsComponent implements OnInit {
   checkPermissions(locationId: number): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      if (user?.roles?.includes('ROLE_MANAGER')) {
+      if (user?.roles?.includes('ROLE_MANAGER') || user?.roles?.includes('ROLE_ADMIN')) {
         this.userService.getManagedLocations().subscribe({
           next: (locations: ManagedLocationDTO[]) => {
             this.isManager = locations.some((loc: ManagedLocationDTO) => loc.id === locationId);

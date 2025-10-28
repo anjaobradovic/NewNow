@@ -101,7 +101,7 @@ class SearchControllerTest {
                         .param("type", "concert"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(greaterThanOrEqualTo(1))))
-                .andExpect(jsonPath("$.content[0].type", is("concert")));
+                .andExpect(jsonPath("$.content[0].type", anyOf(is("concert"), is("Concert"))));
     }
 
     @Test

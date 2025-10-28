@@ -1,6 +1,7 @@
 package rs.ftn.newnow.config;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import java.util.Random;
 
 @Component
 @Order(2)
+@Profile("!test")
 public class DataInitializer implements CommandLineRunner {
 
     private final LocationRepository locationRepository;

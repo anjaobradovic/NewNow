@@ -49,16 +49,16 @@ class AuthControllerTest {
     void setUp() {
         createAccountRequestDTO = new CreateAccountRequestDTO();
         createAccountRequestDTO.setEmail("test@example.com");
-        createAccountRequestDTO.setPassword("password123");
+        createAccountRequestDTO.setPassword("Password123!");
         createAccountRequestDTO.setName("Test User");
         createAccountRequestDTO.setAddress("Test Address");
         createAccountRequestDTO.setBirthday(LocalDate.of(1990, 1, 1));
         createAccountRequestDTO.setCity("Test City");
-        createAccountRequestDTO.setPhoneNumber("1234567890");
+        createAccountRequestDTO.setPhoneNumber("+381641234567");
 
         loginRequest = new LoginRequest();
         loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("password123");
+        loginRequest.setPassword("Password123!");
 
         refreshTokenRequest = new RefreshTokenRequest();
         refreshTokenRequest.setRefreshToken("valid-refresh-token");

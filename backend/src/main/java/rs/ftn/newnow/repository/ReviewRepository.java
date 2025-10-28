@@ -17,29 +17,51 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r WHERE r.id = :id AND r.deleted = false")
     Optional<Review> findByIdAndNotDeleted(@Param("id") Long id);
     
+    // Public queries - exclude hidden reviews
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
-           "AND r.deleted = false AND r.deletedByManager = false")
+           "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false")
     Page<Review> findByLocationIdAndNotDeleted(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
-           "AND r.deleted = false AND r.deletedByManager = false " +
+           "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false " +
            "ORDER BY r.rate.overallImpression DESC")
     Page<Review> findByLocationIdOrderByRating(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
-           "AND r.deleted = false AND r.deletedByManager = false " +
+           "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false " +
            "ORDER BY r.createdAt DESC")
     Page<Review> findByLocationIdOrderByDate(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
-           "AND r.deleted = false AND r.deletedByManager = false " +
+           "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false " +
            "ORDER BY r.rate.overallImpression ASC")
     Page<Review> findByLocationIdOrderByRatingAsc(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
-           "AND r.deleted = false AND r.deletedByManager = false " +
+           "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false " +
            "ORDER BY r.createdAt ASC")
     Page<Review> findByLocationIdOrderByDateAsc(@Param("locationId") Long locationId, Pageable pageable);
+    
+    // Manager queries - include hidden reviews
+    @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
+           "AND r.deleted = false AND r.deletedByManager = false " +
+           "ORDER BY r.rate.overallImpression DESC")
+    Page<Review> findByLocationIdIncludingHiddenOrderByRating(@Param("locationId") Long locationId, Pageable pageable);
+    
+    @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
+           "AND r.deleted = false AND r.deletedByManager = false " +
+           "ORDER BY r.createdAt DESC")
+    Page<Review> findByLocationIdIncludingHiddenOrderByDate(@Param("locationId") Long locationId, Pageable pageable);
+    
+    @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
+           "AND r.deleted = false AND r.deletedByManager = false " +
+           "ORDER BY r.rate.overallImpression ASC")
+    Page<Review> findByLocationIdIncludingHiddenOrderByRatingAsc(@Param("locationId") Long locationId, Pageable pageable);
+    
+    @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
+           "AND r.deleted = false AND r.deletedByManager = false " +
+           "ORDER BY r.createdAt ASC")
+    Page<Review> findByLocationIdIncludingHiddenOrderByDateAsc(@Param("locationId") Long locationId, Pageable pageable);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false " +

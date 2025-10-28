@@ -158,6 +158,31 @@ public class ReviewService {
                     reviewRepository.findByLocationIdOrderByDate(locationId, pageable);
         }
 
+        // Filter out hidden reviews for public view
+        return reviews.map(this::mapToDetailsDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewDetailsDTO> getLocationReviewsForManager(Long locationId, String sort, String order, int page, int size) {
+        locationRepository.findByIdAndDeletedFalse(locationId)
+                .orElseThrow(() -> new BusinessException("Location not found"));
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Review> reviews;
+
+        boolean ascending = "asc".equalsIgnoreCase(order);
+
+        // Manager sees ALL reviews including hidden ones (but not deleted)
+        if ("rating".equalsIgnoreCase(sort)) {
+            reviews = ascending ? 
+                    reviewRepository.findByLocationIdIncludingHiddenOrderByRatingAsc(locationId, pageable) :
+                    reviewRepository.findByLocationIdIncludingHiddenOrderByRating(locationId, pageable);
+        } else {
+            reviews = ascending ? 
+                    reviewRepository.findByLocationIdIncludingHiddenOrderByDateAsc(locationId, pageable) :
+                    reviewRepository.findByLocationIdIncludingHiddenOrderByDate(locationId, pageable);
+        }
+
         return reviews.map(this::mapToDetailsDTO);
     }
 

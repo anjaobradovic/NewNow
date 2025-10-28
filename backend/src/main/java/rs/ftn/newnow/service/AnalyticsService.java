@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ftn.newnow.dto.*;
@@ -155,7 +156,7 @@ public class AnalyticsService {
                 .anyMatch(manages -> manages.getUser().getId().equals(currentUser.getId()));
 
         if (!isAdmin && !isManager) {
-            throw new IllegalArgumentException("User does not have permission to access this location's analytics");
+            throw new AccessDeniedException("User does not have permission to access this location's analytics");
         }
     }
 

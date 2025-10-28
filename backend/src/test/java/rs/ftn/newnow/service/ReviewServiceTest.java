@@ -199,6 +199,40 @@ class ReviewServiceTest {
         assertTrue(deletedReview.getDeletedByManager());
     }
 
+    @Test
+    void testHiddenReview_NotVisibleInPublicList() {
+        Review review = createTestReview();
+        
+        // Hide the review
+        reviewService.hideReview(review.getId(), true, managerUser.getEmail());
+        
+        // Check public list
+        Page<ReviewDetailsDTO> publicReviews = reviewService.getLocationReviews(
+                testLocation.getId(), "date", "desc", 0, 10);
+        
+        // Hidden review should not be in public list
+        boolean foundInPublic = publicReviews.getContent().stream()
+                .anyMatch(r -> r.getId().equals(review.getId()));
+        assertFalse(foundInPublic, "Hidden review should not appear in public list");
+    }
+
+    @Test
+    void testHiddenReview_VisibleInManagerList() {
+        Review review = createTestReview();
+        
+        // Hide the review
+        reviewService.hideReview(review.getId(), true, managerUser.getEmail());
+        
+        // Check manager list
+        Page<ReviewDetailsDTO> managerReviews = reviewService.getLocationReviewsForManager(
+                testLocation.getId(), "date", "desc", 0, 10);
+        
+        // Hidden review should be in manager list
+        boolean foundInManager = managerReviews.getContent().stream()
+                .anyMatch(r -> r.getId().equals(review.getId()) && r.getHidden());
+        assertTrue(foundInManager, "Hidden review should appear in manager list");
+    }
+
     private Review createTestReview() {
         Review review = new Review();
         review.setUser(testUser);

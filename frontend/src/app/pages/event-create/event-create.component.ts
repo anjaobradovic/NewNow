@@ -99,7 +99,7 @@ export class EventCreateComponent implements OnInit {
   checkPermissions(): void {
     try {
       const user = JSON.parse(localStorage.getItem('user_data') || 'null');
-      if (!user?.roles?.includes('ROLE_MANAGER')) {
+      if (!user?.roles?.includes('ROLE_MANAGER') && !user?.roles?.includes('ROLE_ADMIN')) {
         alert('Only managers can create events');
         this.router.navigate(['/locations', this.locationId]);
         return;

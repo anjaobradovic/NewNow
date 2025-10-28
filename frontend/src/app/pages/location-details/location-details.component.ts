@@ -34,6 +34,14 @@ import { ReviewDTO } from '../../models/user.model';
               class="btn-secondary"
               >Analytics</a
             >
+            <a
+              *ngIf="isManager"
+              routerLink="/manager/reviews"
+              class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors"
+              title="Moderate reviews for your managed locations"
+            >
+              Moderate Reviews
+            </a>
             <a *ngIf="isAdmin" [routerLink]="['/locations', loc.id, 'managers']" class="btn-primary"
               >Managers</a
             >
@@ -202,7 +210,7 @@ export class LocationDetailsComponent implements OnInit {
       this.isAdmin = !!user?.roles?.includes('ROLE_ADMIN');
 
       // Check if user is manager of this location
-      if (user && user.roles?.includes('ROLE_MANAGER')) {
+      if (user && (user.roles?.includes('ROLE_MANAGER') || user.roles?.includes('ROLE_ADMIN'))) {
         this.userService.getManagedLocations().subscribe({
           next: (locations) => {
             this.isManager = locations.some((loc) => loc.id === id);

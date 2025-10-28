@@ -121,7 +121,7 @@ class ReviewControllerTest {
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.comment").value("Great event!"))
                 .andExpect(jsonPath("$.ratings.performance").value(8))
-                .andExpect(jsonPath("$.ratings.overall").value(8));
+                .andExpect(jsonPath("$.ratings.overallImpression").value(8));
     }
 
     @Test
@@ -234,7 +234,7 @@ class ReviewControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "manager@example.com")
     void testCreateComment_Success() throws Exception {
         Review review = createTestReview();
 
@@ -246,11 +246,11 @@ class ReviewControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.text").value("This is a comment"))
-                .andExpect(jsonPath("$.author.name").value(testUser.getName()));
+                .andExpect(jsonPath("$.author.name").value(managerUser.getName()));
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "manager@example.com")
     void testCreateNestedComment_Success() throws Exception {
         Review review = createTestReview();
         Comment parentComment = createTestComment(review, null);
@@ -280,7 +280,7 @@ class ReviewControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "testuser@example.com")
+    @WithMockUser(username = "manager@example.com")
     void testDeleteComment_Success() throws Exception {
         Review review = createTestReview();
         Comment comment = createTestComment(review, null);
@@ -341,7 +341,7 @@ class ReviewControllerTest {
     private Comment createTestComment(Review review, Comment parentComment) {
         Comment comment = new Comment();
         comment.setText("Test comment text");
-        comment.setUser(testUser);
+        comment.setUser(managerUser); // Manager can comment directly
         comment.setReview(review);
         comment.setParentComment(parentComment);
         comment.setCreatedAt(LocalDateTime.now());

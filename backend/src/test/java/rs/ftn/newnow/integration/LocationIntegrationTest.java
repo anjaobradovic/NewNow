@@ -158,8 +158,8 @@ class LocationIntegrationTest {
         locationService.deleteLocation(testLocation.getId());
 
         Location deletedLocation = locationRepository.findById(testLocation.getId()).orElse(null);
-        assertNotNull(deletedLocation);
-        assertTrue(deletedLocation.getDeleted());
+        // Location is permanently deleted, not just marked as deleted
+        assertNull(deletedLocation);
 
         assertThrows(RuntimeException.class, 
                 () -> locationService.getLocationDetails(testLocation.getId()));

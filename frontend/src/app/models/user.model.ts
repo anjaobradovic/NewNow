@@ -39,6 +39,7 @@ export interface UserBasicDTO {
   id: number;
   name: string;
   email: string;
+  role?: string;
 }
 
 export interface EventBasicDTO {

@@ -179,7 +179,45 @@ import { AuthService } from '../../services/auth.service';
                 >
               </div>
             </div>
-            @if (isAdmin()) {
+            @if (isManager() || isAdmin()) {
+            <div
+              class="relative group before:content-[''] before:absolute before:left-0 before:top-full before:h-2 before:w-full"
+            >
+              <a
+                routerLink="/manager/reviews"
+                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+              >
+                Manager
+                <svg
+                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </a>
+              <div
+                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+              >
+                <a
+                  routerLink="/me/managed-locations"
+                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  >My Locations</a
+                >
+                <a
+                  routerLink="/manager/reviews"
+                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  >Moderate Reviews</a
+                >
+              </div>
+            </div>
+            } @if (isAdmin()) {
             <div
               class="relative group before:content-[''] before:absolute before:left-0 before:top-full before:h-2 before:w-full"
             >
@@ -388,6 +426,40 @@ import { AuthService } from '../../services/auth.service';
               >Manage Locations</a
             >
           </div>
+          } } @if (isManager()) {
+          <button
+            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+            (click)="toggleManagerMobile()"
+          >
+            <span>Manager</span>
+            <svg
+              class="w-4 h-4 transition-transform"
+              [class.rotate-180]="openManagerMobile()"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          @if (openManagerMobile()) {
+          <div class="ml-3">
+            <a
+              routerLink="/me/managed-locations"
+              class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+              >My Locations</a
+            >
+            <a
+              routerLink="/manager/reviews"
+              class="block px-3 py-2 rounded-lg text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+              >Moderate Reviews</a
+            >
+          </div>
           } }
           <div class="pt-3 border-t border-neutral-100">
             @if (authService.isAuthenticated()) {
@@ -454,6 +526,7 @@ export class NavbarComponent {
   openEventsMobile = signal(false);
   openDiscoverMobile = signal(false);
   openAdminMobile = signal(false);
+  openManagerMobile = signal(false);
 
   constructor(public authService: AuthService, private router: Router) {}
 
@@ -469,6 +542,9 @@ export class NavbarComponent {
   toggleAdminMobile() {
     this.openAdminMobile.update((v) => !v);
   }
+  toggleManagerMobile() {
+    this.openManagerMobile.update((v) => !v);
+  }
 
   logout(): void {
     this.authService.logout().subscribe({
@@ -483,6 +559,11 @@ export class NavbarComponent {
   isAdmin(): boolean {
     const user = this.authService.currentUser();
     return user?.roles?.includes('ROLE_ADMIN') || false;
+  }
+
+  isManager(): boolean {
+    const user = this.authService.currentUser();
+    return user?.roles?.includes('ROLE_MANAGER') || user?.roles?.includes('ROLE_ADMIN') || false;
   }
 
   initials(): string {

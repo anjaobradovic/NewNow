@@ -110,6 +110,21 @@ public class UserController {
         }
     }
 
+    @GetMapping("/me/is-manager/{locationId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> isManagerOfLocation(
+            @PathVariable Long locationId,
+            Authentication authentication) {
+        try {
+            log.info("Checking if user {} is manager of location {}", authentication.getName(), locationId);
+            boolean isManager = userService.isUserManagerOfLocation(authentication.getName(), locationId);
+            return ResponseEntity.ok(isManager);
+        } catch (Exception e) {
+            log.error("Failed to check manager status", e);
+            return ResponseEntity.ok(false);
+        }
+    }
+
     @PostMapping("/me/change-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changePassword(

@@ -38,6 +38,13 @@ public class CommentService {
         Review review = reviewRepository.findByIdAndNotDeleted(reviewId)
                 .orElseThrow(() -> new BusinessException("Review not found"));
 
+        // Check if user is manager of the location
+        boolean isManager = !managesRepository.findActiveManagement(
+                user.getId(), 
+                review.getLocation().getId(), 
+                LocalDate.now()
+        ).isEmpty();
+
         Comment comment = new Comment();
         comment.setText(dto.getText());
         comment.setUser(user);
@@ -53,7 +60,32 @@ public class CommentService {
                 throw new BusinessException("Parent comment does not belong to this review");
             }
             
+            // Business rule: Only manager can reply directly to review (root level)
+            // User can only reply to manager's comment (second level)
+            // Anyone can reply to replies (third level and beyond)
+            
+            if (parentComment.getParentComment() == null) {
+                // This is a reply to root comment (first level)
+                // Check if parent comment author is a manager
+                boolean parentIsManager = !managesRepository.findActiveManagement(
+                        parentComment.getUser().getId(), 
+                        review.getLocation().getId(), 
+                        LocalDate.now()
+                ).isEmpty();
+                
+                if (!parentIsManager) {
+                    throw new BusinessException("You can only reply to manager's comments at this level");
+                }
+            }
+            // If parentComment.getParentComment() != null, this is third level or deeper - anyone can reply
+            
             comment.setParentComment(parentComment);
+        } else {
+            // This is a root level comment (reply directly to review)
+            // Only managers can post root level comments
+            if (!isManager) {
+                throw new BusinessException("Only managers can comment directly on reviews");
+            }
         }
 
         comment = commentRepository.save(comment);

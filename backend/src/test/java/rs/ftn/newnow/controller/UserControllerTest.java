@@ -154,7 +154,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(username = "testuser@example.com")
     void updateMyAvatar_FileSizeExceeded_ShouldReturn413() throws Exception {
-        byte[] largeFileContent = new byte[6 * 1024 * 1024];
+        byte[] largeFileContent = new byte[16 * 1024 * 1024]; // 16 MB
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "large-avatar.jpg",
@@ -169,7 +169,7 @@ class UserControllerTest {
                             return request;
                         }))
                 .andExpect(status().is(413))
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeds the maximum allowed size of 5 MB")));
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeds the maximum allowed size of 15 MB")));
     }
 
     @Test

@@ -41,7 +41,7 @@ public class EmailService {
             helper.setText(htmlContent, true);
             mailSender.send(message);
             log.info("Registration approved email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (MessagingException | org.springframework.mail.MailException e) {
             log.error("Failed to send registration approved email to: {}", toEmail, e);
         }
     }
@@ -73,7 +73,7 @@ public class EmailService {
             helper.setText(htmlContent, true);
             mailSender.send(message);
             log.info("Registration rejected email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (MessagingException | org.springframework.mail.MailException e) {
             log.error("Failed to send registration rejected email to: {}", toEmail, e);
         }
     }
@@ -101,7 +101,7 @@ public class EmailService {
             helper.setText(htmlContent, true);
             mailSender.send(message);
             log.info("Password change email sent to: {}", toEmail);
-        } catch (MessagingException e) {
+        } catch (MessagingException | org.springframework.mail.MailException e) {
             log.error("Failed to send password change email to: {}", toEmail, e);
         }
     }
