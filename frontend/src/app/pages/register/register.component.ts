@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
@@ -53,7 +60,7 @@ import { AuthService } from '../../services/auth.service';
                   placeholder="John Doe"
                 />
                 @if (registerForm.get('name')?.invalid && registerForm.get('name')?.touched) {
-                <p class="mt-2 text-sm text-red-600">Name is required</p>
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('name') }}</p>
                 }
               </div>
 
@@ -73,7 +80,7 @@ import { AuthService } from '../../services/auth.service';
                   placeholder="your@email.com"
                 />
                 @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-                <p class="mt-2 text-sm text-red-600">Please enter a valid email</p>
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('email') }}</p>
                 }
               </div>
             </div>
@@ -97,22 +104,38 @@ import { AuthService } from '../../services/auth.service';
                 />
                 @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched)
                 {
-                <p class="mt-2 text-sm text-red-600">Password must be at least 6 characters</p>
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('password') }}</p>
+                } @if (!registerForm.get('password')?.touched) {
+                <p class="mt-2 text-xs text-neutral-500">
+                  Min 8 characters, with uppercase, lowercase, number & special character
+                </p>
                 }
               </div>
 
               <!-- Phone -->
               <div>
                 <label for="phoneNumber" class="block text-sm font-medium text-neutral-700 mb-2">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <input
                   id="phoneNumber"
                   type="tel"
                   formControlName="phoneNumber"
                   class="input-field"
-                  placeholder="+1234567890"
+                  [class.border-red-400]="
+                    registerForm.get('phoneNumber')?.invalid &&
+                    registerForm.get('phoneNumber')?.touched
+                  "
+                  placeholder="+381 64 123 4567"
                 />
+                @if (registerForm.get('phoneNumber')?.invalid &&
+                registerForm.get('phoneNumber')?.touched) {
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('phoneNumber') }}</p>
+                } @if (!registerForm.get('phoneNumber')?.touched) {
+                <p class="mt-2 text-xs text-neutral-500">
+                  Format: +381XXXXXXXXX or 06XXXXXXXX (8-15 digits)
+                </p>
+                }
               </div>
             </div>
 
@@ -134,31 +157,53 @@ import { AuthService } from '../../services/auth.service';
                   placeholder="123 Main St"
                 />
                 @if (registerForm.get('address')?.invalid && registerForm.get('address')?.touched) {
-                <p class="mt-2 text-sm text-red-600">Address is required</p>
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('address') }}</p>
                 }
               </div>
 
               <!-- City -->
               <div>
                 <label for="city" class="block text-sm font-medium text-neutral-700 mb-2">
-                  City
+                  City *
                 </label>
                 <input
                   id="city"
                   type="text"
                   formControlName="city"
                   class="input-field"
+                  [class.border-red-400]="
+                    registerForm.get('city')?.invalid && registerForm.get('city')?.touched
+                  "
                   placeholder="Novi Sad"
                 />
+                @if (registerForm.get('city')?.invalid && registerForm.get('city')?.touched) {
+                <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('city') }}</p>
+                }
               </div>
             </div>
 
             <!-- Birthday -->
             <div>
               <label for="birthday" class="block text-sm font-medium text-neutral-700 mb-2">
-                Birthday
+                Birthday *
               </label>
-              <input id="birthday" type="date" formControlName="birthday" class="input-field" />
+              <input
+                id="birthday"
+                type="date"
+                formControlName="birthday"
+                class="input-field"
+                [class.border-red-400]="
+                  registerForm.get('birthday')?.invalid && registerForm.get('birthday')?.touched
+                "
+                [max]="getMaxDate()"
+              />
+              @if (registerForm.get('birthday')?.invalid && registerForm.get('birthday')?.touched) {
+              <p class="mt-2 text-sm text-red-600">{{ getErrorMessage('birthday') }}</p>
+              } @if (!registerForm.get('birthday')?.touched) {
+              <p class="mt-2 text-xs text-neutral-500">
+                You must be at least 13 years old to register
+              </p>
+              }
             </div>
 
             <!-- Submit Button -->
@@ -230,13 +275,177 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      name: ['', Validators.required],
-      phoneNumber: [''],
-      birthday: [''],
-      address: ['', Validators.required],
-      city: [''],
+      password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
+      name: ['', [Validators.required, Validators.minLength(2), this.nameValidator]],
+      phoneNumber: ['', [Validators.required, this.phoneValidator]],
+      birthday: ['', [Validators.required, this.ageValidator]],
+      address: ['', [Validators.required, Validators.minLength(5)]],
+      city: ['', [Validators.required, Validators.minLength(2), this.nameValidator]],
     });
+  }
+
+  // Custom validator za ime i prezime - samo slova, razmaci i neki specijalni karakteri
+  nameValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null; // Dozvoljavamo prazno polje ako nije required
+    }
+    const nameRegex = /^[a-zA-ZčćžšđČĆŽŠĐ\s'-]+$/;
+    return nameRegex.test(control.value) ? null : { invalidName: true };
+  }
+
+  // Custom validator za lozinku - mora sadržati: veliko slovo, malo slovo, broj i specijalni karakter
+  passwordValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(control.value);
+    const hasLowerCase = /[a-z]/.test(control.value);
+    const hasNumber = /\d/.test(control.value);
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(control.value);
+
+    const errors: ValidationErrors = {};
+
+    if (!hasUpperCase) errors['noUpperCase'] = true;
+    if (!hasLowerCase) errors['noLowerCase'] = true;
+    if (!hasNumber) errors['noNumber'] = true;
+    if (!hasSpecialChar) errors['noSpecialChar'] = true;
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  // Custom validator za telefon - striktna provera
+  phoneValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value || control.value.trim() === '') {
+      return null; // Required validator će to uhvatiti
+    }
+
+    const phoneValue = control.value.replace(/[\s\-\(\)]/g, ''); // Ukloni razmake, crtice i zagrade
+
+    // Provera da li sadrži samo brojeve i opciono + na početku
+    if (!/^[\+]?[0-9]+$/.test(phoneValue)) {
+      return { invalidPhone: true };
+    }
+
+    // Provera dužine (bez +)
+    const digitsOnly = phoneValue.replace('+', '');
+
+    // Minimalno 8 cifara (lokalni brojevi), maksimalno 15 (međunarodni standard)
+    if (digitsOnly.length < 8 || digitsOnly.length > 15) {
+      return { invalidPhoneLength: true };
+    }
+
+    // Provera validnih prefiksa za Srbiju (+381 ili 0)
+    if (phoneValue.startsWith('+381')) {
+      // Nakon +381 mora biti 6, 7 ili 9 (mobilni), ili drugo za fiksne
+      const afterPrefix = phoneValue.substring(4);
+      if (afterPrefix.length < 8 || afterPrefix.length > 9) {
+        return { invalidPhone: true };
+      }
+    } else if (phoneValue.startsWith('381')) {
+      // Isto kao gore ali bez +
+      const afterPrefix = phoneValue.substring(3);
+      if (afterPrefix.length < 8 || afterPrefix.length > 9) {
+        return { invalidPhone: true };
+      }
+    } else if (phoneValue.startsWith('0')) {
+      // Lokalni format za Srbiju - 0XX YYY ZZZZ (10 cifara)
+      if (digitsOnly.length < 9 || digitsOnly.length > 10) {
+        return { invalidPhone: true };
+      }
+    }
+
+    return null;
+  }
+
+  // Custom validator za starost (13-120 godina)
+  ageValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null; // Datum nije obavezan
+    }
+
+    const birthday = new Date(control.value);
+    const today = new Date();
+    const age = today.getFullYear() - birthday.getFullYear();
+    const monthDiff = today.getMonth() - birthday.getMonth();
+
+    const actualAge =
+      monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate()) ? age - 1 : age;
+
+    if (actualAge < 13) {
+      return { tooYoung: true };
+    }
+    if (actualAge > 120) {
+      return { tooOld: true };
+    }
+    if (birthday > today) {
+      return { futureDate: true };
+    }
+
+    return null;
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.registerForm.get(fieldName);
+    if (!control || !control.errors || !control.touched) {
+      return '';
+    }
+
+    const errors = control.errors;
+
+    switch (fieldName) {
+      case 'name':
+        if (errors['required']) return 'Name is required';
+        if (errors['minlength']) return 'Name must be at least 2 characters';
+        if (errors['invalidName']) return 'Name can only contain letters, spaces, and hyphens';
+        break;
+
+      case 'email':
+        if (errors['required']) return 'Email is required';
+        if (errors['email']) return 'Please enter a valid email address';
+        break;
+
+      case 'password':
+        if (errors['required']) return 'Password is required';
+        if (errors['minlength']) return 'Password must be at least 8 characters';
+        if (errors['noUpperCase']) return 'Password must contain at least one uppercase letter';
+        if (errors['noLowerCase']) return 'Password must contain at least one lowercase letter';
+        if (errors['noNumber']) return 'Password must contain at least one number';
+        if (errors['noSpecialChar']) return 'Password must contain at least one special character';
+        break;
+
+      case 'phoneNumber':
+        if (errors['required']) return 'Phone number is required';
+        if (errors['invalidPhone']) return 'Please enter a valid phone number';
+        if (errors['invalidPhoneLength']) return 'Phone number must be between 8 and 15 digits';
+        break;
+
+      case 'address':
+        if (errors['required']) return 'Address is required';
+        if (errors['minlength']) return 'Address must be at least 5 characters';
+        break;
+
+      case 'city':
+        if (errors['required']) return 'City is required';
+        if (errors['minlength']) return 'City must be at least 2 characters';
+        if (errors['invalidName']) return 'City can only contain letters and spaces';
+        break;
+
+      case 'birthday':
+        if (errors['required']) return 'Birthday is required';
+        if (errors['tooYoung']) return 'You must be at least 13 years old';
+        if (errors['tooOld']) return 'Please enter a valid birth date';
+        if (errors['futureDate']) return 'Birth date cannot be in the future';
+        break;
+    }
+
+    return 'Invalid input';
+  }
+
+  getMaxDate(): string {
+    // Maksimalni datum je danas (ne možeš biti rođen u budućnosti)
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   }
 
   onSubmit(): void {
@@ -249,17 +458,10 @@ export class RegisterComponent {
         password: formValue.password,
         name: formValue.name,
         address: formValue.address,
+        phoneNumber: formValue.phoneNumber,
+        birthday: formValue.birthday,
+        city: formValue.city,
       };
-
-      if (formValue.phoneNumber && formValue.phoneNumber.trim() !== '') {
-        requestData.phoneNumber = formValue.phoneNumber;
-      }
-      if (formValue.birthday) {
-        requestData.birthday = formValue.birthday;
-      }
-      if (formValue.city && formValue.city.trim() !== '') {
-        requestData.city = formValue.city;
-      }
 
       this.authService.register(requestData).subscribe({
         next: (res) => {
