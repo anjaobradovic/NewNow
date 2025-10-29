@@ -22,13 +22,8 @@ import rs.ftn.newnow.repository.LocationRepository;
 import rs.ftn.newnow.repository.ManagesRepository;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +35,7 @@ public class EventService {
     private final LocationRepository locationRepository;
     private final ManagesRepository managesRepository;
     private final ImageRepository imageRepository;
-    private final Path uploadPath = Paths.get("uploads/events");
+    private final FileStorageService fileStorageService;
 
     @Transactional(readOnly = true)
     public Page<EventDTO> searchEvents(String type, Long locationId, String address, 
@@ -111,7 +106,7 @@ public class EventService {
         
         Event savedEvent = eventRepository.save(event);
         
-        String imageUrl = saveEventImage(image);
+        String imageUrl = fileStorageService.saveImage(image, "events");
         Image eventImage = new Image();
         eventImage.setPath(imageUrl);
         eventImage.setEvent(savedEvent);
@@ -200,11 +195,11 @@ public class EventService {
         }
         
         if (event.getImage() != null) {
-            deleteEventImage(event.getImage().getPath());
+            fileStorageService.deleteImage(event.getImage().getPath());
             imageRepository.delete(event.getImage());
         }
         
-        String imageUrl = saveEventImage(image);
+        String imageUrl = fileStorageService.saveImage(image, "events");
         Image eventImage = new Image();
         eventImage.setPath(imageUrl);
         eventImage.setEvent(event);
@@ -227,47 +222,6 @@ public class EventService {
         Long count = eventRepository.countOccurrencesUntilDate(eventId, untilDate);
         log.info("Event ID: {} has {} occurrences until {}", eventId, count, untilDate);
         return count;
-    }
-
-    private String saveEventImage(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty");
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("File must be an image");
-        }
-
-        Files.createDirectories(uploadPath);
-
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null && originalFilename.contains(".")
-                ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                : "";
-        
-        String filename = UUID.randomUUID().toString() + extension;
-        Path targetPath = uploadPath.resolve(filename);
-
-        Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-        log.info("Saved event image: {}", filename);
-        return "/uploads/events/" + filename;
-    }
-
-    private void deleteEventImage(String imageUrl) {
-        if (imageUrl == null || imageUrl.isEmpty()) {
-            return;
-        }
-
-        try {
-            String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-            Path filePath = uploadPath.resolve(filename);
-            Files.deleteIfExists(filePath);
-            log.info("Deleted event image: {}", filename);
-        } catch (IOException e) {
-            log.error("Failed to delete event image: {}", imageUrl, e);
-        }
     }
 
     private EventDTO convertToDTO(Event event) {

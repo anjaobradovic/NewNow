@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import rs.ftn.newnow.dto.CreateEventDTO;
 import rs.ftn.newnow.dto.EventDTO;
 import rs.ftn.newnow.dto.UpdateEventDTO;
@@ -42,6 +43,9 @@ class EventServiceTest {
 
     @Mock
     private ImageRepository imageRepository;
+
+    @Mock
+    private FileStorageService fileStorageService;
 
     @InjectMocks
     private EventService eventService;
@@ -150,12 +154,15 @@ class EventServiceTest {
         when(managesRepository.findActiveManagement(anyLong(), anyLong(), any(LocalDate.class)))
                 .thenReturn(Collections.singletonList(manages));
         when(eventRepository.save(any(Event.class))).thenReturn(event);
+        when(fileStorageService.saveImage(any(MultipartFile.class), anyString()))
+                .thenReturn("/uploads/events/test.jpg");
         when(imageRepository.save(any(Image.class))).thenReturn(image);
 
         EventDTO result = eventService.createEvent(1L, dto, imageFile, user);
 
         assertNotNull(result);
         verify(eventRepository).save(any(Event.class));
+        verify(fileStorageService).saveImage(any(MultipartFile.class), eq("events"));
         verify(imageRepository).save(any(Image.class));
     }
 
@@ -237,10 +244,14 @@ class EventServiceTest {
         when(eventRepository.findByIdAndNotDeleted(anyLong())).thenReturn(Optional.of(event));
         when(managesRepository.findActiveManagement(anyLong(), anyLong(), any(LocalDate.class)))
                 .thenReturn(Collections.singletonList(manages));
+        when(fileStorageService.saveImage(any(MultipartFile.class), anyString()))
+                .thenReturn("/uploads/events/new.jpg");
         when(imageRepository.save(any(Image.class))).thenReturn(image);
 
         eventService.updateEventImage(1L, imageFile, user);
 
+        verify(fileStorageService).deleteImage(anyString());
+        verify(fileStorageService).saveImage(any(MultipartFile.class), eq("events"));
         verify(imageRepository).delete(any(Image.class));
         verify(imageRepository).save(any(Image.class));
     }

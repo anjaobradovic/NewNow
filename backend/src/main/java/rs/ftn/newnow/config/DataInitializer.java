@@ -9,9 +9,6 @@ import rs.ftn.newnow.model.*;
 import rs.ftn.newnow.repository.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Random;
 
 @Component
 @Order(2)
@@ -23,26 +20,17 @@ public class DataInitializer implements CommandLineRunner {
     private final ImageRepository imageRepository;
     private final UserRepository userRepository;
     private final ManagesRepository managesRepository;
-    private final ReviewRepository reviewRepository;
-    private final RateRepository rateRepository;
-    private final CommentRepository commentRepository;
 
     public DataInitializer(LocationRepository locationRepository,
                            EventRepository eventRepository,
                            ImageRepository imageRepository,
                            UserRepository userRepository,
-                           ManagesRepository managesRepository,
-                           ReviewRepository reviewRepository,
-                           RateRepository rateRepository,
-                           CommentRepository commentRepository) {
+                           ManagesRepository managesRepository) {
         this.locationRepository = locationRepository;
         this.eventRepository = eventRepository;
         this.imageRepository = imageRepository;
         this.userRepository = userRepository;
         this.managesRepository = managesRepository;
-        this.reviewRepository = reviewRepository;
-        this.rateRepository = rateRepository;
-        this.commentRepository = commentRepository;
     }
 
     @Override
@@ -90,6 +78,13 @@ public class DataInitializer implements CommandLineRunner {
         locationRepository.save(budapest);
 
         // Events for Novi Sad
+        // Events happening today (October 29, 2025)
+        Event todayEvent1 = createEvent(noviSad, "Live Band Performance", "Novi Sad Arena", "Concert", LocalDate.of(2025, 10, 29), 1500.0, false);
+        attachEventImage(todayEvent1, "/uploads/events/live-band-performance.jpg");
+        Event todayEvent2 = createEvent(noviSad, "Tech Conference 2025", "SPENS, Novi Sad", "Conference", LocalDate.of(2025, 10, 29), 0.0, false);
+        attachEventImage(todayEvent2, "/uploads/events/tech-conference.jpg");
+        
+        // Upcoming events
         Event e1 = createEvent(noviSad, "Rock Night", "Bulevar Oslobođenja 100, Novi Sad", "Concert", LocalDate.now().plusDays(1), 1200.0, false);
         attachEventImage(e1, "/uploads/events/rock-night.jpg");
         Event e2 = createEvent(noviSad, "Wine Festival", "Petrovaradin Fortress, Novi Sad", "Festival", LocalDate.now().plusWeeks(3), 0.0, false);
@@ -142,159 +137,7 @@ public class DataInitializer implements CommandLineRunner {
         assignManagerToLocation("manager.bijelopolje@newnow.com", bijeloPolje);
         assignManagerToLocation("manager.budapest@newnow.com", budapest);
 
-        // Seed reviews and comments
-        seedReviews();
-    }
-
-    private void seedReviews() {
-        Random random = new Random();
-        List<User> users = userRepository.findAll();
-        List<Location> locations = locationRepository.findAll();
-        List<Event> allEvents = eventRepository.findAll();
-
-        if (users.isEmpty() || locations.isEmpty() || allEvents.isEmpty()) {
-            return;
-        }
-
-        // Filter only recurrent or past events for reviews
-        List<Event> reviewableEvents = allEvents.stream()
-                .filter(e -> e.getRecurrent() || e.getDate().isBefore(LocalDate.now()))
-                .toList();
-
-        if (reviewableEvents.isEmpty()) {
-            return;
-        }
-
-        // Review comments pool
-        String[] comments = {
-                "Amazing experience! The atmosphere was electric and the performance exceeded all expectations.",
-                "Great venue with excellent acoustics. The sound quality was top-notch throughout the entire event.",
-                "Loved every moment! The organization was flawless and the staff was incredibly friendly.",
-                "Fantastic event! The lighting design created a perfect ambiance for the evening.",
-                "One of the best events I've attended this year. Can't wait for the next one!",
-                "The venue was spacious and comfortable. Perfect for this type of event.",
-                "Really enjoyed the experience. The variety of performances kept it interesting all night.",
-                "Excellent sound system and great crowd. Would definitely come back again.",
-                "The location is perfect and easy to access. Parking was also convenient.",
-                "Wonderful atmosphere and great energy from the crowd. Memorable night!",
-                "Professional organization and attention to detail. Everything ran smoothly.",
-                "The venue exceeded my expectations. Clean facilities and good visibility from all angles.",
-                "Great event with a diverse lineup. Something for everyone to enjoy.",
-                "Impressive production quality. The technical aspects were handled perfectly.",
-                "Lovely venue with a welcoming vibe. Staff was helpful and accommodating.",
-                "Solid experience overall. Good value for the price and well worth attending.",
-                "The acoustic quality was outstanding. Every note was crystal clear.",
-                "Enjoyable evening with friends. The venue layout worked really well.",
-                "Good organization and timing. Events started and ended as scheduled.",
-                "Pleasant surprise! Better than I expected in every way."
-        };
-
-        // Reply comments pool
-        String[] replies = {
-                "Thank you for your feedback! We're thrilled you enjoyed the experience.",
-                "We appreciate your kind words! Looking forward to seeing you at future events.",
-                "Thanks for visiting! Your support means the world to us.",
-                "Glad you had a great time! We work hard to make every event special.",
-                "Thank you! We're constantly improving and your feedback helps us.",
-                "We're so happy you enjoyed it! More exciting events coming soon.",
-                "Thanks for the positive review! Hope to see you again.",
-                "Your satisfaction is our priority. Thank you for sharing!",
-                "Absolutely agree! Glad you noticed the details we put into the event.",
-                "Thank you for coming! We hope to create many more memorable experiences.",
-                "I had the same experience! The venue really knows how to deliver.",
-                "Couldn't agree more! This place never disappoints.",
-                "Same here! Already planning my next visit.",
-                "Exactly my thoughts! The attention to detail is impressive.",
-                "Well said! This venue sets the standard for quality events."
-        };
-
-        int reviewCount = 0;
-        int targetReviews = 20;
-
-        // Create reviews for each location
-        for (Location location : locations) {
-            List<Event> locationEvents = reviewableEvents.stream()
-                    .filter(e -> e.getLocation().getId().equals(location.getId()))
-                    .toList();
-
-            if (locationEvents.isEmpty()) continue;
-
-            // Create 5-8 reviews per location
-            int reviewsForLocation = 5 + random.nextInt(4);
-            
-            for (int i = 0; i < reviewsForLocation && reviewCount < targetReviews; i++) {
-                User reviewer = users.get(random.nextInt(users.size()));
-                Event event = locationEvents.get(random.nextInt(locationEvents.size()));
-
-                // Create review
-                Review review = new Review();
-                review.setUser(reviewer);
-                review.setLocation(location);
-                review.setEvent(event);
-                review.setComment(comments[random.nextInt(comments.length)]);
-                review.setEventCount(1 + random.nextInt(5)); // 1-5 times attended
-                review.setHidden(false);
-                review.setDeleted(false);
-                review.setDeletedByManager(false);
-                review.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(60))); // Within last 60 days
-                reviewRepository.save(review);
-
-                // Create ratings - neke kategorije mogu biti null (20% šansa da kategorija nije ocenjena)
-                Rate rate = new Rate();
-                rate.setReview(review);
-                
-                // Performance - 80% šansa da bude ocenjeno
-                if (random.nextDouble() > 0.2) {
-                    rate.setPerformance(7 + random.nextInt(4)); // 7-10
-                }
-                
-                // Sound & Lighting - 80% šansa da bude ocenjeno
-                if (random.nextDouble() > 0.2) {
-                    rate.setSoundAndLighting(7 + random.nextInt(4));
-                }
-                
-                // Venue - 70% šansa da bude ocenjeno (manja šansa)
-                if (random.nextDouble() > 0.3) {
-                    rate.setVenue(6 + random.nextInt(5)); // 6-10
-                }
-                
-                // Overall Impression - uvek ocenjeno (jer je najvažnije)
-                rate.setOverallImpression(7 + random.nextInt(4));
-                
-                rateRepository.save(rate);
-
-                review.setRate(rate);
-                reviewRepository.save(review);
-
-                // Add 0-3 comments to this review
-                int numComments = random.nextInt(4);
-                for (int j = 0; j < numComments; j++) {
-                    User commenter = users.get(random.nextInt(users.size()));
-                    Comment comment = new Comment();
-                    comment.setUser(commenter);
-                    comment.setReview(review);
-                    comment.setText(replies[random.nextInt(replies.length)]);
-                    comment.setDeleted(false);
-                    comment.setCreatedAt(review.getCreatedAt().plusHours(random.nextInt(48)));
-                    commentRepository.save(comment);
-
-                    // 30% chance of a reply to this comment
-                    if (random.nextDouble() < 0.3) {
-                        User replier = users.get(random.nextInt(users.size()));
-                        Comment reply = new Comment();
-                        reply.setUser(replier);
-                        reply.setReview(review);
-                        reply.setParentComment(comment);
-                        reply.setText(replies[random.nextInt(replies.length)]);
-                        reply.setDeleted(false);
-                        reply.setCreatedAt(comment.getCreatedAt().plusHours(random.nextInt(24)));
-                        commentRepository.save(reply);
-                    }
-                }
-
-                reviewCount++;
-            }
-        }
+        // Reviews and ratings will be added by users after attending events
     }
 
     private Event createEvent(Location location, String name, String address, String type, LocalDate date, Double price, boolean recurrent) {
