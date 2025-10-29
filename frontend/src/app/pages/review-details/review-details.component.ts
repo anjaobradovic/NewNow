@@ -14,10 +14,10 @@ import { forkJoin } from 'rxjs';
   imports: [CommonModule, FormsModule],
   template: `
     <div
-      class="border-l-4 rounded-lg p-4 mb-3 transition-all hover:shadow-md"
-      [class.border-blue-500]="comment.author.role === 'ROLE_MANAGER'"
-      [class.bg-blue-50]="comment.author.role === 'ROLE_MANAGER'"
-      [class.border-neutral-300]="comment.author.role !== 'ROLE_MANAGER'"
+      class="border-l-4 rounded-xl p-4 mb-3 transition-all hover:shadow-md"
+      [class.border-primary-500]="comment.author.role === 'ROLE_MANAGER'"
+      [class.bg-primary-50]="comment.author.role === 'ROLE_MANAGER'"
+      [class.border-neutral-200]="comment.author.role !== 'ROLE_MANAGER'"
       [class.bg-white]="comment.author.role !== 'ROLE_MANAGER'"
     >
       <div class="flex justify-between items-start">
@@ -25,8 +25,8 @@ import { forkJoin } from 'rxjs';
           <div
             class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white"
             [class.bg-gradient-to-br]="true"
-            [class.from-blue-500]="comment.author.role === 'ROLE_MANAGER'"
-            [class.to-purple-500]="comment.author.role === 'ROLE_MANAGER'"
+            [class.from-primary-500]="comment.author.role === 'ROLE_MANAGER'"
+            [class.to-primary-700]="comment.author.role === 'ROLE_MANAGER'"
             [class.from-neutral-400]="comment.author.role !== 'ROLE_MANAGER'"
             [class.to-neutral-500]="comment.author.role !== 'ROLE_MANAGER'"
           >
@@ -37,7 +37,7 @@ import { forkJoin } from 'rxjs';
               <span class="text-sm font-semibold text-neutral-800">{{ comment.author.name }}</span>
               <span
                 *ngIf="comment.author.role === 'ROLE_MANAGER'"
-                class="px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full font-medium"
+                class="px-2 py-0.5 bg-primary-600 text-white text-xs rounded-full font-medium"
               >
                 <i class="fas fa-shield-alt mr-1"></i>Manager
               </span>
@@ -49,13 +49,15 @@ import { forkJoin } from 'rxjs';
         </div>
         <div class="flex items-center gap-2">
           <button
-            class="text-blue-600 hover:text-blue-700 text-sm font-medium px-3 py-1 hover:bg-blue-100 rounded-lg transition-all"
+            *ngIf="canReply()"
+            class="text-primary-600 hover:text-primary-700 text-sm font-medium px-3 py-1 hover:bg-primary-50 rounded-lg transition-all"
             (click)="toggleReply()"
           >
             <i class="fas fa-reply mr-1"></i>Reply
           </button>
           <button
-            class="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 hover:bg-red-100 rounded-lg transition-all"
+            *ngIf="canDeleteComment()"
+            class="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 hover:bg-red-50 rounded-lg transition-all"
             (click)="onDelete.emit(comment.id)"
           >
             <i class="fas fa-trash-alt mr-1"></i>Delete
@@ -64,25 +66,25 @@ import { forkJoin } from 'rxjs';
       </div>
       <p class="mt-3 text-neutral-700 leading-relaxed">{{ comment.text }}</p>
 
-      <div *ngIf="replyOpen" class="mt-4 p-3 bg-white rounded-lg border border-neutral-300">
+      <div *ngIf="replyOpen" class="mt-4 p-3 bg-white rounded-lg border-2 border-primary-200">
         <textarea
-          class="w-full px-4 py-3 border-2 border-neutral-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+          class="w-full px-4 py-3 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all resize-none"
           rows="3"
           [(ngModel)]="replyText"
-          placeholder="Write your reply..."
+          placeholder="Napišite odgovor..."
         ></textarea>
         <div class="mt-2 flex justify-end gap-2">
           <button
-            class="px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg hover:bg-neutral-300 transition-all"
+            class="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-lg hover:bg-neutral-200 transition-all"
             (click)="toggleReply()"
           >
             Cancel
           </button>
           <button
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all shadow-sm"
             (click)="submitReply()"
           >
-            <i class="fas fa-paper-plane mr-2"></i>Send Reply
+            <i class="fas fa-paper-plane mr-2"></i>Send
           </button>
         </div>
       </div>
@@ -91,6 +93,8 @@ import { forkJoin } from 'rxjs';
         <app-comment-item
           *ngFor="let r of comment.replies"
           [comment]="r"
+          [reviewAuthorEmail]="reviewAuthorEmail"
+          [currentUserEmail]="currentUserEmail"
           (onReply)="onReply.emit($event)"
           (onDelete)="onDelete.emit($event)"
         ></app-comment-item>
@@ -100,6 +104,8 @@ import { forkJoin } from 'rxjs';
 })
 export class CommentItemComponent {
   @Input() comment!: CommentDTO;
+  @Input() reviewAuthorEmail!: string; // Email vlasnika recenzije
+  @Input() currentUserEmail!: string | undefined; // Email trenutno ulogovanog korisnika
   @Output() onReply = new EventEmitter<{ parentId: number; text: string }>();
   @Output() onDelete = new EventEmitter<number>();
 
@@ -117,6 +123,17 @@ export class CommentItemComponent {
     this.replyText = '';
     this.replyOpen = false;
   }
+
+  canReply(): boolean {
+    // Vlasnik recenzije može da odgovara na sve komentare
+    // Menadžeri mogu da odgovaraju na sve komentare
+    return !!this.currentUserEmail;
+  }
+
+  canDeleteComment(): boolean {
+    // Možeš obrisati svoj komentar ili ako si admin/menadžer
+    return this.comment.author.email === this.currentUserEmail;
+  }
 }
 
 @Component({
@@ -124,25 +141,25 @@ export class CommentItemComponent {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, CommentItemComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10">
+    <div class="min-h-screen bg-neutral-50 py-10">
       <div class="max-w-5xl mx-auto px-4 space-y-6">
         <a
           routerLink="/locations"
-          class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-all"
+          class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium transition-all"
         >
           <i class="fas fa-arrow-left"></i>Back to Locations
         </a>
 
-        <div *ngIf="loading()" class="bg-white rounded-xl shadow-md p-8 animate-pulse">
+        <div *ngIf="loading()" class="bg-white rounded-2xl shadow-md p-8 animate-pulse">
           <div class="h-8 bg-neutral-200 w-1/3 rounded mb-4"></div>
           <div class="h-4 bg-neutral-200 w-1/2 rounded"></div>
         </div>
 
         <div *ngIf="!loading() && review() as r" class="space-y-6">
           <!-- Review Card -->
-          <div class="bg-white rounded-xl shadow-lg border border-neutral-200 overflow-hidden">
+          <div class="bg-white rounded-2xl shadow-lg border border-neutral-100 overflow-hidden">
             <!-- Header -->
-            <div class="bg-gradient-to-r from-blue-500 to-purple-500 p-6 text-white">
+            <div class="bg-gradient-to-r from-primary-500 to-primary-700 p-6 text-white">
               <div class="flex items-start justify-between">
                 <div>
                   <h1 class="text-3xl font-bold mb-2">{{ r.event.name }}</h1>
@@ -150,29 +167,34 @@ export class CommentItemComponent {
                     <span
                       ><i class="far fa-clock mr-2"></i>{{ r.createdAt | date : 'medium' }}</span
                     >
-                    <span><i class="fas fa-hashtag mr-2"></i>Occurrence #{{ r.eventCount }}</span>
+                    <span
+                      ><i class="fas fa-repeat mr-2"></i>Occurred {{ r.eventCount }}x until
+                      then</span
+                    >
                   </div>
                   <span
                     *ngIf="r.hidden"
-                    class="inline-block mt-3 px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white"
+                    class="inline-block mt-3 px-3 py-1 rounded-full text-xs font-medium bg-yellow-500 text-white shadow-sm"
                   >
                     <i class="fas fa-eye-slash mr-1"></i>Hidden by manager
                   </span>
                 </div>
                 <div class="flex flex-col items-end gap-3">
-                  <div class="px-6 py-3 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg">
+                  <div
+                    class="px-6 py-3 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl shadow-lg"
+                  >
                     <div class="text-xs opacity-90 mb-1">Average Rating</div>
                     <div class="text-3xl font-bold">{{ r.ratings.average | number : '1.1-1' }}</div>
                   </div>
                   <div class="flex items-center gap-2" *ngIf="canEdit(r)">
                     <a
-                      class="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-opacity-90 transition-all font-medium"
+                      class="px-4 py-2 bg-white text-primary-600 rounded-lg hover:bg-opacity-90 transition-all font-medium shadow-sm"
                       [routerLink]="['/reviews', r.id, 'edit']"
                     >
                       <i class="fas fa-edit mr-2"></i>Edit
                     </a>
                     <button
-                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium"
+                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium shadow-sm"
                       (click)="confirmDelete = true"
                     >
                       <i class="fas fa-trash-alt mr-2"></i>Delete
@@ -180,14 +202,14 @@ export class CommentItemComponent {
                   </div>
                   <div class="flex items-center gap-2" *ngIf="!canEdit(r) && canModerate()">
                     <button
-                      class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all font-medium"
+                      class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-all font-medium shadow-sm"
                       (click)="toggleHidden()"
                     >
                       <i [class]="r.hidden ? 'fas fa-eye' : 'fas fa-eye-slash'" class="mr-2"></i
                       >{{ r.hidden ? 'Unhide' : 'Hide' }}
                     </button>
                     <button
-                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium"
+                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all font-medium shadow-sm"
                       (click)="confirmManagerDelete = true"
                     >
                       <i class="fas fa-trash-alt mr-2"></i>Delete as Manager
@@ -198,13 +220,13 @@ export class CommentItemComponent {
             </div>
 
             <!-- Ratings Grid -->
-            <div class="p-6 border-b border-neutral-200">
+            <div class="p-6 border-b border-neutral-100">
               <h3 class="text-lg font-semibold mb-4 text-neutral-800">
-                <i class="fas fa-star text-yellow-500 mr-2"></i>Ratings Breakdown
+                <i class="fas fa-star text-yellow-500 mr-2"></i>Rating Details
               </h3>
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div
-                  class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center border border-blue-200"
+                  class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 text-center border border-primary-200"
                 >
                   <div class="text-xs text-blue-700 font-medium mb-2">Performance</div>
                   <div class="text-3xl font-bold text-blue-800" *ngIf="r.ratings.performance">
@@ -270,7 +292,7 @@ export class CommentItemComponent {
             <div class="p-6 bg-neutral-50">
               <div class="flex items-start gap-4">
                 <div
-                  class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg"
+                  class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white font-bold text-lg"
                 >
                   {{ r.author.name.charAt(0).toUpperCase() }}
                 </div>
@@ -289,16 +311,16 @@ export class CommentItemComponent {
           </div>
 
           <!-- Comments Section -->
-          <div class="bg-white rounded-xl shadow-lg border border-neutral-200 p-6">
+          <div class="bg-white rounded-2xl shadow-lg border border-neutral-100 p-6">
             <div class="flex items-center gap-3 mb-6">
               <div
-                class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center"
+                class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center"
               >
                 <i class="fas fa-comments text-white text-lg"></i>
               </div>
               <h2 class="text-2xl font-bold text-neutral-800">Discussion</h2>
               <span
-                class="ml-auto px-3 py-1 bg-neutral-100 text-neutral-600 rounded-full text-sm font-medium"
+                class="ml-auto px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium"
               >
                 {{ comments().length }} {{ comments().length === 1 ? 'comment' : 'comments' }}
               </span>
@@ -307,21 +329,21 @@ export class CommentItemComponent {
             <!-- Manager Comment Form -->
             <div
               *ngIf="canCommentDirectly()"
-              class="mb-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200"
+              class="mb-6 p-4 bg-primary-50 rounded-xl border-2 border-primary-200"
             >
               <div class="flex items-center gap-2 mb-3">
-                <i class="fas fa-shield-alt text-blue-600"></i>
-                <span class="text-sm font-medium text-blue-800">Commenting as Manager</span>
+                <i class="fas fa-shield-alt text-primary-600"></i>
+                <span class="text-sm font-medium text-primary-800">Commenting as Manager</span>
               </div>
               <textarea
-                class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                class="w-full px-4 py-3 border-2 border-primary-200 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all resize-none"
                 rows="4"
                 [(ngModel)]="newComment"
                 placeholder="Share your response to this review..."
               ></textarea>
               <div class="mt-3 flex justify-end">
                 <button
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium shadow-md hover:shadow-lg"
+                  class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all font-medium shadow-md hover:shadow-lg"
                   (click)="postComment()"
                 >
                   <i class="fas fa-paper-plane mr-2"></i>Post Comment
@@ -331,14 +353,28 @@ export class CommentItemComponent {
 
             <!-- Info for non-managers -->
             <div
-              *ngIf="auth.isAuthenticated() && !canCommentDirectly()"
-              class="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-200"
+              *ngIf="auth.isAuthenticated() && !canCommentDirectly() && !isReviewOwner()"
+              class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200"
             >
               <div class="flex items-start gap-3">
-                <i class="fas fa-info-circle text-amber-600 mt-0.5"></i>
-                <div class="text-sm text-amber-800">
-                  <strong>Note:</strong> Only managers can comment directly on reviews. You can
-                  participate by replying to manager comments below.
+                <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                <div class="text-sm text-blue-800">
+                  <strong>Note:</strong> You can participate in the discussion by replying to
+                  existing comments from managers or the review owner.
+                </div>
+              </div>
+            </div>
+
+            <!-- Info for review owner to encourage participation -->
+            <div
+              *ngIf="auth.isAuthenticated() && isReviewOwner() && !canCommentDirectly()"
+              class="mb-6 p-4 bg-green-50 rounded-xl border border-green-200"
+            >
+              <div class="flex items-start gap-3">
+                <i class="fas fa-user-check text-green-600 mt-0.5"></i>
+                <div class="text-sm text-green-800">
+                  <strong>Your review!</strong> You can respond to comments using the "Reply" button
+                  below each comment.
                 </div>
               </div>
             </div>
@@ -357,6 +393,8 @@ export class CommentItemComponent {
               <app-comment-item
                 *ngFor="let c of comments()"
                 [comment]="c"
+                [reviewAuthorEmail]="review()?.author?.email || ''"
+                [currentUserEmail]="auth.currentUser()?.email"
                 (onReply)="onReply($event)"
                 (onDelete)="onDelete($event)"
               ></app-comment-item>
@@ -506,12 +544,24 @@ export class ReviewDetailsComponent implements OnInit {
     return !!r && r.author.email === email;
   }
 
+  isReviewOwner(): boolean {
+    const r = this.review();
+    const email = this.auth.currentUser()?.email;
+    return !!r && !!email && r.author.email === email;
+  }
+
   canModerate(): boolean {
-    return this.auth.isAuthenticated() && (this.auth.hasRole('ROLE_MANAGER') || this.auth.hasRole('ROLE_ADMIN'));
+    return (
+      this.auth.isAuthenticated() &&
+      (this.auth.hasRole('ROLE_MANAGER') || this.auth.hasRole('ROLE_ADMIN'))
+    );
   }
 
   canCommentDirectly(): boolean {
-    return this.auth.isAuthenticated() && (this.auth.hasRole('ROLE_MANAGER') || this.auth.hasRole('ROLE_ADMIN'));
+    return (
+      this.auth.isAuthenticated() &&
+      (this.auth.hasRole('ROLE_MANAGER') || this.auth.hasRole('ROLE_ADMIN'))
+    );
   }
 
   toggleHidden() {

@@ -147,6 +147,13 @@ import { ReviewDetailsDTO } from '../../models/user.model';
                     >
                       <i class="fas fa-calendar-alt mr-1"></i>{{ r.event.name }}
                     </span>
+                    @if (r.eventCount > 0) {
+                    <span
+                      class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      <i class="fas fa-repeat mr-1"></i>Dogodilo se {{ r.eventCount }}x
+                    </span>
+                    }
                     <span
                       *ngIf="r.hidden"
                       class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 animate-pulse"

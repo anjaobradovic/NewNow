@@ -106,7 +106,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
                     {{ review.event.recurrent ? 'Regular' : 'One-time' }}
                   </span>
                   <span>{{ review.event.type }}</span>
-                  <span>Attended {{ review.eventCount }}x</span>
+                  <span>Dogodilo se {{ review.eventCount }}x</span>
                 </div>
               </div>
 

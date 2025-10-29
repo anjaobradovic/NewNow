@@ -325,7 +325,7 @@ import { ReviewDTO } from '../../models/user.model';
               >
                 @if (location.imageUrl) {
                 <img
-                  [src]="location.imageUrl"
+                  [src]="imageSrc(location.imageUrl)"
                   [alt]="location.name"
                   class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 />
@@ -406,12 +406,12 @@ import { ReviewDTO } from '../../models/user.model';
                 <!-- Reviews Section - Inline -->
                 <div class="flex-1 border-t border-neutral-100 pt-3">
                   <div class="flex items-center justify-between mb-2">
-                    <h4 class="text-sm font-semibold text-neutral-700">Najnovije recenzije</h4>
+                    <h4 class="text-sm font-semibold text-neutral-700">Latest Reviews</h4>
                     <a
                       [routerLink]="['/locations', location.id]"
                       class="text-primary-600 hover:text-primary-700 text-xs font-medium"
                     >
-                      Sve →
+                      All →
                     </a>
                   </div>
 
@@ -428,10 +428,11 @@ import { ReviewDTO } from '../../models/user.model';
                   locationReviews()[location.id].length > 0) {
                   <div class="space-y-2">
                     @for (review of locationReviews()[location.id]; track review.id) {
-                    <div
-                      class="bg-neutral-50 rounded-lg p-2 hover:bg-neutral-100 transition-colors"
+                    <a
+                      [routerLink]="['/reviews', review.id]"
+                      class="bg-neutral-50 rounded-lg p-2 hover:bg-neutral-100 transition-colors block"
                     >
-                      <div class="flex items-center justify-between">
+                      <div class="flex items-center justify-between mb-1">
                         <div class="flex items-center space-x-2 flex-1 min-w-0">
                           <span class="font-medium text-neutral-900 text-sm truncate">{{
                             review.eventName
@@ -455,12 +456,17 @@ import { ReviewDTO } from '../../models/user.model';
                           formatDate(review.createdAt)
                         }}</span>
                       </div>
-                    </div>
+                      @if (review.eventCount > 0) {
+                      <div class="text-xs text-blue-600">
+                        <i class="fas fa-repeat mr-1"></i>{{ review.eventCount }}x occurrences
+                      </div>
+                      }
+                    </a>
                     }
                   </div>
                   } @else {
                   <div class="bg-neutral-50 rounded-lg p-3 text-center">
-                    <p class="text-neutral-400 text-xs">Nema recenzija</p>
+                    <p class="text-neutral-400 text-xs">No reviews</p>
                   </div>
                   } }
                 </div>
@@ -725,6 +731,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    // In development, prefix with backend URL
+    const isDev = !window.location.origin.includes('production');
+    return isDev ? `http://localhost:8080${url}` : url;
+  }
+
   loadTodayEvents(): void {
     this.eventService.getTodayEvents().subscribe({
       next: (events) => {
@@ -788,11 +802,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 0) return 'Danas';
-    if (diffDays === 1) return 'Juče';
-    if (diffDays < 7) return `Pre ${diffDays} dana`;
-    if (diffDays < 30) return `Pre ${Math.floor(diffDays / 7)} nedelja`;
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
 
-    return date.toLocaleDateString('sr-RS', { day: 'numeric', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 }

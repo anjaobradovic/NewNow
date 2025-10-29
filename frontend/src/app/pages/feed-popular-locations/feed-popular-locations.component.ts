@@ -60,7 +60,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
             >
               @if (location.imageUrl) {
               <img
-                [src]="location.imageUrl"
+                [src]="imageSrc(location.imageUrl)"
                 [alt]="location.name"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />
@@ -224,5 +224,13 @@ export class FeedPopularLocationsComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    // In development, prefix with backend URL
+    const isDev = !window.location.origin.includes('production');
+    return isDev ? `http://localhost:8080${url}` : url;
   }
 }

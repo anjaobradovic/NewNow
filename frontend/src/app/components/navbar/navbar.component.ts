@@ -79,7 +79,7 @@ import { AuthService } from '../../services/auth.service';
             @if (authService.isAuthenticated()) {
             <a
               routerLink="/"
-              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+              class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium"
             >
               Discover
             </a>
@@ -90,11 +90,11 @@ import { AuthService } from '../../services/auth.service';
             >
               <a
                 routerLink="/events"
-                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+                class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium inline-flex items-center gap-1"
               >
                 Events
                 <svg
-                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  class="w-3 h-3 transition-transform group-hover:rotate-180"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -109,16 +109,16 @@ import { AuthService } from '../../services/auth.service';
               </a>
               <!-- submenu -->
               <div
-                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+                class="absolute left-0 top-full z-50 w-48 bg-white border border-neutral-100 rounded-lg shadow-lg py-1.5 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
               >
                 <a
                   routerLink="/events/today"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Today's Events</a
                 >
                 <a
                   routerLink="/events"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Browse Events</a
                 >
               </div>
@@ -126,32 +126,32 @@ import { AuthService } from '../../services/auth.service';
 
             <a
               routerLink="/locations"
-              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+              class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium"
             >
               Locations
             </a>
             <a
               routerLink="/search/locations"
-              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+              class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium"
             >
-              Find Locations
+              Search
             </a>
             <a
               routerLink="/me"
-              class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium"
+              class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium"
             >
-              My Profile
+              Profile
             </a>
             <!-- Feed dropdown -->
             <div
               class="relative group before:content-[''] before:absolute before:left-0 before:top-full before:h-2 before:w-full"
             >
               <button
-                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+                class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium inline-flex items-center gap-1"
               >
-                Discover
+                Feed
                 <svg
-                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  class="w-3 h-3 transition-transform group-hover:rotate-180"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -165,16 +165,16 @@ import { AuthService } from '../../services/auth.service';
                 </svg>
               </button>
               <div
-                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+                class="absolute left-0 top-full z-50 w-48 bg-white border border-neutral-100 rounded-lg shadow-lg py-1.5 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
               >
                 <a
                   routerLink="/feed/popular-locations"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Popular Venues</a
                 >
                 <a
                   routerLink="/feed/popular-location-latest-reviews"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Latest Reviews</a
                 >
               </div>
@@ -185,11 +185,11 @@ import { AuthService } from '../../services/auth.service';
             >
               <a
                 routerLink="/manager/reviews"
-                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+                class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium inline-flex items-center gap-1"
               >
                 Manager
                 <svg
-                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  class="w-3 h-3 transition-transform group-hover:rotate-180"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -203,16 +203,17 @@ import { AuthService } from '../../services/auth.service';
                 </svg>
               </a>
               <div
-                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+                class="absolute left-0 top-full z-50 w-48 bg-white border border-neutral-100 rounded-lg shadow-lg py-1.5 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
               >
+                >
                 <a
                   routerLink="/me/managed-locations"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >My Locations</a
                 >
                 <a
                   routerLink="/manager/reviews"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Moderate Reviews</a
                 >
               </div>
@@ -223,11 +224,11 @@ import { AuthService } from '../../services/auth.service';
             >
               <a
                 routerLink="/admin"
-                class="px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200 font-medium inline-flex items-center gap-1"
+                class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium inline-flex items-center gap-1"
               >
                 Admin
                 <svg
-                  class="w-4 h-4 transition-transform group-hover:rotate-180"
+                  class="w-3 h-3 transition-transform group-hover:rotate-180"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -241,21 +242,21 @@ import { AuthService } from '../../services/auth.service';
                 </svg>
               </a>
               <div
-                class="absolute left-0 top-full z-50 w-56 bg-white border border-neutral-100 rounded-xl shadow-lg py-2 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
+                class="absolute left-0 top-full z-50 w-48 bg-white border border-neutral-100 rounded-lg shadow-lg py-1.5 invisible opacity-0 group-hover:visible group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition ease-out duration-150"
               >
                 <a
                   routerLink="/admin"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Dashboard</a
                 >
                 <a
                   routerLink="/admin/requests"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Requests</a
                 >
                 <a
                   routerLink="/admin/locations"
-                  class="block px-4 py-2 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                  class="block px-3 py-1.5 text-sm text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
                   >Manage Locations</a
                 >
               </div>
@@ -264,11 +265,11 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <!-- Auth Buttons (desktop) -->
-          <div class="hidden md:flex items-center space-x-3">
+          <div class="hidden md:flex items-center space-x-2">
             @if (authService.isAuthenticated()) {
             <a routerLink="/me" class="flex items-center gap-2 group">
               <div
-                class="w-8 h-8 rounded-xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold"
+                class="w-7 h-7 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm"
               >
                 {{ initials() }}
               </div>
@@ -278,18 +279,20 @@ import { AuthService } from '../../services/auth.service';
             </a>
             <button
               (click)="logout()"
-              class="px-4 py-2 text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-neutral-100 rounded-xl transition-all duration-200"
+              class="px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-neutral-100 rounded-lg transition-all duration-200"
             >
               Sign Out
             </button>
             } @else {
             <a
               routerLink="/auth/login"
-              class="px-4 py-2 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 rounded-xl transition-all duration-200"
+              class="px-3 py-1.5 text-sm font-medium text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 rounded-lg transition-all duration-200"
             >
               Sign In
             </a>
-            <a routerLink="/auth/register-request" class="btn-primary text-sm"> Get Started </a>
+            <a routerLink="/auth/register-request" class="btn-primary text-sm px-3 py-1.5">
+              Get Started
+            </a>
             }
           </div>
         </div>

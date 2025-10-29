@@ -1,13 +1,14 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { PageResponse, ReviewDTO } from '../../models/user.model';
 
 @Component({
   selector: 'app-me-reviews',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   providers: [DatePipe],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-autumn-cream via-neutral-50 to-white">
@@ -37,7 +38,11 @@ import { PageResponse, ReviewDTO } from '../../models/user.model';
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="card p-6" *ngFor="let r of reviews()">
+          <a
+            [routerLink]="['/reviews', r.id]"
+            class="card p-6 hover:shadow-xl transition-shadow cursor-pointer"
+            *ngFor="let r of reviews()"
+          >
             <div class="flex items-start justify-between">
               <div>
                 <h3 class="text-lg font-semibold">{{ r.eventName }}</h3>
@@ -66,10 +71,10 @@ import { PageResponse, ReviewDTO } from '../../models/user.model';
                 ><span class="font-semibold">{{ r.rate.overallImpression }}</span>
               </div>
             </div>
-            <div class="mt-3 text-xs text-neutral-500">
-              Occurrences until then: {{ r.eventCount }}
+            <div class="mt-3 text-xs text-blue-600">
+              <i class="fas fa-repeat mr-1"></i>Posećeno {{ r.eventCount }}x do tada
             </div>
-            <div class="mt-3">
+            <div class="mt-3 flex items-center gap-2">
               <span
                 class="px-2 py-1 rounded-full text-xs"
                 [class.bg-neutral-200]="!r.hidden"
@@ -78,8 +83,11 @@ import { PageResponse, ReviewDTO } from '../../models/user.model';
                 [class.text-yellow-800]="r.hidden"
                 >{{ r.hidden ? 'Hidden' : 'Visible' }}</span
               >
+              <span class="text-xs text-primary-600">
+                <i class="fas fa-arrow-right ml-1"></i>Otvori diskusiju
+              </span>
             </div>
-          </div>
+          </a>
         </div>
 
         <div class="flex items-center justify-center gap-3 mt-8">

@@ -7,11 +7,13 @@ import { LocationService } from '../../services/location.service';
 import { LocationSummaryDTO, EventCountsDTO, TopRatingsDTO } from '../../models/analytics.model';
 import { ReviewDTO } from '../../models/user.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-analytics-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent],
+  imports: [CommonModule, RouterLink, FormsModule, NavbarComponent, BaseChartDirective],
   template: `
     <app-navbar />
     <div class="min-h-screen bg-gradient-to-br from-neutral-50 to-primary-50/30">
@@ -244,6 +246,111 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
         </div>
         }
 
+        <!-- Charts Section -->
+        @if (eventCounts()) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <!-- Event Type Distribution Chart -->
+          <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6">
+            <h2 class="text-xl font-bold text-neutral-900 mb-6">
+              <span class="inline-flex items-center gap-2">
+                <svg
+                  class="w-6 h-6 text-primary-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+                Event Type Distribution
+              </span>
+            </h2>
+            <div class="h-80 flex items-center justify-center">
+              <canvas
+                baseChart
+                [data]="eventTypeChartData"
+                [type]="'doughnut'"
+                [options]="doughnutChartOptions"
+              >
+              </canvas>
+            </div>
+            <div class="mt-4 text-center text-sm text-neutral-600">
+              Shows breakdown of regular vs one-time events
+            </div>
+          </div>
+
+          <!-- Pricing Distribution Chart -->
+          <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6">
+            <h2 class="text-xl font-bold text-neutral-900 mb-6">
+              <span class="inline-flex items-center gap-2">
+                <svg
+                  class="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                Pricing Distribution
+              </span>
+            </h2>
+            <div class="h-80 flex items-center justify-center">
+              <canvas
+                baseChart
+                [data]="pricingChartData"
+                [type]="'pie'"
+                [options]="pieChartOptions"
+              >
+              </canvas>
+            </div>
+            <div class="mt-4 text-center text-sm text-neutral-600">
+              Shows ratio of free vs paid events
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Top Rated Events Chart -->
+        @if (topRatings() && topRatings()!.topEvents.length > 0) {
+        <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 mb-8">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6">
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                ></path>
+              </svg>
+              Top Rated Events - Performance Comparison
+            </span>
+          </h2>
+          <div class="h-96">
+            <canvas
+              baseChart
+              [data]="topEventsChartData"
+              [type]="'bar'"
+              [options]="barChartOptions"
+            >
+            </canvas>
+          </div>
+          <div class="mt-4 text-center text-sm text-neutral-600">
+            Bar colors indicate rating quality:
+            <span class="text-green-600 font-semibold">■ Excellent (4.5+)</span>,
+            <span class="text-yellow-600 font-semibold">■ Good (4.0+)</span>,
+            <span class="text-orange-600 font-semibold">■ Average (3.0+)</span>,
+            <span class="text-red-600 font-semibold">■ Low (&lt;3.0)</span>
+          </div>
+        </div>
+        }
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Top Rated Events -->
           @if (topRatings()) {
@@ -305,7 +412,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
                   </div>
                 </div>
                 <div class="flex items-center gap-2 text-xs text-neutral-600">
-                  <span>Attended {{ review.eventCount }}x</span>
+                  <span>Dogodilo se {{ review.eventCount }}x</span>
                 </div>
               </a>
               }
@@ -330,6 +437,141 @@ export class AnalyticsDashboardComponent implements OnInit {
   selectedPeriod: 'weekly' | 'monthly' | 'yearly' | 'custom' = 'monthly';
   startDate: string = '';
   endDate: string = '';
+
+  // Chart configurations
+  public doughnutChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif",
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.dataset.data.reduce((acc: number, val: any) => acc + val, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value} (${percentage}%)`;
+          },
+        },
+      },
+    },
+  };
+
+  public pieChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          padding: 20,
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif",
+          },
+        },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.dataset.data.reduce((acc: number, val: any) => acc + val, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value} (${percentage}%)`;
+          },
+        },
+      },
+    },
+  };
+
+  public barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    indexAxis: 'y',
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = context.parsed.x ?? 0;
+            return `Rating: ${value.toFixed(2)} ⭐`;
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 5,
+        ticks: {
+          stepSize: 1,
+        },
+        title: {
+          display: true,
+          text: 'Average Rating',
+        },
+      },
+      y: {
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
+      },
+    },
+  };
+
+  // Chart data
+  public eventTypeChartData: ChartData<'doughnut'> = {
+    labels: ['Regular Events', 'One-time Events'],
+    datasets: [
+      {
+        data: [0, 0],
+        backgroundColor: ['rgba(99, 102, 241, 0.8)', 'rgba(168, 85, 247, 0.8)'],
+        borderColor: ['rgba(99, 102, 241, 1)', 'rgba(168, 85, 247, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  public pricingChartData: ChartData<'pie'> = {
+    labels: ['Free Events', 'Paid Events'],
+    datasets: [
+      {
+        data: [0, 0],
+        backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(249, 115, 22, 0.8)'],
+        borderColor: ['rgba(34, 197, 94, 1)', 'rgba(249, 115, 22, 1)'],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  public topEventsChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      {
+        label: 'Average Rating',
+        data: [],
+        backgroundColor: 'rgba(234, 179, 8, 0.8)',
+        borderColor: 'rgba(234, 179, 8, 1)',
+        borderWidth: 2,
+        borderRadius: 8,
+      },
+    ],
+  };
 
   constructor(
     private route: ActivatedRoute,
@@ -388,6 +630,7 @@ export class AnalyticsDashboardComponent implements OnInit {
     this.analyticsService.getEventCounts(id).subscribe({
       next: (data) => {
         this.eventCounts.set(data);
+        this.updateChartData(data);
       },
       error: (err) => {
         console.error('Error loading event counts:', err);
@@ -402,6 +645,7 @@ export class AnalyticsDashboardComponent implements OnInit {
     this.analyticsService.getTopRatings(id, 5, 'desc').subscribe({
       next: (data) => {
         this.topRatings.set(data);
+        this.updateTopEventsChart(data);
       },
       error: (err) => {
         console.error('Error loading top ratings:', err);
@@ -438,5 +682,75 @@ export class AnalyticsDashboardComponent implements OnInit {
     if (diffDays < 7) return `${diffDays} days ago`;
 
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  private updateChartData(eventCounts: EventCountsDTO): void {
+    // Update Event Type Chart (Doughnut)
+    this.eventTypeChartData = {
+      labels: ['Regular Events', 'One-time Events'],
+      datasets: [
+        {
+          data: [eventCounts.regularEvents, eventCounts.nonRegularEvents],
+          backgroundColor: ['rgba(99, 102, 241, 0.8)', 'rgba(168, 85, 247, 0.8)'],
+          borderColor: ['rgba(99, 102, 241, 1)', 'rgba(168, 85, 247, 1)'],
+          borderWidth: 2,
+        },
+      ],
+    };
+
+    // Update Pricing Chart (Pie)
+    this.pricingChartData = {
+      labels: ['Free Events', 'Paid Events'],
+      datasets: [
+        {
+          data: [eventCounts.freeEvents, eventCounts.paidEvents],
+          backgroundColor: ['rgba(34, 197, 94, 0.8)', 'rgba(249, 115, 22, 0.8)'],
+          borderColor: ['rgba(34, 197, 94, 1)', 'rgba(249, 115, 22, 1)'],
+          borderWidth: 2,
+        },
+      ],
+    };
+  }
+
+  private updateTopEventsChart(topRatings: TopRatingsDTO): void {
+    const labels = topRatings.topEvents.map((event) => {
+      // Truncate long event names
+      return event.eventName.length > 30
+        ? event.eventName.substring(0, 30) + '...'
+        : event.eventName;
+    });
+
+    const data = topRatings.topEvents.map((event) => event.averageRating);
+
+    // Generate gradient colors based on rating
+    const colors = topRatings.topEvents.map((event) => {
+      const rating = event.averageRating;
+      if (rating >= 4.5) return 'rgba(34, 197, 94, 0.8)'; // Green for excellent
+      if (rating >= 4.0) return 'rgba(234, 179, 8, 0.8)'; // Yellow for good
+      if (rating >= 3.0) return 'rgba(249, 115, 22, 0.8)'; // Orange for average
+      return 'rgba(239, 68, 68, 0.8)'; // Red for low
+    });
+
+    const borderColors = topRatings.topEvents.map((event) => {
+      const rating = event.averageRating;
+      if (rating >= 4.5) return 'rgba(34, 197, 94, 1)';
+      if (rating >= 4.0) return 'rgba(234, 179, 8, 1)';
+      if (rating >= 3.0) return 'rgba(249, 115, 22, 1)';
+      return 'rgba(239, 68, 68, 1)';
+    });
+
+    this.topEventsChartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Average Rating',
+          data: data,
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 2,
+          borderRadius: 8,
+        },
+      ],
+    };
   }
 }

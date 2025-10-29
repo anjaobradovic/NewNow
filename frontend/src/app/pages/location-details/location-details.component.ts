@@ -139,13 +139,22 @@ import { ReviewDTO } from '../../models/user.model';
             Savjet: sortiraj po oceni ili datumu da brže pronađeš relevantne utiske.
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="p-4 border border-neutral-100 rounded-2xl" *ngFor="let r of reviews()">
+            <a
+              [routerLink]="['/reviews', r.id]"
+              class="p-4 border border-neutral-100 rounded-2xl hover:shadow-lg transition-shadow cursor-pointer"
+              *ngFor="let r of reviews()"
+            >
               <div class="flex items-start justify-between">
                 <div>
                   <div class="font-medium">{{ r.eventName }}</div>
                   <div class="text-xs text-neutral-500">
                     {{ r.createdAt | date : 'mediumDate' }}
                   </div>
+                  @if (r.eventCount && r.eventCount > 0) {
+                  <div class="text-xs text-blue-600 mt-1">
+                    <i class="fas fa-repeat mr-1"></i>Dogodilo se {{ r.eventCount }}x
+                  </div>
+                  }
                 </div>
                 <div class="text-primary-700 font-bold">
                   {{ r.rate.averageRating.toFixed(1) }}
@@ -165,7 +174,7 @@ import { ReviewDTO } from '../../models/user.model';
                   <span>Overall</span><span>{{ r.rate.overallImpression }}</span>
                 </div>
               </div>
-            </div>
+            </a>
           </div>
 
           <div class="flex items-center justify-center gap-3 mt-6">

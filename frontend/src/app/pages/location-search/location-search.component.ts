@@ -37,8 +37,26 @@ import { LocationDTO } from '../../models/location.model';
             class="card group overflow-hidden hover:-translate-y-1 transition"
             [routerLink]="['/locations', l.id]"
           >
-            <div class="h-40 bg-neutral-200">
-              <img *ngIf="l.imageUrl" [src]="l.imageUrl" class="w-full h-full object-cover" />
+            <div class="h-40 bg-neutral-200 relative">
+              <img
+                *ngIf="l.imageUrl"
+                [src]="imageSrc(l.imageUrl)"
+                class="w-full h-full object-cover"
+              />
+              @if (l.totalRating && l.totalRating > 0) {
+              <div
+                class="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center space-x-1 shadow-md"
+              >
+                <svg class="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  ></path>
+                </svg>
+                <span class="font-bold text-neutral-900 text-xs">{{
+                  l.totalRating.toFixed(1)
+                }}</span>
+              </div>
+              }
             </div>
             <div class="p-4">
               <h3 class="font-semibold text-lg">{{ l.name }}</h3>
@@ -111,5 +129,13 @@ export class LocationSearchComponent implements OnInit {
       this.page++;
       this.apply();
     }
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    // In development, prefix with backend URL
+    const isDev = !window.location.origin.includes('production');
+    return isDev ? `http://localhost:8080${url}` : url;
   }
 }
