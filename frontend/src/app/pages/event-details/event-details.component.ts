@@ -22,7 +22,11 @@ import { ManagedLocationDTO } from '../../models/user.model';
 
         <div *ngIf="!loading() && event() as e" class="card overflow-hidden mt-4">
           <div class="h-72 bg-neutral-200">
-            <img *ngIf="e.imageUrl" [src]="e.imageUrl" class="w-full h-full object-cover" />
+            <img
+              *ngIf="e.imageUrl"
+              [src]="imageSrc(e.imageUrl)"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div class="p-6">
             <div class="flex items-start justify-between gap-4">
@@ -118,5 +122,13 @@ export class EventDetailsComponent implements OnInit {
       next: (res) => (this.occCount = res.count),
       error: () => (this.errorMsg = 'Failed to load count'),
     });
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    // In development, prefix with backend URL
+    const isDev = !window.location.origin.includes('production');
+    return isDev ? `http://localhost:8080${url}` : url;
   }
 }

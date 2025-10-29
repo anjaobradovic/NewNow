@@ -41,7 +41,9 @@ public class FileStorageService {
         }
 
         try {
-            Path filePath = Paths.get(imageUrl.replaceFirst("^/", ""));
+            // imageUrl je tipa /uploads/events/ime.jpg
+            String relativePath = imageUrl.startsWith("/uploads/") ? imageUrl.substring(1) : imageUrl;
+            Path filePath = Paths.get(relativePath);
             Files.deleteIfExists(filePath);
             log.info("Deleted image: {}", imageUrl);
         } catch (IOException e) {

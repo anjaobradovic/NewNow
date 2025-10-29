@@ -45,7 +45,7 @@ import { Event } from '../../models/event.model';
             <div class="h-44 bg-neutral-200">
               <img
                 *ngIf="e.imageUrl"
-                [src]="e.imageUrl"
+                [src]="imageSrc(e.imageUrl)"
                 class="w-full h-full object-cover"
                 alt=""
               />
@@ -91,5 +91,11 @@ export class EventTodayComponent implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8080${url}`;
   }
 }

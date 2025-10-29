@@ -81,7 +81,7 @@ import { LocationDTO } from '../../models/location.model';
             <div class="relative h-48 bg-neutral-100 overflow-hidden">
               @if (location.imageUrl) {
               <img
-                [src]="location.imageUrl"
+                [src]="imageSrc(location.imageUrl)"
                 [alt]="location.name"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -766,5 +766,11 @@ export class AdminLocationsComponent implements OnInit {
         this.isProcessing.set(false);
       },
     });
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8080${url}`;
   }
 }

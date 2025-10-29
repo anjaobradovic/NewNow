@@ -178,7 +178,7 @@ import { ReviewDTO } from '../../models/user.model';
             >
               @if (event.imageUrl) {
               <img
-                [src]="event.imageUrl"
+                [src]="imageSrc(event.imageUrl)"
                 [alt]="event.name"
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
               />

@@ -192,8 +192,8 @@ public class EventController {
             User currentUser = userRepository.findByEmail(userDetails.getUsername())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
             
-            eventService.updateEventImage(id, image, currentUser);
-            return ResponseEntity.ok(new MessageResponse("Event image updated successfully"));
+            EventDTO updatedEvent = eventService.updateEventImage(id, image, currentUser);
+            return ResponseEntity.ok(updatedEvent);
         } catch (FileSizeExceededException e) {
             log.error("File size exceeded: {}", e.getMessage());
             return ResponseEntity.status(413).body(new MessageResponse(e.getMessage()));

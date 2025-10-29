@@ -94,9 +94,9 @@ export class EventService {
   }
 
   // Update event image (multipart)
-  updateEventImage(id: number, file: File): Observable<{ message: string }> {
+  updateEventImage(id: number, file: File): Observable<Event> {
     const fd = new FormData();
     fd.append('image', file);
-    return this.http.put<{ message: string }>(`${this.API_URL}/events/${id}/image`, fd);
+    return this.http.put<Event>(`${this.API_URL}/events/${id}/image`, fd);
   }
 }

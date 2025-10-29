@@ -1,5 +1,6 @@
 package rs.ftn.newnow.service;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,9 @@ class EventServiceTest {
 
     @Mock
     private FileStorageService fileStorageService;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private EventService eventService;

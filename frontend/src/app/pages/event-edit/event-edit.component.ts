@@ -55,6 +55,16 @@ import { ManagedLocationDTO } from '../../models/user.model';
             <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
               <div>
                 <label class="block text-sm text-neutral-600 mb-1">Replace cover image</label>
+                @if (currentImageUrl) {
+                <div class="mb-2">
+                  <img
+                    [src]="imageSrc(currentImageUrl)"
+                    alt="Current event image"
+                    class="h-32 w-auto object-cover rounded border border-neutral-200"
+                  />
+                  <p class="text-xs text-neutral-500 mt-1">Current image</p>
+                </div>
+                }
                 <input type="file" accept="image/*" (change)="onFile($event)" />
               </div>
               <button
@@ -88,6 +98,7 @@ export class EventEditComponent implements OnInit {
   recurrent = false;
   image?: File;
   submitting = false;
+  currentImageUrl = ''; // Track current image URL
 
   constructor(
     private route: ActivatedRoute,
@@ -107,6 +118,7 @@ export class EventEditComponent implements OnInit {
         this.date = e.date;
         this.price = e.price;
         this.recurrent = e.recurrent;
+        this.currentImageUrl = e.imageUrl || ''; // Store current image URL
         this.checkPermissions();
       },
       error: () => {
@@ -153,9 +165,20 @@ export class EventEditComponent implements OnInit {
   updateImage(): void {
     if (!this.image) return;
     this.service.updateEventImage(this.eventId, this.image).subscribe({
-      next: () => alert('Image updated'),
+      next: (updatedEvent) => {
+        this.currentImageUrl = updatedEvent.imageUrl || '';
+        alert('Image updated successfully');
+        // Clear the file input
+        this.image = undefined;
+      },
       error: () => alert('Failed to update image'),
     });
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8080${url}`;
   }
 
   submit(): void {

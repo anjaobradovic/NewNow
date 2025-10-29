@@ -69,7 +69,11 @@ import { ManagedLocationDTO } from '../../models/user.model';
           >
             <a [routerLink]="['/events', e.id]" class="block">
               <div class="h-44 bg-neutral-200">
-                <img *ngIf="e.imageUrl" [src]="e.imageUrl" class="w-full h-full object-cover" />
+                <img
+                  *ngIf="e.imageUrl"
+                  [src]="imageSrc(e.imageUrl)"
+                  class="w-full h-full object-cover"
+                />
               </div>
               <div class="p-5">
                 <div class="flex items-center justify-between">
@@ -166,6 +170,12 @@ export class EventSearchComponent implements OnInit {
 
   canEditEvent(event: Event): boolean {
     return this.managedLocationIds.includes(event.locationId);
+  }
+
+  imageSrc(url?: string): string {
+    if (!url) return '/assets/placeholder.jpg';
+    if (url.startsWith('http')) return url;
+    return `http://localhost:8080${url}`;
   }
 
   apply(): void {

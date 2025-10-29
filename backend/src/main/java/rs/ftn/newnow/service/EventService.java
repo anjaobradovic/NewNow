@@ -1,5 +1,6 @@
 package rs.ftn.newnow.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class EventService {
     private final ManagesRepository managesRepository;
     private final ImageRepository imageRepository;
     private final FileStorageService fileStorageService;
+    private final EntityManager entityManager;
 
     @Transactional(readOnly = true)
     public Page<EventDTO> searchEvents(String type, Long locationId, String address, 
@@ -110,7 +112,10 @@ public class EventService {
         Image eventImage = new Image();
         eventImage.setPath(imageUrl);
         eventImage.setEvent(savedEvent);
-        imageRepository.save(eventImage);
+        Image savedImage = imageRepository.save(eventImage);
+        
+        // Update the event's image reference (bidirectional relationship)
+        savedEvent.setImage(savedImage);
         
         log.info("Successfully created event with ID: {}", savedEvent.getId());
         return convertToDTO(savedEvent);
@@ -176,7 +181,7 @@ public class EventService {
     }
 
     @Transactional
-    public void updateEventImage(Long eventId, MultipartFile image, User currentUser) throws IOException {
+    public EventDTO updateEventImage(Long eventId, MultipartFile image, User currentUser) throws IOException {
         log.info("Updating image for event ID: {}", eventId);
         
         if (image == null || image.isEmpty()) {
@@ -194,18 +199,38 @@ public class EventService {
             throw new IllegalArgumentException("User is not a manager of this event's location");
         }
         
+        // Delete old image if exists
         if (event.getImage() != null) {
-            fileStorageService.deleteImage(event.getImage().getPath());
-            imageRepository.delete(event.getImage());
+            String oldImagePath = event.getImage().getPath();
+            Image oldImage = event.getImage();
+            
+            // Break the relationship first
+            event.setImage(null);
+            oldImage.setEvent(null);
+            
+            // Delete from database
+            imageRepository.delete(oldImage);
+            
+            // Flush to ensure deletion is committed before inserting new image
+            entityManager.flush();
+            
+            // Delete the file from filesystem
+            fileStorageService.deleteImage(oldImagePath);
         }
         
+        // Save new image
         String imageUrl = fileStorageService.saveImage(image, "events");
         Image eventImage = new Image();
         eventImage.setPath(imageUrl);
         eventImage.setEvent(event);
-        imageRepository.save(eventImage);
+        Image savedImage = imageRepository.save(eventImage);
+        
+        // Update the event's image reference (bidirectional relationship)
+        event.setImage(savedImage);
+        Event updatedEvent = eventRepository.save(event);
         
         log.info("Successfully updated image for event ID: {}", eventId);
+        return convertToDTO(updatedEvent);
     }
 
     @Transactional(readOnly = true)
