@@ -16,6 +16,7 @@ import rs.ftn.newnow.repository.EventRepository;
 import rs.ftn.newnow.repository.LocationRepository;
 import rs.ftn.newnow.repository.ManagesRepository;
 import rs.ftn.newnow.repository.ReviewRepository;
+import rs.ftn.newnow.search.SearchIndexService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ public class LocationService {
     private final EventRepository eventRepository;
     private final ManagesRepository managesRepository;
     private final FileStorageService fileStorageService;
+    private final SearchIndexService searchIndexService;
 
     @Transactional(readOnly = true)
     public LocationPageResponse getLocations(String search, int page, int size) {
@@ -87,7 +89,8 @@ public class LocationService {
         
         location = locationRepository.save(location);
         log.info("Location created with id: {}", location.getId());
-        
+
+        searchIndexService.reindexAfterCommit(location.getId());
         return convertToDTO(location);
     }
 
@@ -104,7 +107,8 @@ public class LocationService {
         
         location = locationRepository.save(location);
         log.info("Location updated: {}", id);
-        
+
+        searchIndexService.reindexAfterCommit(id);
         return convertToDTO(location);
     }
 
@@ -126,7 +130,8 @@ public class LocationService {
         
         location = locationRepository.save(location);
         log.info("Location patched: {}", id);
-        
+
+        searchIndexService.reindexAfterCommit(id);
         return convertToDTO(location);
     }
 
@@ -148,6 +153,8 @@ public class LocationService {
         
         locationRepository.delete(location);
         log.info("Location permanently deleted with all related data: {}", id);
+
+        searchIndexService.reindexAfterCommit(id);
     }
 
     @Transactional
@@ -167,6 +174,7 @@ public class LocationService {
         }
         
         log.info("Location image updated: {}", id);
+        searchIndexService.reindexAfterCommit(id);
         return convertToDTO(location);
     }
 

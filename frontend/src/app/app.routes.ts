@@ -27,6 +27,7 @@ import { ReviewNewComponent } from './pages/review-new/review-new.component';
 import { ReviewDetailsComponent } from './pages/review-details/review-details.component';
 import { ReviewEditComponent } from './pages/review-edit/review-edit.component';
 import { LocationSearchComponent } from './pages/location-search/location-search.component';
+import { PlaceSearchComponent } from './pages/place-search/place-search.component';
 import { ManagerReviewsComponent } from './pages/manager-reviews/manager-reviews.component';
 import { FeedPopularLocationsComponent } from './pages/feed-popular-locations/feed-popular-locations.component';
 import { FeedPopularReviewsComponent } from './pages/feed-popular-reviews/feed-popular-reviews.component';
@@ -42,6 +43,7 @@ export const routes: Routes = [
   { path: 'events/:id/edit', component: EventEditComponent, canActivate: [authGuard] },
   { path: 'locations', component: LocationListComponent },
   { path: 'search/locations', component: LocationSearchComponent },
+  { path: 'search/places', component: PlaceSearchComponent },
   { path: 'manager/reviews', component: ManagerReviewsComponent, canActivate: [authGuard] },
   // Feed
   { path: 'feed/popular-locations', component: FeedPopularLocationsComponent },

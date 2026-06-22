@@ -66,6 +66,24 @@ import { LocationService } from '../../services/location.service';
           </div>
           <p class="text-sm text-neutral-500 mt-2">Recommended: 1600x900, up to 15MB.</p>
         </div>
+
+        <div class="card p-6 mt-6">
+          <h3 class="text-lg font-semibold mb-2">Description PDF</h3>
+          <p class="text-sm text-neutral-600 mb-3">
+            Upload a PDF with a longer description. The text is extracted and indexed for full-text search.
+          </p>
+          <div class="flex items-center gap-4 flex-wrap">
+            <input type="file" (change)="onPdfChange($event)" accept="application/pdf" />
+            <button class="btn-secondary" (click)="uploadPdf()" [disabled]="!pdfFile || pdfUploading">
+              {{ pdfUploading ? 'Uploading…' : 'Upload PDF' }}
+            </button>
+            <a class="btn-secondary" [href]="pdfUrl" target="_blank" rel="noopener">Download current</a>
+            <button class="btn-secondary" type="button" (click)="deletePdf()">Remove</button>
+          </div>
+          @if (pdfStatus) {
+            <p class="text-sm text-neutral-500 mt-2">{{ pdfStatus }}</p>
+          }
+        </div>
       </section>
     </div>
   `,
@@ -77,6 +95,13 @@ export class LocationEditComponent implements OnInit {
   saving = false;
   uploading = false;
   image: File | null = null;
+  pdfFile: File | null = null;
+  pdfUploading = false;
+  pdfStatus = '';
+
+  get pdfUrl(): string {
+    return this.locationService.descriptionPdfUrl(this.id);
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -140,6 +165,35 @@ export class LocationEditComponent implements OnInit {
       next: () => this.toastr.success('Image updated'),
       error: (err) => this.toastr.error(err?.error?.message || 'Failed to update image'),
       complete: () => (this.uploading = false),
+    });
+  }
+
+  onPdfChange(e: Event): void {
+    const input = e.target as HTMLInputElement;
+    if (input.files && input.files[0]) this.pdfFile = input.files[0];
+  }
+
+  uploadPdf(): void {
+    if (!this.pdfFile) return;
+    this.pdfUploading = true;
+    this.pdfStatus = '';
+    this.locationService.uploadDescriptionPdf(this.id, this.pdfFile).subscribe({
+      next: (res) => {
+        this.toastr.success('PDF uploaded');
+        this.pdfStatus = `Indexed ${res.characters.toLocaleString()} characters from ${(res.size / 1024).toFixed(1)} KB`;
+      },
+      error: (err) => this.toastr.error(err?.error?.message || 'Failed to upload PDF'),
+      complete: () => (this.pdfUploading = false),
+    });
+  }
+
+  deletePdf(): void {
+    this.locationService.deleteDescriptionPdf(this.id).subscribe({
+      next: () => {
+        this.toastr.success('PDF removed');
+        this.pdfStatus = '';
+      },
+      error: (err) => this.toastr.error(err?.error?.message || 'Failed to remove PDF'),
     });
   }
 }
