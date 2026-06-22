@@ -56,8 +56,7 @@ public class SecurityConfig {
                             "/api/reviews/*",
                             "/api/reviews/*/comments",
                             "/api/feed/**",
-                            "/api/search/**",
-                            "/api/debug/**"
+                            "/api/search/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

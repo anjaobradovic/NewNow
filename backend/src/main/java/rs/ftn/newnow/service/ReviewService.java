@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rs.ftn.newnow.dto.*;
 import rs.ftn.newnow.model.*;
+import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.repository.*;
 
 import rs.ftn.newnow.exception.BusinessException;
@@ -26,6 +27,7 @@ public class ReviewService {
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final ManagesRepository managesRepository;
+    private final AuditLogService auditLogService;
     private static final int EDIT_DEADLINE_HOURS = 24;
 
     @Transactional
@@ -198,6 +200,8 @@ public class ReviewService {
 
         review.setHidden(hidden);
         reviewRepository.save(review);
+        auditLogService.logAction(AuditAction.REVIEW_UPDATED, userEmail,
+                (hidden ? "Hid" : "Unhid") + " reviewId=" + reviewId);
     }
 
     @Transactional
@@ -213,6 +217,8 @@ public class ReviewService {
         review.setDeletedByManager(true);
         reviewRepository.save(review);
         updateLocationRating(review.getLocation());
+        auditLogService.logAction(AuditAction.REVIEW_DELETED, userEmail,
+                "Manager removed reviewId=" + reviewId + " locationId=" + review.getLocation().getId());
     }
 
     @Transactional(readOnly = true)
@@ -234,14 +240,15 @@ public class ReviewService {
     }
 
     private void updateLocationRating(Location location) {
-        List<Review> reviews = reviewRepository.findByLocationIdAndNotDeleted(location.getId(), Pageable.unpaged()).getContent();
-        
+        // M2: removed reviews (deleted, deletedByManager) are voided; hidden reviews STILL count.
+        List<Review> reviews = reviewRepository.findRatingSourceForLocation(location.getId());
+
         double averageRating = reviews.stream()
-                .filter(r -> !r.getDeletedByManager())
+                .filter(r -> r.getRate() != null)
                 .mapToDouble(r -> r.getRate().getAverageRating())
                 .average()
                 .orElse(0.0);
-        
+
         location.setTotalRating(averageRating);
         locationRepository.save(location);
     }

@@ -27,9 +27,13 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
     @Query("SELECT l FROM Location l WHERE l.deleted = false ORDER BY l.totalRating DESC")
     List<Location> findTopByOrderByTotalRatingDesc(Pageable pageable);
     
+    // K8: most-popular = places ordered by COUNT of positive ratings (overallImpression >= 7),
+    // excluding both user-deleted and manager-removed reviews. Tiebreak by average overall impression.
     @Query("SELECT l FROM Location l LEFT JOIN l.reviews r " +
-           "WHERE l.deleted = false AND r.deleted = false " +
-           "GROUP BY l.id ORDER BY COUNT(r.id) DESC, AVG(r.rate.overallImpression) DESC")
+           "WITH r.deleted = false AND r.deletedByManager = false AND r.rate.overallImpression >= 7 " +
+           "WHERE l.deleted = false " +
+           "GROUP BY l.id " +
+           "ORDER BY COUNT(r.id) DESC, AVG(r.rate.overallImpression) DESC")
     List<Location> findPopularLocations(Pageable pageable);
     
     @Query("SELECT l FROM Location l WHERE l.deleted = false " +

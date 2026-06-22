@@ -27,7 +27,8 @@ public class FeedService {
 
     @Transactional(readOnly = true)
     public List<EventBasicDTO> getTodayEvents() {
-        List<Event> events = eventRepository.findNonRecurrentByDate(LocalDate.now());
+        // K6/K8: today's events across all places — regular events included.
+        List<Event> events = eventRepository.findByDate(LocalDate.now());
         return events.stream()
                 .map(this::mapEventToBasicDTO)
                 .collect(Collectors.toList());

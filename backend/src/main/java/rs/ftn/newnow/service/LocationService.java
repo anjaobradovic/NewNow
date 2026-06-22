@@ -262,10 +262,11 @@ public class LocationService {
         dto.setCreatedAt(location.getCreatedAt());
         dto.setImageUrl(location.getImageUrl());
         
-        List<Review> reviews = reviewRepository.findByLocationIdAndNotDeleted(location.getId(), Pageable.unpaged()).getContent();
-        dto.setTotalReviews(reviews.size());
-        
-        Double avgRating = reviews.stream()
+        // M2: rating is computed over reviews that are not removed; hidden ones still count.
+        List<Review> ratingSource = reviewRepository.findRatingSourceForLocation(location.getId());
+        dto.setTotalReviews(ratingSource.size());
+
+        Double avgRating = ratingSource.stream()
                 .filter(r -> r.getRate() != null)
                 .mapToDouble(r -> r.getRate().getAverageRating())
                 .average()
@@ -293,6 +294,7 @@ public class LocationService {
         dto.setType(event.getType());
         dto.setDate(event.getDate());
         dto.setPrice(event.getPrice());
+        dto.setFree(event.getPrice() == null || event.getPrice() == 0.0);
         dto.setRecurrent(event.getRecurrent());
         dto.setLocationId(event.getLocation().getId());
         dto.setLocationName(event.getLocation().getName());

@@ -21,6 +21,11 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false")
     Page<Review> findByLocationIdAndNotDeleted(@Param("locationId") Long locationId, Pageable pageable);
+
+    // Rating source - excludes removed (deleted, deletedByManager) but INCLUDES hidden so hidden reviews still count toward the average. Per M2.
+    @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
+           "AND r.deleted = false AND r.deletedByManager = false")
+    List<Review> findRatingSourceForLocation(@Param("locationId") Long locationId);
     
     @Query("SELECT r FROM Review r WHERE r.location.id = :locationId " +
            "AND r.deleted = false AND r.deletedByManager = false AND r.hidden = false " +

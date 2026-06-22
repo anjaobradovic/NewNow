@@ -14,6 +14,7 @@ import rs.ftn.newnow.dto.AccountRequestDTO;
 import rs.ftn.newnow.dto.AccountRequestPageResponse;
 import rs.ftn.newnow.model.AccountRequest;
 import rs.ftn.newnow.model.User;
+import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.model.enums.RequestStatus;
 import rs.ftn.newnow.model.enums.Role;
 import rs.ftn.newnow.repository.AccountRequestRepository;
@@ -30,6 +31,7 @@ public class AccountRequestService {
     private final AccountRequestRepository accountRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     public AccountRequestPageResponse getFilteredRequests(RequestStatus status, String query, int page, int size) {
@@ -102,6 +104,10 @@ public class AccountRequestService {
 
         emailService.sendRegistrationApprovedEmail(accountRequest.getEmail(), accountRequest.getName());
 
+        String actor = currentActor();
+        auditLogService.logAction(AuditAction.ACCOUNT_APPROVED, actor,
+                "Approved request id=" + id + " email=" + accountRequest.getEmail());
+
         log.info("Account request approved for email: {}", accountRequest.getEmail());
     }
 
@@ -120,12 +126,21 @@ public class AccountRequestService {
         accountRequestRepository.save(accountRequest);
 
         emailService.sendRegistrationRejectedEmail(
-                accountRequest.getEmail(), 
-                accountRequest.getName(), 
+                accountRequest.getEmail(),
+                accountRequest.getName(),
                 "Your registration request has been rejected by the administrator."
         );
 
+        String actor = currentActor();
+        auditLogService.logAction(AuditAction.ACCOUNT_REJECTED, actor,
+                "Rejected request id=" + id + " email=" + accountRequest.getEmail());
+
         log.info("Account request rejected for email: {}", accountRequest.getEmail());
+    }
+
+    private String currentActor() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : "system";
     }
 
     private AccountRequestDTO convertToDTO(AccountRequest request) {

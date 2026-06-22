@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { LocationSummaryDTO, EventCountsDTO, TopRatingsDTO } from '../models/analytics.model';
+import {
+  LocationSummaryDTO,
+  EventCountsDTO,
+  TopRatingsDTO,
+  LocationRatingDTO,
+} from '../models/analytics.model';
 import { ReviewDTO } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -42,5 +47,10 @@ export class AnalyticsService {
 
   getLatestReviews(locationId: number): Observable<ReviewDTO[]> {
     return this.http.get<ReviewDTO[]>(`${this.API_URL}/locations/${locationId}/reviews/latest`);
+  }
+
+  getTopPlaces(limit = 5, direction: 'asc' | 'desc' = 'desc'): Observable<LocationRatingDTO[]> {
+    const params = new HttpParams().set('limit', limit.toString()).set('direction', direction);
+    return this.http.get<LocationRatingDTO[]>(`${this.API_URL}/places/top`, { params });
   }
 }

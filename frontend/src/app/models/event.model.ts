@@ -5,6 +5,7 @@ export interface Event {
   type: string;
   date: string;
   price: number;
+  free?: boolean;
   recurrent: boolean;
   locationId: number;
   locationName: string;

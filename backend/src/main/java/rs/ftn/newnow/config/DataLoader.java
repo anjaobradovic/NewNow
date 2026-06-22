@@ -2,6 +2,7 @@ package rs.ftn.newnow.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +25,18 @@ public class DataLoader implements CommandLineRunner {
     // Add repository to store avatar images
     private final ImageRepository imageRepository;
 
+    @Value("${newnow.admin.primary.email}")
+    private String primaryAdminEmail;
+
+    @Value("${newnow.admin.primary.password}")
+    private String primaryAdminPassword;
+
+    @Value("${newnow.admin.secondary.email}")
+    private String secondaryAdminEmail;
+
+    @Value("${newnow.admin.secondary.password}")
+    private String secondaryAdminPassword;
+
     @Override
     public void run(String... args) {
         long adminCount = administratorRepository.count();
@@ -43,8 +56,8 @@ public class DataLoader implements CommandLineRunner {
     private void createAdministrators() {
         // Admin 1: Anja Obradovic
         Administrator anja = new Administrator();
-        anja.setEmail("anja.obradovic@newnow.com");
-        anja.setPassword(passwordEncoder.encode("admin123"));
+        anja.setEmail(primaryAdminEmail);
+        anja.setPassword(passwordEncoder.encode(primaryAdminPassword));
         anja.setName("Anja Obradovic");
         anja.setCreatedAt(LocalDate.now());
         anja.setAddress("Nikole Pašića 12");
@@ -59,8 +72,8 @@ public class DataLoader implements CommandLineRunner {
 
         // Admin 2: Marko Gordic
         Administrator marko = new Administrator();
-        marko.setEmail("marko.gordic@newnow.com");
-        marko.setPassword(passwordEncoder.encode("admin123"));
+        marko.setEmail(secondaryAdminEmail);
+        marko.setPassword(passwordEncoder.encode(secondaryAdminPassword));
         marko.setName("Marko Gordic");
         marko.setCreatedAt(LocalDate.now());
         marko.setAddress("Bulevar oslobođenja 46");

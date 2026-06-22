@@ -1,5 +1,6 @@
 package rs.ftn.newnow.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import rs.ftn.newnow.dto.*;
 import rs.ftn.newnow.model.AccountRequest;
+import rs.ftn.newnow.model.enums.AuditAction;
+import rs.ftn.newnow.security.TokenBlacklistService;
 import rs.ftn.newnow.service.AccountRequestService;
+import rs.ftn.newnow.service.AuditLogService;
 import rs.ftn.newnow.service.AuthService;
 
 @RestController
@@ -22,6 +26,8 @@ public class AuthController {
 
     private final AuthService authService;
     private final AccountRequestService accountRequestService;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final AuditLogService auditLogService;
 
     @PostMapping("/register-request")
     public ResponseEntity<?> createRegistrationRequest(@Valid @RequestBody CreateAccountRequestDTO request) {
@@ -75,8 +81,15 @@ public class AuthController {
 
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(HttpServletRequest request, Authentication authentication) {
         log.info("Logout request received");
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            tokenBlacklistService.revoke(authHeader.substring(7));
+        }
+        if (authentication != null) {
+            auditLogService.logAction(AuditAction.USER_LOGOUT, authentication.getName(), "User logged out");
+        }
         return ResponseEntity.ok(new MessageResponse("Logged out successfully"));
     }
 

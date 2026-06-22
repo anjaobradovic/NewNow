@@ -97,6 +97,7 @@ public class EventController {
             @RequestParam("type") String type,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(value = "price", defaultValue = "0.0") Double price,
+            @RequestParam(value = "free", defaultValue = "false") Boolean free,
             @RequestParam(value = "recurrent", defaultValue = "false") Boolean recurrent,
             @RequestParam("image") MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -111,8 +112,19 @@ public class EventController {
             createEventDTO.setAddress(address);
             createEventDTO.setType(type);
             createEventDTO.setDate(date);
-            createEventDTO.setPrice(price);
+            // K4: if free, force price to 0 regardless of submitted value
+            if (Boolean.TRUE.equals(free)) {
+                createEventDTO.setPrice(0.0);
+            } else {
+                createEventDTO.setPrice(price);
+            }
+            createEventDTO.setFree(free);
             createEventDTO.setRecurrent(recurrent);
+            // Re-validate the cross-field invariant
+            if (!createEventDTO.isPriceFreeConsistent()) {
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Either set free=true with price=0, or free=false with price>0"));
+            }
             
             EventDTO event = eventService.createEvent(locationId, createEventDTO, image, currentUser);
             return ResponseEntity.ok(event);

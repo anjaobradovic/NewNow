@@ -128,6 +128,39 @@ public class AnalyticsService {
         return topRatings;
     }
 
+    public List<LocationRatingDTO> getTopPlacesForUser(int limit, String direction, User currentUser) {
+        boolean isAdmin = currentUser.getRoles().contains(Role.ROLE_ADMIN);
+        boolean ascending = "asc".equalsIgnoreCase(direction);
+
+        List<Location> scope;
+        if (isAdmin) {
+            scope = locationRepository.findByDeletedFalse(PageRequest.of(0, Integer.MAX_VALUE)).getContent();
+        } else {
+            scope = managesRepository.findActiveByUserId(currentUser.getId(), LocalDate.now()).stream()
+                    .map(m -> m.getLocation())
+                    .filter(l -> !l.getDeleted())
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        return scope.stream()
+                .map(loc -> {
+                    Double avg = reviewRepository.calculateAverageRatingByLocation(loc.getId());
+                    Long count = reviewRepository.countByLocationAndNotDeleted(loc.getId());
+                    LocationRatingDTO d = new LocationRatingDTO();
+                    d.setLocationId(loc.getId());
+                    d.setLocationName(loc.getName());
+                    d.setAverageRating(avg != null ? avg : 0.0);
+                    d.setReviewCount(count != null ? count : 0L);
+                    return d;
+                })
+                .sorted((a, b) -> ascending
+                        ? Double.compare(a.getAverageRating(), b.getAverageRating())
+                        : Double.compare(b.getAverageRating(), a.getAverageRating()))
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
     public List<ReviewDTO> getLatestReviews(Long locationId, User currentUser) {
         validateAccess(locationId, currentUser);
 
