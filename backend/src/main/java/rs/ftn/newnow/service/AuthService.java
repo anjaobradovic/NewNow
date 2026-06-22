@@ -12,6 +12,7 @@ import rs.ftn.newnow.dto.CreateAccountRequestDTO;
 import rs.ftn.newnow.dto.LoginRequest;
 import rs.ftn.newnow.model.AccountRequest;
 import rs.ftn.newnow.model.User;
+import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.repository.AccountRequestRepository;
 import rs.ftn.newnow.repository.UserRepository;
 import rs.ftn.newnow.security.JwtUtil;
@@ -28,6 +29,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public AccountRequest createRegistrationRequest(CreateAccountRequestDTO request) {
@@ -51,7 +53,9 @@ public class AuthService {
         accountRequest.setCity(request.getCity());
 
         accountRequest = accountRequestRepository.save(accountRequest);
-        
+
+        auditLogService.logAction(AuditAction.USER_REGISTERED, request.getEmail(),
+                "Registration request submitted");
         log.info("Registration request created successfully with ID: {}", accountRequest.getId());
         return accountRequest;
     }
@@ -60,9 +64,15 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         log.info("Processing login request for email: {}", request.getEmail());
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+        } catch (RuntimeException ex) {
+            auditLogService.logAction(AuditAction.USER_LOGIN, request.getEmail(),
+                    "Failed login attempt: " + ex.getClass().getSimpleName());
+            throw ex;
+        }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -70,6 +80,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getEmail());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
+        auditLogService.logAction(AuditAction.USER_LOGIN, request.getEmail(), "Successful login");
         log.info("User logged in successfully: {}", request.getEmail());
 
         return new AuthResponse(

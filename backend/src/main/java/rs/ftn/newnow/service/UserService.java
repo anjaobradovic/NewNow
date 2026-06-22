@@ -15,6 +15,7 @@ import rs.ftn.newnow.model.Image;
 import rs.ftn.newnow.model.Manages;
 import rs.ftn.newnow.model.Review;
 import rs.ftn.newnow.model.User;
+import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.repository.ImageRepository;
 import rs.ftn.newnow.repository.ManagesRepository;
 import rs.ftn.newnow.repository.ReviewRepository;
@@ -37,6 +38,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final FileStorageService fileStorageService;
+    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     public UserProfileDTO getUserProfile(String email) {
@@ -160,6 +162,7 @@ public class UserService {
         userRepository.save(user);
 
         emailService.sendPasswordChangeEmail(user.getEmail(), user.getName());
+        auditLogService.logAction(AuditAction.PASSWORD_CHANGED, email, "User changed password");
         log.info("Password changed successfully for user: {}", email);
     }
 

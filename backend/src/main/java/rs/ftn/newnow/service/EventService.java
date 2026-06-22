@@ -148,8 +148,21 @@ public class EventService {
         if (updateEventDTO.getDate() != null) {
             event.setDate(updateEventDTO.getDate());
         }
-        if (updateEventDTO.getPrice() != null) {
-            event.setPrice(updateEventDTO.getPrice());
+        // K4: keep price/free consistent (no schema change — `free` is derived from price==0)
+        Double newPrice = updateEventDTO.getPrice();
+        Boolean newFree = updateEventDTO.getFree();
+        if (newFree != null && newPrice == null) {
+            // Only free changed: set price to 0 if free=true, otherwise leave price
+            if (Boolean.TRUE.equals(newFree)) {
+                event.setPrice(0.0);
+            } else if (event.getPrice() == null || event.getPrice() == 0.0) {
+                throw new IllegalArgumentException("free=false requires price>0");
+            }
+        } else if (newPrice != null && newFree == null) {
+            event.setPrice(newPrice);
+        } else if (newPrice != null) {
+            // Both supplied — validator on the DTO already enforced consistency
+            event.setPrice(newPrice);
         }
         if (updateEventDTO.getRecurrent() != null) {
             event.setRecurrent(updateEventDTO.getRecurrent());
@@ -257,6 +270,7 @@ public class EventService {
         dto.setType(event.getType());
         dto.setDate(event.getDate());
         dto.setPrice(event.getPrice());
+        dto.setFree(event.getPrice() == null || event.getPrice() == 0.0);
         dto.setRecurrent(event.getRecurrent());
         
         if (event.getLocation() != null) {

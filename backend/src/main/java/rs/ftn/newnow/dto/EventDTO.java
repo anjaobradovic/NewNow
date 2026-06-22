@@ -17,6 +17,7 @@ public class EventDTO {
     private String type;
     private LocalDate date;
     private Double price;
+    private Boolean free;
     private Boolean recurrent;
     private Long locationId;
     private String locationName;

@@ -46,9 +46,12 @@ import { ManagedLocationDTO } from '../../models/user.model';
               </div>
               <div>
                 <label class="block text-sm text-neutral-600 mb-1">Price (RSD)</label>
-                <input type="number" min="0" class="input-field" [(ngModel)]="price" name="price" />
+                <input type="number" min="0" class="input-field" [(ngModel)]="price" name="price" [disabled]="free" />
               </div>
             </div>
+            <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
+              <input type="checkbox" [(ngModel)]="free" name="free" (change)="onFreeChange()" /> Free event
+            </label>
             <label class="inline-flex items-center gap-2 text-sm text-neutral-700">
               <input type="checkbox" [(ngModel)]="recurrent" name="recurrent" /> Regular event
             </label>
@@ -95,6 +98,7 @@ export class EventEditComponent implements OnInit {
   type = '';
   date = '';
   price: number | undefined;
+  free = false;
   recurrent = false;
   image?: File;
   submitting = false;
@@ -117,6 +121,7 @@ export class EventEditComponent implements OnInit {
         this.type = e.type;
         this.date = e.date;
         this.price = e.price;
+        this.free = !!e.free || !e.price;
         this.recurrent = e.recurrent;
         this.currentImageUrl = e.imageUrl || ''; // Store current image URL
         this.checkPermissions();
@@ -156,6 +161,12 @@ export class EventEditComponent implements OnInit {
     }
   }
 
+  onFreeChange(): void {
+    if (this.free) {
+      this.price = 0;
+    }
+  }
+
   onFile(e: Event): void {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -182,6 +193,10 @@ export class EventEditComponent implements OnInit {
   }
 
   submit(): void {
+    if (!this.free && (!this.price || this.price <= 0)) {
+      alert('Označite Free event ili unesite cenu veću od 0');
+      return;
+    }
     this.submitting = true;
     this.service
       .updateEvent(this.eventId, {
@@ -189,7 +204,8 @@ export class EventEditComponent implements OnInit {
         address: this.address.trim(),
         type: this.type.trim(),
         date: this.date,
-        price: this.price ?? 0,
+        price: this.free ? 0 : (this.price ?? 0),
+        free: this.free,
         recurrent: this.recurrent,
       })
       .subscribe({

@@ -68,6 +68,7 @@ export class EventService {
       type: string;
       date: string; // YYYY-MM-DD
       price?: number;
+      free?: boolean;
       recurrent?: boolean;
       image: File;
     }
@@ -77,7 +78,9 @@ export class EventService {
     fd.append('address', payload.address);
     fd.append('type', payload.type);
     fd.append('date', payload.date);
-    fd.append('price', String(payload.price ?? 0));
+    const free = !!payload.free;
+    fd.append('free', String(free));
+    fd.append('price', String(free ? 0 : payload.price ?? 0));
     fd.append('recurrent', String(!!payload.recurrent));
     fd.append('image', payload.image);
     return this.http.post<Event>(`${this.API_URL}/locations/${locationId}/events`, fd);
@@ -86,7 +89,7 @@ export class EventService {
   // Update event details (JSON)
   updateEvent(
     id: number,
-    payload: Partial<Pick<Event, 'name' | 'address' | 'type' | 'date' | 'price' | 'recurrent'>> & {
+    payload: Partial<Pick<Event, 'name' | 'address' | 'type' | 'date' | 'price' | 'free' | 'recurrent'>> & {
       date?: string; // YYYY-MM-DD
     }
   ): Observable<Event> {

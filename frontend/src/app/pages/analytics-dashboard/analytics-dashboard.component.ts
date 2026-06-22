@@ -4,7 +4,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AnalyticsService } from '../../services/analytics.service';
 import { LocationService } from '../../services/location.service';
-import { LocationSummaryDTO, EventCountsDTO, TopRatingsDTO } from '../../models/analytics.model';
+import {
+  LocationSummaryDTO,
+  EventCountsDTO,
+  TopRatingsDTO,
+  LocationRatingDTO,
+} from '../../models/analytics.model';
 import { ReviewDTO } from '../../models/user.model';
 import { NavbarComponent } from '../../components/navbar/navbar.component';
 import { BaseChartDirective } from 'ng2-charts';
@@ -351,6 +356,31 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
         </div>
         }
 
+        @if (topPlaces() && topPlaces()!.length > 0) {
+        <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 mb-8">
+          <h2 class="text-xl font-bold text-neutral-900 mb-6">Top Places by Average Rating</h2>
+          <div class="space-y-3">
+            @for (place of topPlaces()!; track place.locationId) {
+            <a
+              [routerLink]="['/locations', place.locationId]"
+              class="flex items-center justify-between p-4 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors"
+            >
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-neutral-900 truncate mb-1">{{ place.locationName }}</h3>
+                <p class="text-sm text-neutral-600">{{ place.reviewCount }} reviews</p>
+              </div>
+              <div class="flex items-center gap-2 ml-4">
+                <svg class="w-5 h-5 text-yellow-500 fill-current" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span class="text-xl font-bold text-neutral-900">{{ place.averageRating.toFixed(1) }}</span>
+              </div>
+            </a>
+            }
+          </div>
+        </div>
+        }
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Top Rated Events -->
           @if (topRatings()) {
@@ -430,6 +460,7 @@ export class AnalyticsDashboardComponent implements OnInit {
   summary = signal<LocationSummaryDTO | null>(null);
   eventCounts = signal<EventCountsDTO | null>(null);
   topRatings = signal<TopRatingsDTO | null>(null);
+  topPlaces = signal<LocationRatingDTO[] | null>(null);
   latestReviews = signal<ReviewDTO[] | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
@@ -598,6 +629,14 @@ export class AnalyticsDashboardComponent implements OnInit {
     this.loadEventCounts();
     this.loadTopRatings();
     this.loadLatestReviews();
+    this.loadTopPlaces();
+  }
+
+  private loadTopPlaces(): void {
+    this.analyticsService.getTopPlaces(5, 'desc').subscribe({
+      next: (data) => this.topPlaces.set(data),
+      error: (err) => console.error('Error loading top places:', err),
+    });
   }
 
   loadSummary(): void {

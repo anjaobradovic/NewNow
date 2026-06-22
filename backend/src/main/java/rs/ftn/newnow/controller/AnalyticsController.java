@@ -94,6 +94,28 @@ public class AnalyticsController {
         }
     }
 
+    @GetMapping("/places/top")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public ResponseEntity<?> getTopPlaces(
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(defaultValue = "desc") String direction,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User currentUser = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            List<LocationRatingDTO> places = analyticsService.getTopPlacesForUser(limit, direction, currentUser);
+            return ResponseEntity.ok(places);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Error fetching top places", e);
+            return ResponseEntity.internalServerError()
+                    .body(new MessageResponse("Failed to fetch top places"));
+        }
+    }
+
     @GetMapping("/locations/{id}/reviews/latest")
     @PreAuthorize("hasRole('ADMIN') or @analyticsService.isManagerOfLocation(#id, authentication.name)")
     public ResponseEntity<?> getLatestReviews(

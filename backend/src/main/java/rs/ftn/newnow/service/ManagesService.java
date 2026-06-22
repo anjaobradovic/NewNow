@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import rs.ftn.newnow.dto.AssignManagerDTO;
 import rs.ftn.newnow.dto.ManagerDTO;
 import rs.ftn.newnow.model.Location;
 import rs.ftn.newnow.model.Manages;
 import rs.ftn.newnow.model.User;
+import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.model.enums.Role;
 import rs.ftn.newnow.repository.LocationRepository;
 import rs.ftn.newnow.repository.ManagesRepository;
@@ -26,6 +29,7 @@ public class ManagesService {
     private final ManagesRepository managesRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     public List<ManagerDTO> getLocationManagers(Long locationId) {
@@ -75,6 +79,8 @@ public class ManagesService {
         manages.setStartDate(LocalDate.now());
         
         managesRepository.save(manages);
+        auditLogService.logAction(AuditAction.MANAGER_ASSIGNED, currentActor(),
+                "Assigned userId=" + user.getId() + " to locationId=" + locationId);
         log.info("Successfully assigned user {} as manager to location {}", user.getId(), locationId);
     }
 
@@ -107,7 +113,14 @@ public class ManagesService {
             log.info("Removed ROLE_MANAGER from user {} as they have no active managements", userId);
         }
         
+        auditLogService.logAction(AuditAction.MANAGER_REMOVED, currentActor(),
+                "Removed userId=" + userId + " from locationId=" + locationId);
         log.info("Successfully removed manager {} from location {}", userId, locationId);
+    }
+
+    private String currentActor() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : "system";
     }
 
     private ManagerDTO convertToDTO(Manages manages) {
