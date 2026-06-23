@@ -98,6 +98,9 @@ public class SearchIndexService {
 
     private LocationIndex buildDocument(Location loc) {
         long reviewCount = countReviews(loc.getId());
+        CategoryAverages avgs = CategoryAverages.compute(
+                reviewRepository.findRatingSourceForLocation(loc.getId())
+        );
 
         String pdfKey = pdfKeyForLocation(loc.getId());
         String pdfText = null;
@@ -124,6 +127,10 @@ public class SearchIndexService {
                 .address(loc.getAddress())
                 .type(loc.getType())
                 .totalRating(loc.getTotalRating())
+                .avgPerformance(avgs.getAvgPerformance())
+                .avgSoundAndLighting(avgs.getAvgSoundAndLighting())
+                .avgVenue(avgs.getAvgVenue())
+                .avgOverallImpression(avgs.getAvgOverallImpression())
                 .imageUrl(loc.getImageUrl())
                 .deleted(Boolean.TRUE.equals(loc.getDeleted()))
                 .build();

@@ -10,6 +10,10 @@ export interface PlaceSearchResult {
   type?: string;
   reviewCount: number;
   totalRating?: number;
+  avgPerformance?: number;
+  avgSoundAndLighting?: number;
+  avgVenue?: number;
+  avgOverallImpression?: number;
   imageUrl?: string;
   hasPdf?: boolean;
 }
@@ -28,6 +32,14 @@ export interface PlaceSearchFilters {
   pdf?: string;
   reviewsFrom?: number;
   reviewsTo?: number;
+  avgPerformanceFrom?: number;
+  avgPerformanceTo?: number;
+  avgSoundAndLightingFrom?: number;
+  avgSoundAndLightingTo?: number;
+  avgVenueFrom?: number;
+  avgVenueTo?: number;
+  avgOverallImpressionFrom?: number;
+  avgOverallImpressionTo?: number;
   page?: number;
   size?: number;
 }

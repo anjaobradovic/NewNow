@@ -17,6 +17,10 @@ public class LocationSearchResultDTO {
     private String type;
     private Integer reviewCount;
     private Double totalRating;
+    private Double avgPerformance;
+    private Double avgSoundAndLighting;
+    private Double avgVenue;
+    private Double avgOverallImpression;
     private String imageUrl;
     private Boolean hasPdf;
 }

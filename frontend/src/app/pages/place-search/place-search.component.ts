@@ -70,6 +70,42 @@ import {
               />
             </label>
           </div>
+
+          <div class="md:col-span-2 border-t border-neutral-200 pt-4">
+            <h3 class="text-sm font-semibold text-neutral-700 mb-3">
+              Average rating per category (1–10)
+            </h3>
+            <p class="text-xs text-neutral-500 mb-3">
+              Places with no rating in a category are excluded when you set a bound on it.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              @for (cat of categories; track cat.key) {
+                <div class="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                  <span class="text-sm text-neutral-600">{{ cat.label }}</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    step="0.1"
+                    placeholder="from"
+                    class="input-field w-20"
+                    [(ngModel)]="filters[cat.fromKey]"
+                    [name]="cat.fromKey"
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    step="0.1"
+                    placeholder="to"
+                    class="input-field w-20"
+                    [(ngModel)]="filters[cat.toKey]"
+                    [name]="cat.toKey"
+                  />
+                </div>
+              }
+            </div>
+          </div>
           <div class="md:col-span-2 flex items-center gap-3">
             <button type="submit" class="btn-primary" [disabled]="loading">Search</button>
             <button type="button" class="btn-secondary" (click)="clear()">Clear</button>
@@ -103,7 +139,7 @@ import {
                 @if (r.description) {
                   <p class="text-sm text-neutral-700 line-clamp-3 mb-3">{{ r.description }}</p>
                 }
-                <div class="flex items-center justify-between text-xs text-neutral-600">
+                <div class="flex items-center justify-between text-xs text-neutral-600 mb-2">
                   <span>{{ r.reviewCount }} review{{ r.reviewCount === 1 ? '' : 's' }}</span>
                   @if (r.totalRating != null) {
                     <span>★ {{ r.totalRating.toFixed(1) }}</span>
@@ -111,6 +147,12 @@ import {
                   @if (r.hasPdf) {
                     <span class="text-primary-600 font-semibold">PDF</span>
                   }
+                </div>
+                <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-neutral-500 border-t border-neutral-100 pt-2">
+                  <span>Performance: {{ fmt(r.avgPerformance) }}</span>
+                  <span>Sound & light: {{ fmt(r.avgSoundAndLighting) }}</span>
+                  <span>Space: {{ fmt(r.avgVenue) }}</span>
+                  <span>Overall: {{ fmt(r.avgOverallImpression) }}</span>
                 </div>
               </a>
             }
@@ -122,13 +164,44 @@ import {
     </div>
   `,
 })
+type CategoryDef = {
+  key: 'performance' | 'soundAndLighting' | 'venue' | 'overallImpression';
+  label: string;
+  fromKey:
+    | 'avgPerformanceFrom'
+    | 'avgSoundAndLightingFrom'
+    | 'avgVenueFrom'
+    | 'avgOverallImpressionFrom';
+  toKey:
+    | 'avgPerformanceTo'
+    | 'avgSoundAndLightingTo'
+    | 'avgVenueTo'
+    | 'avgOverallImpressionTo';
+};
+
 export class PlaceSearchComponent {
+  categories: CategoryDef[] = [
+    { key: 'performance',       label: 'Performance',   fromKey: 'avgPerformanceFrom',       toKey: 'avgPerformanceTo' },
+    { key: 'soundAndLighting',  label: 'Sound & light', fromKey: 'avgSoundAndLightingFrom',  toKey: 'avgSoundAndLightingTo' },
+    { key: 'venue',             label: 'Space',         fromKey: 'avgVenueFrom',             toKey: 'avgVenueTo' },
+    { key: 'overallImpression', label: 'Overall',       fromKey: 'avgOverallImpressionFrom', toKey: 'avgOverallImpressionTo' },
+  ];
+
   filters: {
     name?: string;
     description?: string;
     pdf?: string;
     reviewsFrom?: number | null;
     reviewsTo?: number | null;
+    avgPerformanceFrom?: number | null;
+    avgPerformanceTo?: number | null;
+    avgSoundAndLightingFrom?: number | null;
+    avgSoundAndLightingTo?: number | null;
+    avgVenueFrom?: number | null;
+    avgVenueTo?: number | null;
+    avgOverallImpressionFrom?: number | null;
+    avgOverallImpressionTo?: number | null;
+    [k: string]: any;
   } = {};
 
   results: PlaceSearchResult[] = [];
@@ -150,6 +223,14 @@ export class PlaceSearchComponent {
         pdf: this.filters.pdf,
         reviewsFrom: this.filters.reviewsFrom ?? undefined,
         reviewsTo: this.filters.reviewsTo ?? undefined,
+        avgPerformanceFrom: this.filters.avgPerformanceFrom ?? undefined,
+        avgPerformanceTo: this.filters.avgPerformanceTo ?? undefined,
+        avgSoundAndLightingFrom: this.filters.avgSoundAndLightingFrom ?? undefined,
+        avgSoundAndLightingTo: this.filters.avgSoundAndLightingTo ?? undefined,
+        avgVenueFrom: this.filters.avgVenueFrom ?? undefined,
+        avgVenueTo: this.filters.avgVenueTo ?? undefined,
+        avgOverallImpressionFrom: this.filters.avgOverallImpressionFrom ?? undefined,
+        avgOverallImpressionTo: this.filters.avgOverallImpressionTo ?? undefined,
         size: 24,
       })
       .subscribe({
@@ -171,5 +252,9 @@ export class PlaceSearchComponent {
     this.totalElements = 0;
     this.searched = false;
     this.error = '';
+  }
+
+  fmt(v?: number): string {
+    return v == null ? '—' : v.toFixed(1);
   }
 }

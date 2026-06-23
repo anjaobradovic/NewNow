@@ -206,6 +206,10 @@ public class ReviewService {
 
         review.setHidden(hidden);
         reviewRepository.save(review);
+        // M2 says hidden still counts → averages don't move; reindex anyway per the S1
+        // spec ("recompute and reindex whenever a review is created, removed, hidden,
+        // or its ratings change") so we stay robust to a future logic change.
+        searchIndexService.reindexAfterCommit(review.getLocation().getId());
         auditLogService.logAction(AuditAction.REVIEW_UPDATED, userEmail,
                 (hidden ? "Hid" : "Unhid") + " reviewId=" + reviewId);
     }

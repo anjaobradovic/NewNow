@@ -67,6 +67,22 @@ public class LocationIndex {
     @Field(type = FieldType.Double)
     private Double totalRating;
 
+    /** Average of the {@code performance} rating across the rating source. Null if no review rated it. */
+    @Field(type = FieldType.Double)
+    private Double avgPerformance;
+
+    /** Combined sound + light (per K5's data model). Null if no review rated it. */
+    @Field(type = FieldType.Double)
+    private Double avgSoundAndLighting;
+
+    /** Average of the {@code venue} (space) rating. Null if no review rated it. */
+    @Field(type = FieldType.Double)
+    private Double avgVenue;
+
+    /** Average of {@code overallImpression}, read directly — not derived from other categories. */
+    @Field(type = FieldType.Double)
+    private Double avgOverallImpression;
+
     @Field(type = FieldType.Keyword)
     private String imageUrl;
 
