@@ -20,6 +20,7 @@ export interface LocationDetailsDTO {
   imageUrl?: string;
   averageRating?: number;
   totalReviews?: number;
+  hasPdf?: boolean;
   upcomingEvents?: Event[];
 }
 

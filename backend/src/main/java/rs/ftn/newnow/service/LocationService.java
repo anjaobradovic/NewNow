@@ -17,6 +17,7 @@ import rs.ftn.newnow.repository.LocationRepository;
 import rs.ftn.newnow.repository.ManagesRepository;
 import rs.ftn.newnow.repository.ReviewRepository;
 import rs.ftn.newnow.search.SearchIndexService;
+import rs.ftn.newnow.storage.ObjectStorageService;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class LocationService {
     private final ManagesRepository managesRepository;
     private final FileStorageService fileStorageService;
     private final SearchIndexService searchIndexService;
+    private final ObjectStorageService objectStorageService;
 
     @Transactional(readOnly = true)
     public LocationPageResponse getLocations(String search, int page, int size) {
@@ -280,6 +282,7 @@ public class LocationService {
                 .average()
                 .orElse(0.0);
         dto.setAverageRating(avgRating);
+        dto.setHasPdf(objectStorageService.exists(SearchIndexService.pdfKeyForLocation(location.getId())));
         
         List<Event> upcomingEvents = eventRepository.findUpcomingByLocation(
                 location.getId(), 
