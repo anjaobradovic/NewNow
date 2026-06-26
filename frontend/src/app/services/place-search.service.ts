@@ -26,7 +26,10 @@ export interface PlaceSearchPageResponse {
   size: number;
 }
 
+export type BoolOperator = 'AND' | 'OR';
+
 export interface PlaceSearchFilters {
+  operator?: BoolOperator;
   name?: string;
   description?: string;
   pdf?: string;

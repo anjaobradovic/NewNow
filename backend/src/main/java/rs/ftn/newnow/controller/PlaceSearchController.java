@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rs.ftn.newnow.dto.MessageResponse;
+import rs.ftn.newnow.search.BoolOperator;
 import rs.ftn.newnow.search.PlaceSearchCriteria;
 import rs.ftn.newnow.search.PlaceSearchService;
 import rs.ftn.newnow.search.dto.PlaceSearchPageResponse;
@@ -35,6 +36,7 @@ public class PlaceSearchController {
             @RequestParam(required = false) Double avgVenueTo,
             @RequestParam(required = false) Double avgOverallImpressionFrom,
             @RequestParam(required = false) Double avgOverallImpressionTo,
+            @RequestParam(required = false, defaultValue = "AND") String operator,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -48,6 +50,7 @@ public class PlaceSearchController {
 
         try {
             PlaceSearchCriteria criteria = PlaceSearchCriteria.builder()
+                    .operator(BoolOperator.from(operator))
                     .name(name)
                     .description(description)
                     .pdf(pdf)

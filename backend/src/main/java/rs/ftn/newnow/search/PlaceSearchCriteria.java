@@ -11,6 +11,9 @@ import lombok.Value;
 @Value
 @Builder
 public class PlaceSearchCriteria {
+    /** AND (must) or OR (should + minimum_should_match=1) between supplied fields. */
+    @lombok.Builder.Default
+    BoolOperator operator = BoolOperator.AND;
     String name;
     String description;
     String pdf;

@@ -85,6 +85,60 @@ class PlaceSearchServiceTest {
         assertNotNull(firstRangeOn(q, "avgOverallImpression"));
     }
 
+    // -------- AND / OR between fields --------
+
+    @Test
+    void defaultOperatorIsAndAndUsesMustClauses() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .name("arena")
+                .description("rooftop")
+                .page(0).size(10).build());
+        assertTrue(q.bool().must().size() >= 2, "AND default should put clauses in must");
+        assertEquals(0, q.bool().should().size(), "AND must not put anything in should");
+    }
+
+    @Test
+    void operatorOrPutsClausesIntoShouldWithMinimumShouldMatchOne() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .operator(BoolOperator.OR)
+                .name("arena")
+                .description("rooftop")
+                .avgPerformanceFrom(8.0)
+                .page(0).size(10).build());
+        assertEquals(0, q.bool().must().size(), "OR must not put anything in must");
+        assertTrue(q.bool().should().size() >= 3, "OR should put every supplied clause in should");
+        assertEquals("1", q.bool().minimumShouldMatch(),
+                "OR query needs minimum_should_match=1 so 'at least one of the clauses' applies");
+    }
+
+    @Test
+    void deletedFilterIsAlwaysInFilterClauseRegardlessOfOperator() {
+        Query and = service.buildQuery(PlaceSearchCriteria.builder()
+                .operator(BoolOperator.AND).name("x").page(0).size(10).build());
+        Query or  = service.buildQuery(PlaceSearchCriteria.builder()
+                .operator(BoolOperator.OR).name("x").page(0).size(10).build());
+        // Both should have the deleted=false term in bool.filter.
+        boolean andHasDeletedFilter = and.bool().filter().stream()
+                .anyMatch(c -> c.isTerm() && "deleted".equals(c.term().field()));
+        boolean orHasDeletedFilter  = or.bool().filter().stream()
+                .anyMatch(c -> c.isTerm() && "deleted".equals(c.term().field()));
+        assertTrue(andHasDeletedFilter, "deleted=false missing from AND filter");
+        assertTrue(orHasDeletedFilter,  "deleted=false missing from OR filter");
+    }
+
+    @Test
+    void orWithNoUserFiltersFallsBackToMatchAll() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .operator(BoolOperator.OR)
+                .page(0).size(10).build());
+        // No filters → should still return all non-deleted places; the implementation puts a match_all somewhere.
+        boolean anyMatchAll =
+                q.bool().must().stream().anyMatch(Query::isMatchAll)
+             || q.bool().should().stream().anyMatch(Query::isMatchAll)
+             || q.bool().filter().stream().anyMatch(Query::isMatchAll);
+        assertTrue(anyMatchAll, "no-filters OR should still match all non-deleted places");
+    }
+
     private static co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery firstRangeOn(Query q, String field) {
         return q.bool().must().stream()
                 .filter(Query::isRange)
