@@ -38,6 +38,16 @@ type CategoryDef = {
           all searched independently; review-count range filters the results.
         </p>
 
+        <details class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-sm">
+          <summary class="cursor-pointer font-semibold text-amber-900">Syntax tips for text fields</summary>
+          <ul class="mt-2 text-amber-900 space-y-1 ml-4 list-disc">
+            <li><code class="bg-white px-1 rounded">"Ivan Marić"</code> — exact phrase (in quotes)</li>
+            <li><code class="bg-white px-1 rounded">Ivan M*</code> — prefix (asterisk anywhere)</li>
+            <li><code class="bg-white px-1 rounded">~rizika</code> — fuzzy match (leading tilde)</li>
+            <li>plain text — regular match (default)</li>
+          </ul>
+        </details>
+
         <form
           class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-4"
           (ngSubmit)="onSearch()"
@@ -147,18 +157,21 @@ type CategoryDef = {
           <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6">{{ error }}</div>
         }
 
+        @if (similarSeed) {
+          <div class="bg-primary-50 border border-primary-200 rounded-xl p-3 mb-4 text-sm text-primary-800 flex items-center justify-between">
+            <span>Places similar to <span class="font-semibold">{{ similarSeed }}</span></span>
+            <button class="text-primary-700 hover:underline" (click)="clearSimilar()">Back to search</button>
+          </div>
+        }
         @if (results.length > 0) {
           <div class="text-sm text-neutral-600 mb-3">
             {{ totalElements }} place{{ totalElements === 1 ? '' : 's' }} found
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @for (r of results; track r.id) {
-              <a
-                [routerLink]="['/locations', r.id]"
-                class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 hover:shadow-md transition"
-              >
+              <div class="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 hover:shadow-md transition">
                 <div class="flex items-start justify-between mb-2">
-                  <h3 class="font-semibold text-neutral-900 truncate">{{ r.name }}</h3>
+                  <a [routerLink]="['/locations', r.id]" class="font-semibold text-neutral-900 truncate hover:text-primary-700">{{ r.name }}</a>
                   <span class="text-xs px-2 py-0.5 bg-neutral-100 rounded">{{ r.type }}</span>
                 </div>
                 @if (r.address) {
@@ -182,7 +195,10 @@ type CategoryDef = {
                   <span>Space: {{ fmt(r.avgVenue) }}</span>
                   <span>Overall: {{ fmt(r.avgOverallImpression) }}</span>
                 </div>
-              </a>
+                <button type="button" class="mt-3 text-xs text-primary-700 hover:underline" (click)="findSimilar(r.id, r.name)">
+                  Find similar places →
+                </button>
+              </div>
             }
           </div>
         } @else if (searched && !loading) {
@@ -224,6 +240,7 @@ export class PlaceSearchComponent {
   loading = false;
   searched = false;
   error = '';
+  similarSeed: string | null = null;
 
   constructor(private search: PlaceSearchService) {}
 
@@ -273,5 +290,30 @@ export class PlaceSearchComponent {
 
   fmt(v?: number): string {
     return v == null ? '—' : v.toFixed(1);
+  }
+
+  findSimilar(id: number, name: string): void {
+    this.loading = true;
+    this.error = '';
+    this.searched = true;
+    this.similarSeed = name;
+    this.search.similar(id, 12).subscribe({
+      next: (res) => {
+        this.results = res.content || [];
+        this.totalElements = res.totalElements;
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err?.error?.message || 'More-like-this failed';
+        this.loading = false;
+      },
+    });
+  }
+
+  clearSimilar(): void {
+    this.similarSeed = null;
+    this.results = [];
+    this.totalElements = 0;
+    this.searched = false;
   }
 }
