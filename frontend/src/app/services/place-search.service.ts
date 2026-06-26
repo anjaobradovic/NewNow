@@ -16,6 +16,7 @@ export interface PlaceSearchResult {
   avgOverallImpression?: number;
   imageUrl?: string;
   hasPdf?: boolean;
+  highlights?: { [field: string]: string[] };
 }
 
 export interface PlaceSearchPageResponse {
@@ -43,6 +44,8 @@ export interface PlaceSearchFilters {
   avgVenueTo?: number;
   avgOverallImpressionFrom?: number;
   avgOverallImpressionTo?: number;
+  sortBy?: 'name' | '';
+  sortDir?: 'asc' | 'desc';
   page?: number;
   size?: number;
 }

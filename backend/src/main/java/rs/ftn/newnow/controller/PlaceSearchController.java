@@ -38,6 +38,8 @@ public class PlaceSearchController {
             @RequestParam(required = false) Double avgOverallImpressionFrom,
             @RequestParam(required = false) Double avgOverallImpressionTo,
             @RequestParam(required = false, defaultValue = "AND") String operator,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -65,6 +67,8 @@ public class PlaceSearchController {
                     .avgVenueTo(avgVenueTo)
                     .avgOverallImpressionFrom(avgOverallImpressionFrom)
                     .avgOverallImpressionTo(avgOverallImpressionTo)
+                    .sortBy(sortBy)
+                    .sortDir(sortDir)
                     .page(page)
                     .size(size)
                     .build();

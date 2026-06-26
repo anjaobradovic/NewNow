@@ -133,6 +133,15 @@ type CategoryDef = {
             </div>
           </div>
           <div class="md:col-span-2 border-t border-neutral-200 pt-4">
+            <span class="text-sm font-semibold text-neutral-700 mr-3">Sort by:</span>
+            <select [(ngModel)]="sortChoice" name="sortChoice" class="input-field inline-block w-auto">
+              <option value="relevance">Relevance (default)</option>
+              <option value="name-asc">Name A→Z</option>
+              <option value="name-desc">Name Z→A</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2 border-t border-neutral-200 pt-4">
             <span class="text-sm font-semibold text-neutral-700 mr-4">Combine fields:</span>
             <label class="inline-flex items-center gap-2 mr-4 text-sm">
               <input type="radio" name="operator" value="AND" [(ngModel)]="operator" />
@@ -180,6 +189,18 @@ type CategoryDef = {
                 @if (r.description) {
                   <p class="text-sm text-neutral-700 line-clamp-3 mb-3">{{ r.description }}</p>
                 }
+                @if (hasHighlights(r)) {
+                  <div class="text-xs bg-amber-50 border border-amber-200 rounded p-2 mb-3 space-y-1">
+                    @for (field of highlightFields(r); track field) {
+                      <div>
+                        <span class="text-amber-900 font-semibold">{{ fieldLabel(field) }}:</span>
+                        @for (snip of r.highlights![field]; track snip) {
+                          <span class="text-amber-900" [innerHTML]="snip"></span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
                 <div class="flex items-center justify-between text-xs text-neutral-600 mb-2">
                   <span>{{ r.reviewCount }} review{{ r.reviewCount === 1 ? '' : 's' }}</span>
                   @if (r.totalRating != null) {
@@ -195,9 +216,16 @@ type CategoryDef = {
                   <span>Space: {{ fmt(r.avgVenue) }}</span>
                   <span>Overall: {{ fmt(r.avgOverallImpression) }}</span>
                 </div>
-                <button type="button" class="mt-3 text-xs text-primary-700 hover:underline" (click)="findSimilar(r.id, r.name)">
-                  Find similar places →
-                </button>
+                <div class="flex items-center gap-3 mt-3 text-xs">
+                  <button type="button" class="text-primary-700 hover:underline" (click)="findSimilar(r.id, r.name)">
+                    Find similar places →
+                  </button>
+                  @if (r.hasPdf) {
+                    <a [href]="'/api/locations/' + r.id + '/description-pdf'" target="_blank" rel="noopener" class="text-primary-700 hover:underline">
+                      Download PDF
+                    </a>
+                  }
+                </div>
               </div>
             }
           </div>
@@ -234,6 +262,7 @@ export class PlaceSearchComponent {
   } = {};
 
   operator: BoolOperator = 'AND';
+  sortChoice: 'relevance' | 'name-asc' | 'name-desc' = 'relevance';
 
   results: PlaceSearchResult[] = [];
   totalElements = 0;
@@ -248,9 +277,12 @@ export class PlaceSearchComponent {
     this.error = '';
     this.loading = true;
     this.searched = true;
+    const { sortBy, sortDir } = this.sortParams();
     this.search
       .search({
         operator: this.operator,
+        sortBy,
+        sortDir,
         name: this.filters.name,
         description: this.filters.description,
         pdf: this.filters.pdf,
@@ -282,6 +314,7 @@ export class PlaceSearchComponent {
   clear() {
     this.filters = {};
     this.operator = 'AND';
+    this.sortChoice = 'relevance';
     this.results = [];
     this.totalElements = 0;
     this.searched = false;
@@ -290,6 +323,28 @@ export class PlaceSearchComponent {
 
   fmt(v?: number): string {
     return v == null ? '—' : v.toFixed(1);
+  }
+
+  private sortParams(): { sortBy?: 'name' | ''; sortDir?: 'asc' | 'desc' } {
+    switch (this.sortChoice) {
+      case 'name-asc':  return { sortBy: 'name', sortDir: 'asc' };
+      case 'name-desc': return { sortBy: 'name', sortDir: 'desc' };
+      default:          return {};
+    }
+  }
+
+  hasHighlights(r: PlaceSearchResult): boolean {
+    return !!r.highlights && Object.keys(r.highlights).length > 0;
+  }
+
+  highlightFields(r: PlaceSearchResult): string[] {
+    return r.highlights ? Object.keys(r.highlights) : [];
+  }
+
+  fieldLabel(field: string): string {
+    if (field === 'pdfDescription') return 'PDF';
+    if (field === 'description')    return 'Description';
+    return 'Name';
   }
 
   findSimilar(id: number, name: string): void {
