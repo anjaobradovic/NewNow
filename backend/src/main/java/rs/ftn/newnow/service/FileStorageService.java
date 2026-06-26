@@ -5,12 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import rs.ftn.newnow.exception.FileSizeExceededException;
+import rs.ftn.newnow.storage.ObjectStorageService;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.InputStream;
 import java.util.UUID;
 
 @Service
@@ -20,35 +18,35 @@ public class FileStorageService {
 
     private static final long MAX_FILE_SIZE = 15 * 1024 * 1024;
 
+    private final ObjectStorageService objectStorage;
+
+    /**
+     * Saves an image to MinIO. The returned string is the public path that other
+     * subsystems (DB, frontend) treat as the image URL. We deliberately keep the
+     * "/uploads/{dir}/{file}" shape so existing rows / frontend URL building still work.
+     * The MinIO object key is the same string without the leading slash.
+     */
     public String saveImage(MultipartFile file, String directory) throws IOException {
         validateImageFile(file);
-        
-        Path uploadPath = Paths.get("uploads", directory);
-        Files.createDirectories(uploadPath);
 
         String filename = generateUniqueFilename(file);
-        Path targetPath = uploadPath.resolve(filename);
+        String objectKey = directory + "/" + filename;
 
-        Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+        try (InputStream in = file.getInputStream()) {
+            objectStorage.putObject(objectKey, in, file.getSize(), file.getContentType());
+        }
 
-        log.info("Saved image: {} to directory: {}", filename, directory);
-        return String.format("/uploads/%s/%s", directory, filename);
+        String publicPath = "/uploads/" + objectKey;
+        log.info("Saved image to MinIO key={}", objectKey);
+        return publicPath;
     }
 
     public void deleteImage(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
             return;
         }
-
-        try {
-            // imageUrl je tipa /uploads/events/ime.jpg
-            String relativePath = imageUrl.startsWith("/uploads/") ? imageUrl.substring(1) : imageUrl;
-            Path filePath = Paths.get(relativePath);
-            Files.deleteIfExists(filePath);
-            log.info("Deleted image: {}", imageUrl);
-        } catch (IOException e) {
-            log.error("Failed to delete image: {}", imageUrl, e);
-        }
+        String objectKey = imageUrl.startsWith("/uploads/") ? imageUrl.substring("/uploads/".length()) : imageUrl;
+        objectStorage.remove(objectKey);
     }
 
     private void validateImageFile(MultipartFile file) {

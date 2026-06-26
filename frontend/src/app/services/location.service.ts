@@ -116,11 +116,21 @@ export class LocationService {
       .pipe(map((res) => (Array.isArray(res?.content) ? res.content : (res as any) || [])));
   }
 
-  checkUserByEmail(
-    email: string
-  ): Observable<{ exists: boolean; email?: string; name?: string; roles?: string[] }> {
-    return this.http.get<{ exists: boolean; email?: string; name?: string; roles?: string[] }>(
-      `${this.API_URL}/debug/check-user/${encodeURIComponent(email)}`
+  // PDF description per place
+  uploadDescriptionPdf(id: number, file: File): Observable<{ locationId: number; size: number; characters: number }> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.put<{ locationId: number; size: number; characters: number }>(
+      `${this.API_URL}/locations/${id}/description-pdf`,
+      fd
     );
+  }
+
+  deleteDescriptionPdf(id: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.API_URL}/locations/${id}/description-pdf`);
+  }
+
+  descriptionPdfUrl(id: number): string {
+    return `${this.API_URL}/locations/${id}/description-pdf`;
   }
 }

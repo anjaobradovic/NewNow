@@ -10,6 +10,7 @@ import rs.ftn.newnow.dto.*;
 import rs.ftn.newnow.model.*;
 import rs.ftn.newnow.model.enums.AuditAction;
 import rs.ftn.newnow.repository.*;
+import rs.ftn.newnow.search.SearchIndexService;
 
 import rs.ftn.newnow.exception.BusinessException;
 
@@ -28,6 +29,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ManagesRepository managesRepository;
     private final AuditLogService auditLogService;
+    private final SearchIndexService searchIndexService;
     private static final int EDIT_DEADLINE_HOURS = 24;
 
     @Transactional
@@ -82,6 +84,7 @@ public class ReviewService {
 
         review = reviewRepository.save(review);
         updateLocationRating(location);
+        searchIndexService.reindexAfterCommit(location.getId());
 
         return mapToDetailsDTO(review);
     }
@@ -119,6 +122,8 @@ public class ReviewService {
 
         review = reviewRepository.save(review);
         updateLocationRating(review.getLocation());
+        // review count unchanged on edit, but rating may have changed — reindex to keep totalRating fresh
+        searchIndexService.reindexAfterCommit(review.getLocation().getId());
 
         return mapToDetailsDTO(review);
     }
@@ -138,6 +143,7 @@ public class ReviewService {
         review.setDeleted(true);
         reviewRepository.save(review);
         updateLocationRating(review.getLocation());
+        searchIndexService.reindexAfterCommit(review.getLocation().getId());
     }
 
     @Transactional(readOnly = true)
@@ -200,6 +206,10 @@ public class ReviewService {
 
         review.setHidden(hidden);
         reviewRepository.save(review);
+        // M2 says hidden still counts → averages don't move; reindex anyway per the S1
+        // spec ("recompute and reindex whenever a review is created, removed, hidden,
+        // or its ratings change") so we stay robust to a future logic change.
+        searchIndexService.reindexAfterCommit(review.getLocation().getId());
         auditLogService.logAction(AuditAction.REVIEW_UPDATED, userEmail,
                 (hidden ? "Hid" : "Unhid") + " reviewId=" + reviewId);
     }
@@ -217,6 +227,7 @@ public class ReviewService {
         review.setDeletedByManager(true);
         reviewRepository.save(review);
         updateLocationRating(review.getLocation());
+        searchIndexService.reindexAfterCommit(review.getLocation().getId());
         auditLogService.logAction(AuditAction.REVIEW_DELETED, userEmail,
                 "Manager removed reviewId=" + reviewId + " locationId=" + review.getLocation().getId());
     }
