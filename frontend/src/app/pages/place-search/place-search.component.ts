@@ -8,6 +8,21 @@ import {
   PlaceSearchResult,
 } from '../../services/place-search.service';
 
+type CategoryDef = {
+  key: 'performance' | 'soundAndLighting' | 'venue' | 'overallImpression';
+  label: string;
+  fromKey:
+    | 'avgPerformanceFrom'
+    | 'avgSoundAndLightingFrom'
+    | 'avgVenueFrom'
+    | 'avgOverallImpressionFrom';
+  toKey:
+    | 'avgPerformanceTo'
+    | 'avgSoundAndLightingTo'
+    | 'avgVenueTo'
+    | 'avgOverallImpressionTo';
+};
+
 @Component({
   selector: 'app-place-search',
   standalone: true,
@@ -164,21 +179,6 @@ import {
     </div>
   `,
 })
-type CategoryDef = {
-  key: 'performance' | 'soundAndLighting' | 'venue' | 'overallImpression';
-  label: string;
-  fromKey:
-    | 'avgPerformanceFrom'
-    | 'avgSoundAndLightingFrom'
-    | 'avgVenueFrom'
-    | 'avgOverallImpressionFrom';
-  toKey:
-    | 'avgPerformanceTo'
-    | 'avgSoundAndLightingTo'
-    | 'avgVenueTo'
-    | 'avgOverallImpressionTo';
-};
-
 export class PlaceSearchComponent {
   categories: CategoryDef[] = [
     { key: 'performance',       label: 'Performance',   fromKey: 'avgPerformanceFrom',       toKey: 'avgPerformanceTo' },

@@ -214,10 +214,6 @@ export class MeComponent implements OnInit {
   avatarSrc(): string | undefined {
     const url = this.profile()?.avatarUrl;
     if (!url) return undefined;
-    const isDev = typeof window !== 'undefined' && window.location.port === '4200';
-    if (isDev && url.startsWith('/uploads/')) {
-      return `http://localhost:8080${url}?v=${this.cacheBuster()}`;
-    }
     return `${url}?v=${this.cacheBuster()}`;
   }
 

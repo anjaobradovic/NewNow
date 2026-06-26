@@ -121,10 +121,6 @@ export class LocationListComponent implements OnInit {
 
   imageSrc(url?: string): string | undefined {
     if (!url) return undefined;
-    const isDev = typeof window !== 'undefined' && window.location.port === '4200';
-    if (isDev && url.startsWith('/uploads/')) {
-      return `http://localhost:8080${url}`;
-    }
     return url;
   }
 }
