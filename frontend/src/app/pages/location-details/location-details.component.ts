@@ -313,8 +313,7 @@ export class LocationDetailsComponent implements OnInit {
 
   imageSrc(url?: string): string | undefined {
     if (!url) return undefined;
-    const isDev = typeof window !== 'undefined' && window.location.port === '4200';
-    if (isDev && url.startsWith('/uploads/')) return `http://localhost:8080${url}`;
+    // Always relative — nginx (docker) or proxy.conf.json (ng serve) routes /uploads to the backend.
     return url;
   }
 }

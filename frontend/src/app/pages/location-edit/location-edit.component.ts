@@ -138,19 +138,49 @@ export class LocationEditComponent implements OnInit {
   onSubmit(): void {
     const payload = { ...this.form.value } as any;
     Object.keys(payload).forEach((k) => payload[k] === '' && delete payload[k]);
-    if (Object.keys(payload).length === 0) {
+    const hasFieldChanges = Object.keys(payload).length > 0;
+    const hasImage = !!this.image;
+
+    if (!hasFieldChanges && !hasImage) {
       this.toastr.info('Nothing to update');
       return;
     }
+
     this.saving = true;
-    this.locationService.patchLocation(this.id, payload).subscribe({
-      next: () => {
-        this.toastr.success('Location updated');
+
+    const afterFields = () => {
+      if (!hasImage) {
+        this.saving = false;
         this.router.navigate(['/locations', this.id]);
-      },
-      error: (err) => this.toastr.error(err?.error?.message || 'Failed to update location'),
-      complete: () => (this.saving = false),
-    });
+        return;
+      }
+      this.locationService.updateLocationImage(this.id, this.image!).subscribe({
+        next: () => {
+          this.toastr.success('Image updated');
+          this.saving = false;
+          this.router.navigate(['/locations', this.id]);
+        },
+        error: (err) => {
+          this.toastr.error(err?.error?.message || 'Failed to update image');
+          this.saving = false;
+        },
+      });
+    };
+
+    if (hasFieldChanges) {
+      this.locationService.patchLocation(this.id, payload).subscribe({
+        next: () => {
+          this.toastr.success('Location updated');
+          afterFields();
+        },
+        error: (err) => {
+          this.toastr.error(err?.error?.message || 'Failed to update location');
+          this.saving = false;
+        },
+      });
+    } else {
+      afterFields();
+    }
   }
 
   onFileChange(e: Event): void {

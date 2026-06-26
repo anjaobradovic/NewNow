@@ -134,8 +134,6 @@ export class LocationSearchComponent implements OnInit {
   imageSrc(url?: string): string {
     if (!url) return '/assets/placeholder.jpg';
     if (url.startsWith('http')) return url;
-    // In development, prefix with backend URL
-    const isDev = !window.location.origin.includes('production');
-    return isDev ? `http://localhost:8080${url}` : url;
+    return url;
   }
 }

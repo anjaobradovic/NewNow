@@ -42,6 +42,7 @@ export const routes: Routes = [
   { path: 'events/:id', component: EventDetailsComponent },
   { path: 'events/:id/edit', component: EventEditComponent, canActivate: [authGuard] },
   { path: 'locations', component: LocationListComponent },
+  { path: 'locations/new', component: LocationNewComponent, canActivate: [adminGuard] },
   { path: 'search/locations', component: LocationSearchComponent },
   { path: 'search/places', component: PlaceSearchComponent },
   { path: 'manager/reviews', component: ManagerReviewsComponent, canActivate: [authGuard] },

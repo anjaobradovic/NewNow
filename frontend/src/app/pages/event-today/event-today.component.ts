@@ -96,6 +96,6 @@ export class EventTodayComponent implements OnInit {
   imageSrc(url?: string): string {
     if (!url) return '/assets/placeholder.jpg';
     if (url.startsWith('http')) return url;
-    return `http://localhost:8080${url}`;
+    return url;
   }
 }

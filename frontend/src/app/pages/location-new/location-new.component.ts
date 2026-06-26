@@ -52,6 +52,15 @@ import { LocationService } from '../../services/location.service';
                 <label class="block text-sm font-medium text-neutral-700 mb-2">Image</label>
                 <input type="file" (change)="onFileChange($event)" accept="image/*" />
               </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-neutral-700 mb-2">
+                  Description PDF <span class="text-neutral-400 font-normal">(optional)</span>
+                </label>
+                <input type="file" (change)="onPdfChange($event)" accept="application/pdf" />
+                <p class="text-xs text-neutral-500 mt-1">
+                  Text from the PDF is extracted and added to full-text search.
+                </p>
+              </div>
             </div>
 
             <div class="flex items-center justify-end gap-3">
@@ -69,6 +78,7 @@ import { LocationService } from '../../services/location.service';
 export class LocationNewComponent {
   form: FormGroup;
   image: File | null = null;
+  pdf: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -89,6 +99,11 @@ export class LocationNewComponent {
     if (input.files && input.files[0]) this.image = input.files[0];
   }
 
+  onPdfChange(e: Event): void {
+    const input = e.target as HTMLInputElement;
+    if (input.files && input.files[0]) this.pdf = input.files[0];
+  }
+
   onSubmit(): void {
     if (this.form.invalid || !this.image) return;
     const { name, address, type, description } = this.form.value;
@@ -97,7 +112,21 @@ export class LocationNewComponent {
       .subscribe({
         next: (loc) => {
           this.toastr.success('Location created');
-          this.router.navigate(['/locations', loc.id]);
+          // PDF is uploaded as a follow-up; failure here doesn't undo the place.
+          if (this.pdf) {
+            this.locationService.uploadDescriptionPdf(loc.id, this.pdf).subscribe({
+              next: () => {
+                this.toastr.success('Description PDF uploaded');
+                this.router.navigate(['/locations', loc.id]);
+              },
+              error: (err) => {
+                this.toastr.error(err?.error?.message || 'PDF upload failed; you can retry from the edit page.');
+                this.router.navigate(['/locations', loc.id]);
+              },
+            });
+          } else {
+            this.router.navigate(['/locations', loc.id]);
+          }
         },
         error: (err) => this.toastr.error(err?.error?.message || 'Failed to create location'),
       });
