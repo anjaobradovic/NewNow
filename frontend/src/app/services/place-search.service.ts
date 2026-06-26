@@ -64,4 +64,10 @@ export class PlaceSearchService {
     if (!params.has('size')) params = params.set('size', '10');
     return this.http.get<PlaceSearchPageResponse>(this.API_URL, { params });
   }
+
+  similar(id: number, size = 10): Observable<PlaceSearchPageResponse> {
+    return this.http.get<PlaceSearchPageResponse>(`${this.API_URL}/${id}/similar`, {
+      params: new HttpParams().set('size', String(size)),
+    });
+  }
 }

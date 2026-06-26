@@ -139,6 +139,61 @@ class PlaceSearchServiceTest {
         assertTrue(anyMatchAll, "no-filters OR should still match all non-deleted places");
     }
 
+    // -------- Per-field syntax: quoted → phrase, * → prefix, ~ → fuzzy --------
+
+    @Test
+    void plainTextStaysAMatchQuery() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .name("arena").page(0).size(10).build());
+        assertTrue(q.bool().must().stream().anyMatch(Query::isMatch),
+                "plain text stays match");
+    }
+
+    @Test
+    void quotedTextBecomesMatchPhrase() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .name("\"Ivan Marić\"").page(0).size(10).build());
+        assertTrue(q.bool().must().stream().anyMatch(Query::isMatchPhrase),
+                "quoted input should produce a match_phrase clause");
+        assertTrue(q.bool().must().stream().noneMatch(Query::isMatch),
+                "and NOT a plain match clause");
+    }
+
+    @Test
+    void starInputBecomesMatchBoolPrefix() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .name("Ivan M*").page(0).size(10).build());
+        assertTrue(q.bool().must().stream().anyMatch(Query::isMatchBoolPrefix),
+                "input containing * should produce a match_bool_prefix clause");
+    }
+
+    @Test
+    void tildePrefixBecomesFuzzyMatch() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .description("~rizika").page(0).size(10).build());
+        // Fuzzy is just a `match` with fuzziness set.
+        var matchClause = q.bool().must().stream()
+                .filter(Query::isMatch).findFirst().orElseThrow();
+        assertEquals("rizika", matchClause.match().query().stringValue());
+        assertEquals("AUTO", matchClause.match().fuzziness());
+    }
+
+    @Test
+    void syntaxAppliesIndependentlyAcrossFields() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .name("\"Maximus Kotor\"")     // phrase
+                .description("Open*")           // prefix
+                .pdf("~projekat")               // fuzzy
+                .page(0).size(10).build());
+        // One phrase, one bool_prefix, one fuzzy-match — three clauses, three types.
+        long phrase = q.bool().must().stream().filter(Query::isMatchPhrase).count();
+        long prefix = q.bool().must().stream().filter(Query::isMatchBoolPrefix).count();
+        long fuzzy  = q.bool().must().stream().filter(Query::isMatch).count();
+        assertEquals(1, phrase);
+        assertEquals(1, prefix);
+        assertEquals(1, fuzzy);
+    }
+
     private static co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery firstRangeOn(Query q, String field) {
         return q.bool().must().stream()
                 .filter(Query::isRange)
