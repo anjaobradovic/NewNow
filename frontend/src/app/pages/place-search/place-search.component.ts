@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../components/navbar/navbar.component';
 import {
   PlaceSearchService,
   PlaceSearchResult,
+  BoolOperator,
 } from '../../services/place-search.service';
 
 type CategoryDef = {
@@ -121,6 +122,18 @@ type CategoryDef = {
               }
             </div>
           </div>
+          <div class="md:col-span-2 border-t border-neutral-200 pt-4">
+            <span class="text-sm font-semibold text-neutral-700 mr-4">Combine fields:</span>
+            <label class="inline-flex items-center gap-2 mr-4 text-sm">
+              <input type="radio" name="operator" value="AND" [(ngModel)]="operator" />
+              all match (AND)
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm">
+              <input type="radio" name="operator" value="OR" [(ngModel)]="operator" />
+              any match (OR)
+            </label>
+          </div>
+
           <div class="md:col-span-2 flex items-center gap-3">
             <button type="submit" class="btn-primary" [disabled]="loading">Search</button>
             <button type="button" class="btn-secondary" (click)="clear()">Clear</button>
@@ -204,6 +217,8 @@ export class PlaceSearchComponent {
     [k: string]: any;
   } = {};
 
+  operator: BoolOperator = 'AND';
+
   results: PlaceSearchResult[] = [];
   totalElements = 0;
   loading = false;
@@ -218,6 +233,7 @@ export class PlaceSearchComponent {
     this.searched = true;
     this.search
       .search({
+        operator: this.operator,
         name: this.filters.name,
         description: this.filters.description,
         pdf: this.filters.pdf,
@@ -248,6 +264,7 @@ export class PlaceSearchComponent {
 
   clear() {
     this.filters = {};
+    this.operator = 'AND';
     this.results = [];
     this.totalElements = 0;
     this.searched = false;

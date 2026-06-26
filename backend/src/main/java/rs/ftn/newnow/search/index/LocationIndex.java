@@ -21,7 +21,7 @@ import java.time.Instant;
  * Index settings: single-shard, replicas=0 so the cluster stays green on one node.
  */
 @Document(indexName = "places")
-@Setting(replicas = 0, shards = 1)
+@Setting(settingPath = "elasticsearch/place-index-settings.json")
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,20 +31,20 @@ public class LocationIndex {
     @Id
     private String id;
 
-    /** UI-entered place name; full-text searchable, plus a keyword sub-field for future sort/exact use. */
+    /** UI-entered place name; full-text searchable through the custom case/script-folding analyzer. */
     @MultiField(
-            mainField = @Field(type = FieldType.Text),
+            mainField = @Field(type = FieldType.Text, analyzer = "newnow_text", searchAnalyzer = "newnow_text"),
             otherFields = {
                     @InnerField(suffix = "keyword", type = FieldType.Keyword)
             }
     )
     private String name;
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Text, analyzer = "newnow_text", searchAnalyzer = "newnow_text")
     private String description;
 
-    /** Extracted PDF text. */
-    @Field(type = FieldType.Text)
+    /** Extracted PDF text — same analyzer so Cyrillic-Latin/case folding applies. */
+    @Field(type = FieldType.Text, analyzer = "newnow_text", searchAnalyzer = "newnow_text")
     private String pdfDescription;
 
     /** MinIO object key for the attached PDF, or null when none. */

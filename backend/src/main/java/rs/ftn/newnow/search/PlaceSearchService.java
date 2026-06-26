@@ -53,57 +53,57 @@ public class PlaceSearchService {
     /** Visible for tests — the query builder is what we care about most. */
     Query buildQuery(PlaceSearchCriteria c) {
         BoolQuery.Builder bool = new BoolQuery.Builder();
-        // Always exclude soft-deleted places.
+        // Always exclude soft-deleted places, regardless of operator.
         bool.filter(Query.of(q -> q.term(t -> t.field("deleted").value(false))));
 
-        boolean any = false;
+        java.util.List<Query> clauses = new java.util.ArrayList<>();
 
         if (c.getName() != null && !c.getName().isBlank()) {
-            bool.must(Query.of(q -> q.match(m -> m.field("name").query(c.getName().trim()))));
-            any = true;
+            clauses.add(Query.of(q -> q.match(m -> m.field("name").query(c.getName().trim()))));
         }
         if (c.getDescription() != null && !c.getDescription().isBlank()) {
-            bool.must(Query.of(q -> q.match(m -> m.field("description").query(c.getDescription().trim()))));
-            any = true;
+            clauses.add(Query.of(q -> q.match(m -> m.field("description").query(c.getDescription().trim()))));
         }
         if (c.getPdf() != null && !c.getPdf().isBlank()) {
-            bool.must(Query.of(q -> q.match(m -> m.field("pdfDescription").query(c.getPdf().trim()))));
-            any = true;
+            clauses.add(Query.of(q -> q.match(m -> m.field("pdfDescription").query(c.getPdf().trim()))));
         }
+        addIntRange(clauses, "reviewCount", c.getReviewsFrom(), c.getReviewsTo());
+        addDoubleRange(clauses, "avgPerformance",       c.getAvgPerformanceFrom(),       c.getAvgPerformanceTo());
+        addDoubleRange(clauses, "avgSoundAndLighting",  c.getAvgSoundAndLightingFrom(),  c.getAvgSoundAndLightingTo());
+        addDoubleRange(clauses, "avgVenue",             c.getAvgVenueFrom(),             c.getAvgVenueTo());
+        addDoubleRange(clauses, "avgOverallImpression", c.getAvgOverallImpressionFrom(), c.getAvgOverallImpressionTo());
 
-        if (addIntRange(bool, "reviewCount", c.getReviewsFrom(), c.getReviewsTo())) any = true;
-        if (addDoubleRange(bool, "avgPerformance", c.getAvgPerformanceFrom(), c.getAvgPerformanceTo())) any = true;
-        if (addDoubleRange(bool, "avgSoundAndLighting", c.getAvgSoundAndLightingFrom(), c.getAvgSoundAndLightingTo())) any = true;
-        if (addDoubleRange(bool, "avgVenue", c.getAvgVenueFrom(), c.getAvgVenueTo())) any = true;
-        if (addDoubleRange(bool, "avgOverallImpression", c.getAvgOverallImpressionFrom(), c.getAvgOverallImpressionTo())) any = true;
-
-        if (!any) {
+        if (clauses.isEmpty()) {
+            // No user filters → return all non-deleted places.
             bool.must(Query.of(q -> q.matchAll(m -> m)));
+        } else if (c.getOperator() == BoolOperator.OR) {
+            clauses.forEach(bool::should);
+            bool.minimumShouldMatch("1");
+        } else {
+            clauses.forEach(bool::must);
         }
 
         return Query.of(q -> q.bool(bool.build()));
     }
 
-    private static boolean addIntRange(BoolQuery.Builder bool, String field, Integer from, Integer to) {
-        if (from == null && to == null) return false;
-        bool.must(Query.of(q -> q.range(r -> r.number(n -> {
+    private static void addIntRange(java.util.List<Query> sink, String field, Integer from, Integer to) {
+        if (from == null && to == null) return;
+        sink.add(Query.of(q -> q.range(r -> r.number(n -> {
             n.field(field);
             if (from != null) n.gte(from.doubleValue());
             if (to != null) n.lte(to.doubleValue());
             return n;
         }))));
-        return true;
     }
 
-    private static boolean addDoubleRange(BoolQuery.Builder bool, String field, Double from, Double to) {
-        if (from == null && to == null) return false;
-        bool.must(Query.of(q -> q.range(r -> r.number(n -> {
+    private static void addDoubleRange(java.util.List<Query> sink, String field, Double from, Double to) {
+        if (from == null && to == null) return;
+        sink.add(Query.of(q -> q.range(r -> r.number(n -> {
             n.field(field);
             if (from != null) n.gte(from);
             if (to != null) n.lte(to);
             return n;
         }))));
-        return true;
     }
 
     private LocationSearchResultDTO toResult(LocationIndex idx) {
