@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -23,4 +26,6 @@ public class LocationSearchResultDTO {
     private Double avgOverallImpression;
     private String imageUrl;
     private Boolean hasPdf;
+    /** Highlighted fragments per matched field; absent when no clauses produced highlights. */
+    private Map<String, List<String>> highlights;
 }

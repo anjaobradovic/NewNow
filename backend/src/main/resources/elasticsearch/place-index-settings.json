@@ -24,6 +24,13 @@
         "tokenizer": "standard",
         "filter": ["lowercase", "asciifolding"]
       }
+    },
+    "normalizer": {
+      "newnow_sortable": {
+        "type": "custom",
+        "char_filter": ["cyrillic_to_latin"],
+        "filter": ["lowercase", "asciifolding"]
+      }
     }
   }
 }

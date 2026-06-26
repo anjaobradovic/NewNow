@@ -139,6 +139,55 @@ class PlaceSearchServiceTest {
         assertTrue(anyMatchAll, "no-filters OR should still match all non-deleted places");
     }
 
+    // -------- Sort by name --------
+
+    @Test
+    void noSortRequestedMeansNoSortOnTheNativeQuery() {
+        var nq = service.buildNativeQuery(PlaceSearchCriteria.builder()
+                .name("arena").page(0).size(10).build());
+        // Either null Sort or unsorted — ES will use default _score order.
+        org.springframework.data.domain.Sort s = nq.getSort();
+        assertTrue(s == null || s.isUnsorted(),
+                "no sort param → NativeQuery should not impose a sort");
+    }
+
+    @Test
+    void sortByNameAscUsesNameKeywordAscending() {
+        var nq = service.buildNativeQuery(PlaceSearchCriteria.builder()
+                .sortBy("name").sortDir("asc").page(0).size(10).build());
+        org.springframework.data.domain.Sort s = nq.getSort();
+        assertNotNull(s);
+        var order = s.iterator().next();
+        // Sorting goes through the keyword sub-field (text fields aren't sortable).
+        assertEquals("name.keyword", order.getProperty());
+        assertTrue(order.isAscending());
+    }
+
+    @Test
+    void sortByNameDescUsesNameKeywordDescending() {
+        var nq = service.buildNativeQuery(PlaceSearchCriteria.builder()
+                .sortBy("name").sortDir("desc").page(0).size(10).build());
+        var order = nq.getSort().iterator().next();
+        assertEquals("name.keyword", order.getProperty());
+        assertTrue(order.isDescending());
+    }
+
+    // -------- Highlighter --------
+
+    @Test
+    void searchAttachesHighlightConfigForNameDescriptionPdf() {
+        var nq = service.buildNativeQuery(PlaceSearchCriteria.builder()
+                .name("arena").page(0).size(10).build());
+        var hq = nq.getHighlightQuery();
+        assertTrue(hq.isPresent(), "highlight config must be attached to the native query");
+        java.util.Set<String> fields = hq.get().getHighlight().getFields().stream()
+                .map(org.springframework.data.elasticsearch.core.query.highlight.HighlightField::getName)
+                .collect(java.util.stream.Collectors.toSet());
+        assertTrue(fields.contains("name"),           "name highlight missing: " + fields);
+        assertTrue(fields.contains("description"),    "description highlight missing: " + fields);
+        assertTrue(fields.contains("pdfDescription"), "pdfDescription highlight missing: " + fields);
+    }
+
     // -------- Per-field syntax: quoted → phrase, * → prefix, ~ → fuzzy --------
 
     @Test

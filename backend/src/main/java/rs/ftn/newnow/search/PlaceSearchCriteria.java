@@ -27,6 +27,10 @@ public class PlaceSearchCriteria {
     Double avgVenueTo;
     Double avgOverallImpressionFrom;
     Double avgOverallImpressionTo;
+    /** Currently only "name" is supported; null/blank = order by relevance score. */
+    String sortBy;
+    /** "asc" or "desc"; defaults to asc when sortBy is set. */
+    String sortDir;
     int page;
     int size;
 }

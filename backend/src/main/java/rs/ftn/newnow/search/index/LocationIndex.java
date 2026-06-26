@@ -31,11 +31,16 @@ public class LocationIndex {
     @Id
     private String id;
 
-    /** UI-entered place name; full-text searchable through the custom case/script-folding analyzer. */
+    /**
+     * UI-entered place name. The main {@code name} field uses our case/script-folding analyzer
+     * for matching. The {@code name.keyword} sub-field uses the {@code newnow_sortable}
+     * normalizer (same Cyrillic→Latin, lowercase, asciifolding pipeline as the analyzer, but
+     * emitting a single token) so sort orderings are stable across script and case.
+     */
     @MultiField(
             mainField = @Field(type = FieldType.Text, analyzer = "newnow_text", searchAnalyzer = "newnow_text"),
             otherFields = {
-                    @InnerField(suffix = "keyword", type = FieldType.Keyword)
+                    @InnerField(suffix = "keyword", type = FieldType.Keyword, normalizer = "newnow_sortable")
             }
     )
     private String name;

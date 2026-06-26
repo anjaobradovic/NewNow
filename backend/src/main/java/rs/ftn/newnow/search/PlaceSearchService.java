@@ -6,10 +6,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.HighlightQuery;
+import org.springframework.data.elasticsearch.core.query.highlight.Highlight;
+import org.springframework.data.elasticsearch.core.query.highlight.HighlightField;
+import org.springframework.data.elasticsearch.core.query.highlight.HighlightFieldParameters;
+import org.springframework.data.elasticsearch.core.query.highlight.HighlightParameters;
 import org.springframework.stereotype.Service;
 import rs.ftn.newnow.search.dto.LocationSearchResultDTO;
 import rs.ftn.newnow.search.dto.PlaceSearchPageResponse;
@@ -38,17 +44,11 @@ public class PlaceSearchService {
     private int mltMaxQueryTerms = 25;
 
     public PlaceSearchPageResponse search(PlaceSearchCriteria c) {
-        Query query = buildQuery(c);
-
-        NativeQuery nq = NativeQuery.builder()
-                .withQuery(query)
-                .withPageable(PageRequest.of(c.getPage(), c.getSize()))
-                .build();
+        NativeQuery nq = buildNativeQuery(c);
 
         SearchHits<LocationIndex> hits = elasticsearchOperations.search(nq, LocationIndex.class);
         List<LocationSearchResultDTO> content = hits.getSearchHits().stream()
-                .map(SearchHit::getContent)
-                .map(this::toResult)
+                .map(this::toResultWithHighlights)
                 .collect(Collectors.toList());
 
         long total = hits.getTotalHits();
@@ -61,6 +61,49 @@ public class PlaceSearchService {
                 .page(c.getPage())
                 .size(c.getSize())
                 .build();
+    }
+
+    /** Visible for tests so we can assert sort + highlight configuration without ES. */
+    NativeQuery buildNativeQuery(PlaceSearchCriteria c) {
+        var b = NativeQuery.builder()
+                .withQuery(buildQuery(c))
+                .withPageable(PageRequest.of(c.getPage(), c.getSize()))
+                .withHighlightQuery(buildHighlightQuery());
+
+        if (c.getSortBy() != null && !c.getSortBy().isBlank()) {
+            b.withSort(buildSort(c.getSortBy(), c.getSortDir()));
+        }
+        return b.build();
+    }
+
+    private static Sort buildSort(String sortBy, String sortDir) {
+        if (!"name".equalsIgnoreCase(sortBy)) {
+            return Sort.unsorted();
+        }
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDir)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        // Sort uses the normalized keyword sub-field; case + script folded.
+        return Sort.by(direction, "name.keyword");
+    }
+
+    private static HighlightQuery buildHighlightQuery() {
+        HighlightParameters params = HighlightParameters.builder()
+                .withPreTags("<mark>")
+                .withPostTags("</mark>")
+                .build();
+        // numberOfFragments=0 returns the entire field with matches highlighted (good for short fields).
+        // For PDF text, 3 fragments × ~120 chars is plenty to convey what matched.
+        HighlightField nameField        = new HighlightField("name",
+                HighlightFieldParameters.builder().withNumberOfFragments(0).build());
+        HighlightField descriptionField = new HighlightField("description",
+                HighlightFieldParameters.builder().withNumberOfFragments(0).build());
+        HighlightField pdfField         = new HighlightField("pdfDescription",
+                HighlightFieldParameters.builder().withNumberOfFragments(3).withFragmentSize(120).build());
+
+        Highlight highlight = new Highlight(params,
+                java.util.List.of(nameField, descriptionField, pdfField));
+        return new HighlightQuery(highlight, LocationIndex.class);
     }
 
     /** Visible for tests — the query builder is what we care about most. */
@@ -192,5 +235,14 @@ public class PlaceSearchService {
                 .imageUrl(idx.getImageUrl())
                 .hasPdf(idx.getPdfObjectKey() != null)
                 .build();
+    }
+
+    private LocationSearchResultDTO toResultWithHighlights(SearchHit<LocationIndex> hit) {
+        LocationSearchResultDTO dto = toResult(hit.getContent());
+        java.util.Map<String, java.util.List<String>> hl = hit.getHighlightFields();
+        if (hl != null && !hl.isEmpty()) {
+            dto.setHighlights(hl);
+        }
+        return dto;
     }
 }
