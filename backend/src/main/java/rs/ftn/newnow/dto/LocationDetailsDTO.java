@@ -21,5 +21,6 @@ public class LocationDetailsDTO {
     private String imageUrl;
     private Double averageRating;
     private Integer totalReviews;
+    private Boolean hasPdf;
     private List<EventDTO> upcomingEvents;
 }

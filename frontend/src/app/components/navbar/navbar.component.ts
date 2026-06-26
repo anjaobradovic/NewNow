@@ -131,7 +131,7 @@ import { AuthService } from '../../services/auth.service';
               Locations
             </a>
             <a
-              routerLink="/search/locations"
+              routerLink="/search/places"
               class="px-3 py-1.5 text-sm text-neutral-700 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200 font-medium"
             >
               Search
@@ -348,7 +348,7 @@ import { AuthService } from '../../services/auth.service';
             >Locations</a
           >
           <a
-            routerLink="/search/locations"
+            routerLink="/search/places"
             class="block px-3 py-2 rounded-lg text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
             >Find Locations</a
           >

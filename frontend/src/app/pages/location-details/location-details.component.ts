@@ -75,15 +75,16 @@ import { ReviewDTO } from '../../models/user.model';
                 class="mt-4 text-neutral-700"
                 [innerText]="loc.description || 'No description'"
               ></p>
-              <div class="mt-4">
-                <a
-                  [href]="'/api/locations/' + loc.id + '/description-pdf'"
-                  target="_blank"
-                  rel="noopener"
-                  class="text-sm text-primary-700 underline"
-                >Download description PDF</a>
-                <span class="text-xs text-neutral-400 ml-2">(if uploaded)</span>
-              </div>
+              @if (loc.hasPdf) {
+                <div class="mt-4">
+                  <a
+                    [href]="'/api/locations/' + loc.id + '/description-pdf'"
+                    target="_blank"
+                    rel="noopener"
+                    class="text-sm text-primary-700 underline"
+                  >Download description PDF</a>
+                </div>
+              }
             </div>
           </div>
 

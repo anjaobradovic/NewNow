@@ -26,7 +26,6 @@ import { EventEditComponent } from './pages/event-edit/event-edit.component';
 import { ReviewNewComponent } from './pages/review-new/review-new.component';
 import { ReviewDetailsComponent } from './pages/review-details/review-details.component';
 import { ReviewEditComponent } from './pages/review-edit/review-edit.component';
-import { LocationSearchComponent } from './pages/location-search/location-search.component';
 import { PlaceSearchComponent } from './pages/place-search/place-search.component';
 import { ManagerReviewsComponent } from './pages/manager-reviews/manager-reviews.component';
 import { FeedPopularLocationsComponent } from './pages/feed-popular-locations/feed-popular-locations.component';
@@ -43,7 +42,8 @@ export const routes: Routes = [
   { path: 'events/:id/edit', component: EventEditComponent, canActivate: [authGuard] },
   { path: 'locations', component: LocationListComponent },
   { path: 'locations/new', component: LocationNewComponent, canActivate: [adminGuard] },
-  { path: 'search/locations', component: LocationSearchComponent },
+  // /search/locations was the pre-UES SQL-only search. Redirect bookmarks to the UES search.
+  { path: 'search/locations', redirectTo: 'search/places', pathMatch: 'full' },
   { path: 'search/places', component: PlaceSearchComponent },
   { path: 'manager/reviews', component: ManagerReviewsComponent, canActivate: [authGuard] },
   // Feed
