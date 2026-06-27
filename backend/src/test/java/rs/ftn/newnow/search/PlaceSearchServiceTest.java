@@ -126,6 +126,42 @@ class PlaceSearchServiceTest {
         assertTrue(orHasDeletedFilter,  "deleted=false missing from OR filter");
     }
 
+    /**
+     * Regression scenario from the user: description=modern AND pdf=seminarski returned 0.
+     * Two different places match those two fields, so AND is mathematically zero (correct);
+     * OR must return the union. These tests pin the query shape that guarantees that.
+     */
+    @Test
+    void andWithDescriptionAndPdfYieldsTwoMustClausesNoShould() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .description("modern").pdf("seminarski").page(0).size(10).build());
+        assertEquals(2, q.bool().must().size(),    "AND should put both clauses in must");
+        assertEquals(0, q.bool().should().size(),  "AND must produce no should clauses");
+        var matchedFields = q.bool().must().stream()
+                .filter(Query::isMatch)
+                .map(c -> c.match().field())
+                .collect(java.util.stream.Collectors.toSet());
+        assertTrue(matchedFields.contains("description"),    "missing description clause");
+        assertTrue(matchedFields.contains("pdfDescription"), "missing pdfDescription clause");
+    }
+
+    @Test
+    void orWithDescriptionAndPdfYieldsTwoShouldClausesAndMsmOne() {
+        Query q = service.buildQuery(PlaceSearchCriteria.builder()
+                .operator(BoolOperator.OR)
+                .description("modern").pdf("seminarski").page(0).size(10).build());
+        assertEquals(0, q.bool().must().size(),    "OR must produce no must clauses");
+        assertEquals(2, q.bool().should().size(),  "OR should put both clauses in should");
+        assertEquals("1", q.bool().minimumShouldMatch(),
+                "OR requires minimum_should_match=1 so a hit on any single clause counts");
+        var shouldFields = q.bool().should().stream()
+                .filter(Query::isMatch)
+                .map(c -> c.match().field())
+                .collect(java.util.stream.Collectors.toSet());
+        assertTrue(shouldFields.contains("description"));
+        assertTrue(shouldFields.contains("pdfDescription"));
+    }
+
     @Test
     void orWithNoUserFiltersFallsBackToMatchAll() {
         Query q = service.buildQuery(PlaceSearchCriteria.builder()
